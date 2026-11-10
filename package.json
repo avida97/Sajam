@@ -29,5 +29,8 @@
     "supabase": "^2.122.1",
     "tailwindcss": "^4",
     "typescript": "^5"
+  },
+  "engines": {
+    "node": ">=20.9"
   }
 }
