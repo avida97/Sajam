@@ -1,0 +1,1 @@
+-- Lokalni probni podaci (supabase db reset). Kategorije i žanrovi su u migracijama.

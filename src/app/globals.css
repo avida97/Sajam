@@ -1,0 +1,23 @@
+@import "tailwindcss";
+
+/* Dizajn tokeni preuzeti iz Figme (fajl Books, stranica Website). */
+@theme inline {
+  --color-ink: #09090b;          /* glavna crna: dugmad, footer */
+  --color-line: #f1efed;         /* linije ispod nav bara */
+  --color-field: #f5f5f5;        /* pozadina pretrage */
+  --color-muted: #a1a1aa;        /* sekundarni tekst na tamnoj pozadini */
+  --color-divider-dark: #52525b; /* linija u footeru */
+  --color-alert: #e5484d;        /* broj obaveštenja */
+
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-logo: var(--font-poppins), ui-sans-serif, system-ui, sans-serif;
+  --font-serif: var(--font-source-serif), ui-serif, Georgia, serif;
+
+  --container-site: 1440px;
+}
+
+body {
+  background: #ffffff;
+  color: #000000;
+  font-family: var(--font-sans);
+}
