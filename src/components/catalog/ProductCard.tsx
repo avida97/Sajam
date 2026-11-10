@@ -3,6 +3,7 @@ import Link from "next/link";
 import { CONDITIONS } from "@/lib/conditions";
 import { formatRsd, listingHref } from "@/lib/listings/params";
 import type { CatalogListing } from "@/lib/listings/types";
+import { HeartButton } from "./HeartButton";
 
 // Kartica proizvoda iz Figme („Subject“, 412:6221): slika 196×253, naslov, autor,
 // stanje sa kvačicom, lokacija i crna traka sa cenom.
@@ -49,13 +50,7 @@ export function ProductCard({ listing }: { listing: CatalogListing }) {
           {listing.placeholder ? "Cena RSD" : formatRsd(listing.price_rsd)}
         </p>
       </Link>
-      <button
-        type="button"
-        aria-label="Dodaj u omiljene"
-        className="absolute left-[150px] top-[16px] size-[30px]"
-      >
-        <Image src="/icons/heart.svg" alt="" width={30} height={30} />
-      </button>
+      {!listing.placeholder && <HeartButton listingId={listing.id} className="absolute left-[150px] top-[16px]" />}
     </article>
   );
 }

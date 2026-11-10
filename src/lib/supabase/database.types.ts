@@ -430,6 +430,9 @@ isOneToOne: false
 "f_unaccent":
 { Args: { "": string }; Returns: string
                            },
+"favorite_count":
+{ Args: { "p_listing": number }; Returns: number
+                           },
 "is_admin":
 { Args: Record<PropertyKey, never>; Returns: boolean
                            },

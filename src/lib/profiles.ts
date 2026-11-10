@@ -112,3 +112,10 @@ export async function getSellerStats(username: string): Promise<SellerStats | nu
     positivePct: data.positive_pct == null ? null : Number(data.positive_pct),
   };
 }
+
+/** Koliko ljudi je oglas sačuvalo u omiljene. */
+export async function getFavoriteCount(listingId: number): Promise<number> {
+  if (!isSupabaseConfigured) return 0;
+  const { data } = await anon().rpc("favorite_count", { p_listing: listingId });
+  return data ?? 0;
+}

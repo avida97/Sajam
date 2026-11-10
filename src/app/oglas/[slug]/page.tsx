@@ -1,7 +1,8 @@
 import { PAYMENT as PAYMENT_OPTIONS, SHIPPING as SHIPPING_OPTIONS } from "@/lib/shipping";
 import type { Metadata } from "next";
 import { getCurrentUser } from "@/lib/supabase/server";
-import { getSellerStats } from "@/lib/profiles";
+import { getFavoriteCount, getSellerStats } from "@/lib/profiles";
+import { HeartButton } from "@/components/catalog/HeartButton";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -69,6 +70,7 @@ export default async function ListingPage({ params }: Props) {
     getCurrentUser(),
     l.placeholder ? null : getSellerStats(l.seller.username),
   ]);
+  const favCount = l.placeholder ? 0 : await getFavoriteCount(l.id);
   const own = !!me?.profile && me.profile.username === l.seller.username;
 
   const meta = [
@@ -132,10 +134,7 @@ export default async function ListingPage({ params }: Props) {
               <h1 className="trim-cap font-semibold">{title}</h1>
               {l.author && <p className="trim-cap">{l.author}</p>}
             </div>
-            <button type="button" aria-label="Dodaj u omiljene" className="flex h-[28px] w-[16px] flex-col items-center">
-              <Image src="/icons/heart-outline.svg" alt="" width={16} height={14} />
-              <span className="mt-[2px] text-[11px] font-semibold leading-none">0</span>
-            </button>
+            <HeartButton listingId={l.placeholder ? 0 : l.id} variant="page" count={favCount} />
           </div>
           <div className="mt-[16px] flex items-center gap-[8px] text-[14px] text-[#737373]">
             {meta.map((m, i) => (

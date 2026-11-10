@@ -23,11 +23,21 @@ function inScope(l: CatalogListing, f: ListingFilters) {
   if (f.category && l.categorySlug !== f.category) return false;
   if (f.subcategory && l.subcategorySlug !== f.subcategory) return false;
   if (f.q) {
-    const q = f.q.toLowerCase();
-    if (!`${l.title} ${l.author ?? ""}`.toLowerCase().includes(q)) return false;
+    // Svaka reč iz pretrage mora da se nađe u naslovu, autoru, izdavaču ili ISBN-u,
+    // bez obzira na velika slova i kvačice („andric“ nalazi „Andrić“).
+    const hay = fold(`${l.title} ${l.author ?? ""} ${l.publisher ?? ""} ${l.isbn ?? ""}`);
+    if (!fold(f.q).split(/\s+/).filter(Boolean).every((w) => hay.includes(w))) return false;
   }
   return true;
 }
+
+const fold = (s: string) =>
+  s
+    .toLowerCase()
+    .replace(/đ/g, "dj")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/-/g, "");
 
 function matches(l: CatalogListing, f: ListingFilters) {
   if (!inScope(l, f)) return false;
