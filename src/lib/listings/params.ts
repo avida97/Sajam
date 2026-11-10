@@ -1,12 +1,13 @@
 import { CONDITIONS, type Condition } from "@/lib/conditions";
 import type { ListingFilters, SortKey } from "./types";
 
-// Filteri žive u adresi (?stanje=novo,dobro&cena_od=500&sort=cena-rastuce&strana=2),
+// Filteri žive u adresi (?stanje=novo,dobro&jezik=Srpski&sort=cena-rastuce&strana=2),
 // da se lista može podeliti linkom i da „nazad“ u pregledaču radi.
-type SearchParams = Record<string, string | string[] | undefined>;
+export type SearchParams = Record<string, string | string[] | undefined>;
 
-const SORTS: SortKey[] = ["najnovije", "cena-rastuce", "cena-opadajuce"];
+export const SORTS: SortKey[] = ["najnovije", "azbucno", "cena-rastuce", "cena-opadajuce"];
 const one = (v: string | string[] | undefined) => (Array.isArray(v) ? v[0] : v);
+const list = (v: string | string[] | undefined) => (one(v) ?? "").split(",").filter(Boolean);
 const num = (v: string | undefined) => {
   const n = v ? Number(v) : NaN;
   return Number.isFinite(n) && n >= 0 ? n : undefined;
@@ -14,12 +15,15 @@ const num = (v: string | undefined) => {
 
 export function parseFilters(sp: SearchParams): ListingFilters {
   const valid = new Set<string>(CONDITIONS.map((c) => c.value));
-  const conditions = (one(sp.stanje) ?? "")
-    .split(",")
-    .filter((c): c is Condition => valid.has(c));
+  const conditions = list(sp.stanje).filter((c): c is Condition => valid.has(c));
   const sort = one(sp.sort) as SortKey | undefined;
   return {
+    genre: one(sp.zanr) || undefined,
     conditions: conditions.length ? conditions : undefined,
+    bundles: list(sp.broj).length ? list(sp.broj) : undefined,
+    author: one(sp.autor) || undefined,
+    languages: list(sp.jezik).length ? list(sp.jezik) : undefined,
+    city: one(sp.grad) || undefined,
     minPrice: num(one(sp.cena_od)),
     maxPrice: num(one(sp.cena_do)),
     q: one(sp.q)?.trim() || undefined,

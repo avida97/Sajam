@@ -1,0 +1,240 @@
+import type { Metadata } from "next";
+import Image from "next/image";
+import Link from "next/link";
+import { notFound } from "next/navigation";
+import { ProductCarousel } from "@/components/catalog/ProductCarousel";
+import { ConditionLink } from "@/components/product/ConditionLink";
+import { Gallery } from "@/components/product/Gallery";
+import { ReadMore } from "@/components/product/ReadMore";
+import { CATEGORIES, HIDDEN_FIELDS } from "@/lib/categories";
+import { CONDITIONS } from "@/lib/conditions";
+import { formatRsd, parseListingId } from "@/lib/listings/params";
+import { getListing, getSellerListings, getSimilarListings } from "@/lib/listings/query";
+
+type Props = { params: Promise<{ slug: string }> };
+
+const SHIPPING = { posta: "Pošta", licno: "Lično preuzimanje" } as const;
+const PAYMENT = { tekuci_racun: "Tekući račun (pre slanja)", pouzece: "Pouzećem", gotovina: "Gotovina" } as const;
+const ALL_LABEL: Record<string, string> = {
+  knjige: "Sve knjige",
+  muzika: "Sva muzika",
+  igre: "Sve igre",
+  "mange-i-stripovi": "Sve mange i stripovi",
+  oprema: "Sva oprema",
+};
+// Desna kolona „More information“ iz Figme; sadržaj je u centru za pomoć.
+const MORE_INFO = [
+  { label: "Expert authentication", href: "/pomoc" },
+  { label: "Payment", href: "/pomoc/kupovina" },
+  { label: "Express Delivery", href: "/pomoc/kupovina" },
+  { label: "Returns", href: "/pomoc/kupovina" },
+  { label: "Help", href: "/pomoc" },
+];
+
+async function load(slug: string) {
+  const id = parseListingId(slug);
+  const listing = id ? await getListing(id) : null;
+  if (!listing || listing.status === "uklonjen") notFound();
+  return listing;
+}
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const l = await load((await params).slug);
+  return { title: `${l.placeholder ? "Oglas" : l.title} | Sajam` };
+}
+
+const fmtDate = (iso: string) => {
+  const d = new Date(iso);
+  return `${String(d.getUTCDate()).padStart(2, "0")}-${String(d.getUTCMonth() + 1).padStart(2, "0")}-${d.getUTCFullYear()}`;
+};
+
+// Stranica proizvoda po Figmi („Product Page“ 575:12070). Po odluci za MVP nema korpe
+// ni ponuda: „Stavi u korpu“, „Pošalji ponudu“, „2 ponude u toku“ i plaćanje na rate su sakriveni,
+// a glavno dugme je „Pitaj prodavca“ (poruke).
+export default async function ListingPage({ params }: Props) {
+  const l = await load((await params).slug);
+  const category = CATEGORIES.find((c) => c.slug === l.categorySlug)!;
+  const sub = category.subcategories.find((s) => s.slug === l.subcategorySlug);
+  const condition = CONDITIONS.find((c) => c.value === l.condition)!;
+  const hidden = HIDDEN_FIELDS[l.item_type];
+  const title = l.placeholder ? "Naziv artikla" : l.title;
+  const [similar, fromSeller] = await Promise.all([getSimilarListings(l, 30), getSellerListings(l, 30)]);
+
+  const meta = [
+    l.bundle_count > 1 ? `${l.bundle_count} ${l.item_type === "knjiga" ? "knjiga" : "artikala"} u paketu` : null,
+    "condition",
+    l.city,
+  ].filter(Boolean) as string[];
+
+  const details: Array<[string, React.ReactNode]> = [
+    ["Naslov", title],
+    ...(!hidden.includes("author") ? [["Autor", l.author ?? "—"] as [string, React.ReactNode]] : []),
+    ["Jezik", l.language ?? "—"],
+    ["Žanr", l.genre?.name ?? "—"],
+    ...(!hidden.includes("isbn") ? [["ISBN", l.isbn ?? "—"] as [string, React.ReactNode]] : []),
+    ["Objavljeno", fmtDate(l.created_at)],
+    ["Ažurirano", fmtDate(l.updated_at)],
+    ["ID Oglasa", String(l.id)],
+    [
+      "Slanje",
+      <>
+        {l.shipping_methods.map((m) => SHIPPING[m]).join(", ") || "—"}{"  "}
+        <Link href="/pomoc/kupovina" className="text-[13px] font-medium underline">More info</Link>
+      </>,
+    ],
+    [
+      "Plaćanje",
+      <>
+        {l.payment_methods.map((m) => PAYMENT[m]).join(", ") || "—"}{"  "}
+        <Link href="/pomoc/kupovina" className="text-[13px] font-medium underline">More info</Link>
+      </>,
+    ],
+    ["Stanje", l.condition_note ?? condition.label],
+  ];
+
+  return (
+    <>
+      {/* Hero: galerija levo, siva kolona sa podacima desno */}
+      <section className="relative mx-auto h-[838px] max-w-site">
+        <div className="absolute inset-y-0 left-1/2 w-1/2 bg-[#f5f6f8]" />
+        <nav aria-label="Putanja" className="absolute left-1/2 top-[30px] z-10 flex -translate-x-1/2 items-center gap-[8px] text-[11px] text-[#666]">
+          <Link href="/">Početna strana</Link>
+          <Image src="/icons/breadcrumb.svg" alt="" width={5} height={9} />
+          <Link href={`/${category.slug}`}>{ALL_LABEL[category.slug]}</Link>
+          {sub && (
+            <>
+              <Image src="/icons/breadcrumb.svg" alt="" width={5} height={9} />
+              <Link href={`/${category.slug}/${sub.slug}`}>{sub.name}</Link>
+            </>
+          )}
+          <Image src="/icons/breadcrumb.svg" alt="" width={5} height={9} />
+          <span>{title}</span>
+        </nav>
+
+        <div className="absolute left-[172px] top-[108px]">
+          <Gallery images={l.images} title={title} />
+        </div>
+
+        <div className="absolute left-[842px] top-[108px] w-[416px] text-black">
+          <div className="flex justify-between">
+            <div className="flex w-[306px] flex-col gap-[16px] text-[16px]">
+              <h1 className="trim-cap font-semibold">{title}</h1>
+              {l.author && <p className="trim-cap">{l.author}</p>}
+            </div>
+            <button type="button" aria-label="Dodaj u omiljene" className="flex h-[28px] w-[16px] flex-col items-center">
+              <Image src="/icons/heart-outline.svg" alt="" width={16} height={14} />
+              <span className="mt-[2px] text-[11px] font-semibold leading-none">0</span>
+            </button>
+          </div>
+          <div className="mt-[16px] flex items-center gap-[8px] text-[14px] text-[#737373]">
+            {meta.map((m, i) => (
+              <span key={m} className="contents">
+                {i > 0 && <span className="size-[3px] rounded-full bg-[#737373]" />}
+                {m === "condition" ? <ConditionLink label={condition.label} /> : <span className="trim-cap">{m}</span>}
+              </span>
+            ))}
+          </div>
+          <p className="trim-cap mt-[18px] text-[20px] font-medium">
+            {l.placeholder ? "Cena RSD" : formatRsd(l.price_rsd).replace(" ", "")}
+          </p>
+
+          <Link
+            href={`/poruke?oglas=${l.id}`}
+            className="mt-[60px] flex h-[39px] w-[416px] items-center justify-center bg-black text-[13px] font-bold text-white"
+          >
+            PITAJ PRODAVCA
+          </Link>
+
+          <div className="mt-[40px]">
+            <p className="trim-cap text-[14px] font-semibold">SAŽETAK</p>
+            <div className="mt-[22px]">
+              <ReadMore text={l.description ?? "Opis artikla."} />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Detalji: prodavac, opis i podaci, dodatne informacije */}
+      <section className="mx-auto flex h-[609px] max-w-site gap-[24px] pl-[182px] pt-[50px] text-black">
+        <div className="w-[306px]">
+          <h2 className="font-serif text-[36px] font-medium italic">Detalji</h2>
+          <p className="trim-cap mt-[18px] text-[14px] font-semibold leading-[1.4]">PRODAVAC</p>
+          <div className="mt-[12px] border-[0.5px] border-[#ccc] bg-white">
+            <div className="border-b-[0.5px] border-[#ccc] p-[20px]">
+              <div className="flex items-center gap-[8px]">
+                <span className="relative size-[48px] shrink-0 overflow-hidden rounded-[38px] bg-[#f5f6f8]">
+                  {l.seller.avatarUrl && <Image src={l.seller.avatarUrl} alt="" fill sizes="48px" className="object-cover" />}
+                </span>
+                <div className="flex flex-col gap-[8px]">
+                  <p className="trim-cap text-[16px] font-medium">{l.seller.displayName}</p>
+                  <p className="trim-cap text-[12px] text-[#666]">@{l.seller.username}</p>
+                </div>
+              </div>
+              <Link
+                href={`/prodavac/${l.seller.username}`}
+                className="mt-[10px] flex h-[31px] w-[266px] items-center justify-center border-[0.5px] border-[#e1e1e1] bg-white text-[12px] font-bold"
+              >
+                SVE PONUDE PRODAVCA
+              </Link>
+            </div>
+            <div className="relative flex h-[75px] items-start px-[19.5px] pt-[24px] text-[12px]">
+              <div className="flex w-[58px] flex-col gap-[8px]">
+                <p className="trim-cap font-semibold">0</p>
+                <p className="trim-cap">prodato</p>
+              </div>
+              <div className="-mt-[4px] ml-[10px] flex h-[35px] gap-[14px] border-l-[0.5px] border-[#ccc] pl-[10.5px] pt-[4px]">
+                <div className="flex w-[46px] flex-col gap-[8px]">
+                  <p className="trim-cap font-semibold">0</p>
+                  <p className="trim-cap">ocena</p>
+                </div>
+                <div className="flex w-[93px] flex-col gap-[8px]">
+                  <p className="trim-cap font-semibold">—</p>
+                  <p className="trim-cap">pozitivnih ocena</p>
+                </div>
+              </div>
+              <Image src="/icons/info.svg" alt="" width={11} height={11} className="absolute right-[20px] top-[20px]" />
+            </div>
+          </div>
+          <p className="mt-[12px] text-[12px] leading-[1.4] text-[#737373]">
+            This item is offered by an individual seller. Its price has been suggested by its seller.
+          </p>
+        </div>
+
+        <div className="w-[416px] pt-[65px]">
+          <div className="border-b-[0.5px] border-[#e1e1e1] pb-[18px]">
+            <p className="trim-cap text-[14px] font-semibold leading-[1.4]">OPIS PROIZVODA</p>
+            <div className="mt-[18px]">
+              <ReadMore text={l.description ?? "Opis artikla."} />
+            </div>
+          </div>
+          <p className="trim-cap mt-[40px] text-[14px] font-semibold leading-[1.4]">DETALJI PROIZVODA</p>
+          <dl className="mt-[19px] grid grid-cols-[86px_306px] gap-x-[24px] gap-y-[12px] text-[14px]">
+            {details.map(([k, v]) => (
+              <div key={k} className="contents">
+                <dt className="trim-cap">{k}</dt>
+                <dd className="trim-cap">{v}</dd>
+              </div>
+            ))}
+          </dl>
+        </div>
+
+        <div className="w-[306px] pt-[65px]">
+          <p className="trim-cap text-[14px] font-semibold leading-[1.4]">MORE INFORMATION</p>
+          <ul className="mt-[12px] flex flex-col gap-[10px]">
+            {MORE_INFO.map((m) => (
+              <li key={m.label}>
+                <Link href={m.href} className="flex h-[54px] items-center justify-between bg-[#f5f6f8] pl-[24px] pr-[24px] text-[14px] leading-[1.4]">
+                  {m.label}
+                  <Image src="/icons/plus.svg" alt="" width={14} height={14} />
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </section>
+
+      <ProductCarousel title="Slični proizvodi" href={sub ? `/${category.slug}/${sub.slug}` : `/${category.slug}`} listings={similar} />
+      <ProductCarousel title="Još od istog prodavca" href={`/prodavac/${l.seller.username}`} listings={fromSeller} />
+    </>
+  );
+}

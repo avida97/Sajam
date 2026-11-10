@@ -18,7 +18,7 @@ const poppins = Poppins({
 const sourceSerif = Source_Serif_4({
   variable: "--font-source-serif",
   subsets: ["latin", "latin-ext"],
-  weight: ["600"],
+  weight: ["500", "600", "700"],
   style: ["italic"],
 });
 
