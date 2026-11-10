@@ -10,6 +10,7 @@ import { GENRES, LANGUAGES } from "@/lib/genres";
 import { listingHref } from "@/lib/listings/params";
 import type { BookDetail, BookHit } from "@/lib/isbn";
 import { BookSuggest } from "@/components/sell/BookSuggest";
+import { CITIES, PAYMENT, SHIPPING, type PaymentMethod, type ShippingMethod } from "@/lib/shipping";
 import { createClient } from "@/lib/supabase/client";
 
 // Id-jevi potkategorija („knjige/strane-knjige“) i žanrova („knjiga/roman“) iz baze.
@@ -67,6 +68,10 @@ export function SellForm({ refs, signedIn }: { refs: SellRefs | null; signedIn: 
 
   const [photoError, setPhotoError] = useState(false);
   const [priceError, setPriceError] = useState(false);
+  const [shipping, setShipping] = useState<ShippingMethod[]>(["posta"]);
+  const [payment, setPayment] = useState<PaymentMethod[]>(["tekuci_racun"]);
+  const [shipError, setShipError] = useState(false);
+  const shipRef = useRef<HTMLDivElement>(null);
   const photoGridRef = useRef<HTMLDivElement>(null);
   const priceRef = useRef<HTMLLabelElement>(null);
   const pickRef = useRef(0);
@@ -190,6 +195,9 @@ export function SellForm({ refs, signedIn }: { refs: SellRefs | null; signedIn: 
     }
     setPhotoError(photos.length === 0);
     if (photos.length === 0 && photoGridRef.current) bad.push(photoGridRef.current);
+    const noShip = shipping.length === 0 || payment.length === 0;
+    setShipError(noShip);
+    if (noShip && shipRef.current) bad.push(shipRef.current);
     setPriceError(!priceNum);
     if (!priceNum && priceRef.current) bad.push(priceRef.current);
     if (bad.length) {
@@ -249,6 +257,9 @@ export function SellForm({ refs, signedIn }: { refs: SellRefs | null; signedIn: 
         condition: text("stanje") as Condition,
         description: text("opis"),
         price_rsd: priceNum,
+        city: text("grad"),
+        shipping_methods: shipping,
+        payment_methods: payment,
       })
       .select("id")
       .single();
@@ -466,6 +477,34 @@ export function SellForm({ refs, signedIn }: { refs: SellRefs | null; signedIn: 
         </div>
       </div>
 
+      <Section title="Slanje i plaćanje" className="mt-[60px]" gap={28}>
+        <div ref={shipRef} className="grid grid-cols-[306px_306px] gap-x-[24px] gap-y-[24px]">
+          <CheckGroup
+            label="Kako šalješ"
+            options={SHIPPING}
+            value={shipping}
+            error={shipError && shipping.length === 0}
+            onChange={(v) => {
+              setShipping(v);
+              setShipError(false);
+            }}
+          />
+          <CheckGroup
+            label="Kako kupac plaća"
+            options={PAYMENT}
+            value={payment}
+            error={shipError && payment.length === 0}
+            onChange={(v) => {
+              setPayment(v);
+              setShipError(false);
+            }}
+          />
+          <Field label="Grad" optional>
+            <Select name="grad" placeholder="Izaberi grad" options={CITIES.map((c) => ({ value: c, label: c }))} />
+          </Field>
+        </div>
+      </Section>
+
       <Section title="Cena artikla" className="mt-[60px]" gap={28}>
         <div className="flex gap-[24px]">
           <label ref={priceRef} className={`relative flex h-[49px] w-[306px] items-center border ${priceError ? "border-alert" : "border-black"}`}>
@@ -600,5 +639,46 @@ function Select({
         className="pointer-events-none absolute left-[279px] top-[16px]"
       />
     </div>
+  );
+}
+
+// Grupa štikliranja (isti izgled kao filteri na stranici kategorije, Figma „Filter components“).
+function CheckGroup<T extends string>({
+  label,
+  options,
+  value,
+  error,
+  onChange,
+}: {
+  label: string;
+  options: ReadonlyArray<{ value: T; label: string }>;
+  value: T[];
+  error: boolean;
+  onChange: (v: T[]) => void;
+}) {
+  return (
+    <fieldset className={`border p-[12px] ${error ? "border-alert" : "border-transparent"}`}>
+      <legend className="sr-only">{label}</legend>
+      <p className="text-[17px] font-semibold leading-[16px] text-black">{label}</p>
+      <ul className="mt-[16px] flex flex-col gap-[12px]">
+        {options.map((o) => {
+          const on = value.includes(o.value);
+          return (
+            <li key={o.value}>
+              <button
+                type="button"
+                role="checkbox"
+                aria-checked={on}
+                onClick={() => onChange(on ? value.filter((v) => v !== o.value) : [...value, o.value])}
+                className="flex items-center gap-[8px] text-left"
+              >
+                <Image src={on ? "/icons/check-yes.svg" : "/icons/check-no.svg"} alt="" width={19} height={19} />
+                <span className="text-[14px] leading-[1.5] text-black">{o.label}</span>
+              </button>
+            </li>
+          );
+        })}
+      </ul>
+    </fieldset>
   );
 }

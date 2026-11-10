@@ -1,3 +1,4 @@
+import { PAYMENT as PAYMENT_OPTIONS, SHIPPING as SHIPPING_OPTIONS } from "@/lib/shipping";
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
@@ -13,8 +14,8 @@ import { getListing, getSellerListings, getSimilarListings } from "@/lib/listing
 
 type Props = { params: Promise<{ slug: string }> };
 
-const SHIPPING = { posta: "Pošta", licno: "Lično preuzimanje" } as const;
-const PAYMENT = { tekuci_racun: "Tekući račun (pre slanja)", pouzece: "Pouzećem", gotovina: "Gotovina" } as const;
+const SHIPPING = Object.fromEntries(SHIPPING_OPTIONS.map((o) => [o.value, o.label])) as Record<string, string>;
+const PAYMENT = Object.fromEntries(PAYMENT_OPTIONS.map((o) => [o.value, o.label])) as Record<string, string>;
 const ALL_LABEL: Record<string, string> = {
   knjige: "Sve knjige",
   muzika: "Sva muzika",
