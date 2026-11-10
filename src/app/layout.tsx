@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Inter, Poppins, Source_Serif_4 } from "next/font/google";
 import { NavBar } from "@/components/layout/NavBar";
 import { Footer } from "@/components/layout/Footer";
+import { AuthModal } from "@/components/auth/AuthModal";
+import { Suspense } from "react";
 import "./globals.css";
 
 const inter = Inter({
@@ -42,6 +44,9 @@ export default function RootLayout({
         <NavBar />
         <main className="min-h-[50vh]">{children}</main>
         <Footer />
+        <Suspense>
+          <AuthModal />
+        </Suspense>
       </body>
     </html>
   );

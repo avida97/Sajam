@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { MainButton } from "@/components/ui/MainButton";
 import { MENU_PANELS, type MenuPanel } from "@/lib/nav-menu";
@@ -16,6 +17,8 @@ export function NavBarClient({ user }: { user: NavUser }) {
   const [open, setOpen] = useState<string | null>(null);
   const ref = useRef<HTMLDivElement>(null);
   const panel = MENU_PANELS.find((p) => p.key === open) ?? null;
+  const pathname = usePathname();
+  const authHref = (view: "prijava" | "registracija") => `${pathname}?nalog=${view}`;
 
   useEffect(() => {
     if (!open) return;
@@ -63,30 +66,44 @@ export function NavBarClient({ user }: { user: NavUser }) {
           </Link>
 
           <div className="ml-auto flex items-center">
-            <Link href="/omiljeno" aria-label="Omiljeni artikli" className="block">
-              <Image src="/icons/like.svg" alt="" width={26} height={23} />
-            </Link>
-            <Link
-              href="/obavestenja"
-              aria-label="Obaveštenja"
-              className="relative ml-[30px] block h-[31px] w-[24px]"
-            >
-              <Image src="/icons/bell.svg" alt="" width={21} height={24} className="absolute left-0 top-[1px]" />
-              {user && user.unreadNotifications > 0 && (
-                <span className="absolute left-[10px] top-[17px] flex size-[14px] items-center justify-center rounded-full bg-alert text-[8px] font-medium leading-none text-white">
-                  {user.unreadNotifications > 9 ? "9+" : user.unreadNotifications}
-                </span>
-              )}
-            </Link>
-            <Link
-              href="/moj-profil"
-              aria-label={user ? `Profil: ${user.displayName}` : "Prijavi se"}
-              className="ml-[26px] block size-[29px] overflow-hidden rounded-full bg-field"
-            >
-              {user?.avatarUrl && (
-                <Image src={user.avatarUrl} alt="" width={29} height={29} className="size-full object-cover" />
-              )}
-            </Link>
+            {user ? (
+              <>
+                <Link href="/omiljeno" aria-label="Omiljeni artikli" className="block">
+                  <Image src="/icons/like.svg" alt="" width={26} height={23} />
+                </Link>
+                <Link
+                  href="/obavestenja"
+                  aria-label="Obaveštenja"
+                  className="relative ml-[30px] block h-[31px] w-[24px]"
+                >
+                  <Image src="/icons/bell.svg" alt="" width={21} height={24} className="absolute left-0 top-[1px]" />
+                  {user.unreadNotifications > 0 && (
+                    <span className="absolute left-[10px] top-[17px] flex size-[14px] items-center justify-center rounded-full bg-alert text-[8px] font-medium leading-none text-white">
+                      {user.unreadNotifications > 9 ? "9+" : user.unreadNotifications}
+                    </span>
+                  )}
+                </Link>
+                <Link
+                  href="/moj-profil"
+                  aria-label={`Profil: ${user.displayName}`}
+                  className="ml-[26px] block size-[29px] overflow-hidden rounded-full bg-field"
+                >
+                  {user.avatarUrl && (
+                    <Image src={user.avatarUrl} alt="" width={29} height={29} className="size-full object-cover" />
+                  )}
+                </Link>
+              </>
+            ) : (
+              // Neprijavljen posetilac (Figma: nav bar na ekranu „Prijavi se“ 912:27724).
+              <>
+                <Link href={authHref("registracija")} replace scroll={false} className="trim-cap text-[14px] font-medium text-black">
+                  Registruj se
+                </Link>
+                <Link href={authHref("prijava")} replace scroll={false} className="trim-cap ml-[25px] text-[14px] font-medium text-black">
+                  Prijavi se
+                </Link>
+              </>
+            )}
             <MainButton href="/prodaj" className="ml-[29px]">
               Započni prodaju
             </MainButton>

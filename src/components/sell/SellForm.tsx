@@ -1,10 +1,25 @@
 "use client";
 
 import Image from "next/image";
+import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { CATEGORIES, HIDDEN_FIELDS, type ItemType } from "@/lib/categories";
-import { CONDITIONS } from "@/lib/conditions";
-import { BUNDLE_RANGES, GENRES, LANGUAGES } from "@/lib/genres";
+import { CONDITIONS, type Condition } from "@/lib/conditions";
+import { GENRES, LANGUAGES } from "@/lib/genres";
+import { listingHref } from "@/lib/listings/params";
+import { createClient } from "@/lib/supabase/client";
+
+// Id-jevi potkategorija („knjige/strane-knjige“) i žanrova („knjiga/roman“) iz baze.
+export type SellRefs = { subcategories: Record<string, number>; genres: Record<string, number> };
+
+// „2 knjige“, „5 knjiga“, „1 artikal“, „3 artikla“, „7 artikala“.
+function countLabel(n: number, book: boolean) {
+  const last = n % 10;
+  const teen = n % 100 >= 11 && n % 100 <= 14;
+  if (book) return `${n} ${last === 1 && !teen ? "knjiga" : last >= 2 && last <= 4 && !teen ? "knjige" : "knjiga"}`;
+  return `${n} ${last === 1 && !teen ? "artikal" : last >= 2 && last <= 4 && !teen ? "artikla" : "artikala"}`;
+}
+const BUNDLE_COUNTS = [...Array.from({ length: 20 }, (_, i) => i + 1), 25, 30, 40, 50];
 
 // Prekidač tipa artikla (Figma „Kategorije“ 934:32855): položaji teksta i crne pilule su iz dizajna.
 const TYPES: Array<{ type: ItemType; label: string; text: number; pill: [number, number] }> = [
@@ -36,8 +51,11 @@ const PHOTO_SLOTS = [
 const inputCls =
   "h-[36px] w-[306px] border border-[#dfdfdf] bg-white px-[16px] text-[14px] leading-[16px] text-black placeholder:text-[#71717a] focus:border-black focus:outline-none";
 
-export function SellForm() {
+export function SellForm({ refs, signedIn }: { refs: SellRefs | null; signedIn: boolean }) {
+  const router = useRouter();
+  const pathname = usePathname();
   const [type, setType] = useState<ItemType>("knjiga");
+  const [publishing, setPublishing] = useState(false);
   const [price, setPrice] = useState("");
   const [photos, setPhotos] = useState<Array<{ file: File; url: string }>>([]);
   const [notice, setNotice] = useState<string | null>(null);
@@ -66,13 +84,101 @@ export function SellForm() {
     setPhotos((p) => p.filter((_, j) => j !== i));
   };
 
-  const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    if (publishing) return;
     if (photos.length === 0) {
       setNotice("Dodaj bar jednu fotografiju artikla.");
       return;
     }
-    setNotice("Sve je popunjeno. Objavljivanje oglasa proradiće čim povežemo bazu podataka.");
+    if (!refs) {
+      setNotice("Objavljivanje trenutno ne radi. Pokušaj ponovo malo kasnije.");
+      return;
+    }
+    if (!signedIn) {
+      // Prijava se otvara preko ove stranice, pa popunjena forma i fotografije ostaju.
+      router.replace(`${pathname}?nalog=prijava&posle=${encodeURIComponent(pathname)}`, { scroll: false });
+      return;
+    }
+
+    const fd = new FormData(e.currentTarget);
+    const text = (name: string) => {
+      const v = String(fd.get(name) ?? "").trim();
+      return v === "" ? null : v;
+    };
+    const categoryId = refs.subcategories[`${category.slug}/${text("potkategorija")}`];
+    const genreSlug = text("zanr");
+    const isbnRaw = text("isbn")?.toUpperCase().replace(/[^0-9X]/g, "") ?? null;
+    if (isbnRaw && !/^(97[89])?[0-9]{9}[0-9X]$/.test(isbnRaw)) {
+      setNotice("ISBN nije ispravan. Unesi 10 ili 13 cifara, npr. 978-86-10-02436-4.");
+      return;
+    }
+    const pages = text("broj_stranica");
+    if (!priceNum) {
+      setNotice("Unesi cenu artikla.");
+      return;
+    }
+
+    setPublishing(true);
+    setNotice("Objavljujem oglas...");
+    const supabase = createClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (!user) {
+      setPublishing(false);
+      setNotice(null);
+      router.replace(`${pathname}?nalog=prijava&posle=${encodeURIComponent(pathname)}`, { scroll: false });
+      return;
+    }
+
+    const title = text("naziv")!;
+    const { data: listing, error } = await supabase
+      .from("listings")
+      .insert({
+        seller_id: user.id,
+        item_type: type,
+        category_id: categoryId,
+        genre_id: genreSlug ? (refs.genres[`${type}/${genreSlug}`] ?? null) : null,
+        title,
+        author: hidden.includes("author") ? null : text("autor"),
+        isbn: hidden.includes("isbn") ? null : isbnRaw,
+        language: text("jezik"),
+        page_count: hidden.includes("page_count") || !pages ? null : Number(pages),
+        publisher: hidden.includes("publisher") ? null : text("izdavac"),
+        bundle_count: Number(text("broj") ?? 1),
+        condition: text("stanje") as Condition,
+        condition_note: text("opis"),
+        price_rsd: priceNum,
+      })
+      .select("id")
+      .single();
+    if (error || !listing) {
+      setPublishing(false);
+      setNotice("Oglas nije objavljen. Proveri polja i pokušaj ponovo.");
+      return;
+    }
+
+    // Fotografije idu direktno iz pregledača u Supabase Storage: <korisnik>/<oglas>/<redni broj>.
+    for (const [i, p] of photos.entries()) {
+      const ext = (p.file.name.split(".").pop() ?? "jpg").toLowerCase().replace(/[^a-z0-9]/g, "") || "jpg";
+      const path = `${user.id}/${listing.id}/${i}-${Date.now()}.${ext}`;
+      const up = await supabase.storage.from("listing-images").upload(path, p.file, { contentType: p.file.type });
+      const row = up.error ? null : await supabase.from("listing_images").insert({ listing_id: listing.id, path, position: i });
+      if (up.error || row?.error) {
+        await supabase.from("listings").delete().eq("id", listing.id);
+        setPublishing(false);
+        setNotice(
+          up.error?.message.toLowerCase().includes("size")
+            ? "Neka fotografija je veća od 8 MB. Smanji je pa pokušaj ponovo."
+            : "Fotografije nisu otpremljene, pa oglas nije objavljen. Pokušaj ponovo.",
+        );
+        return;
+      }
+    }
+
+    router.push(listingHref({ id: listing.id, title }));
+    router.refresh();
   };
 
   const priceNum = Number(price.replace(/\D/g, "")) || 0;
@@ -126,10 +232,7 @@ export function SellForm() {
           <Select
             name="broj"
             placeholder={type === "knjiga" ? "Broj knjiga u paketu" : "Broj artikala u paketu"}
-            options={BUNDLE_RANGES.map((b) => ({
-              value: b.value,
-              label: type === "knjiga" ? b.label : b.label.replace(/knjig[ae]?/, "artikala").replace("1 artikala", "1 artikal"),
-            }))}
+            options={BUNDLE_COUNTS.map((n) => ({ value: String(n), label: countLabel(n, type === "knjiga") }))}
           />
           <Select
             name="stanje"
@@ -277,7 +380,8 @@ export function SellForm() {
         )}
         <button
           type="submit"
-          className="flex h-[37px] shrink-0 items-center justify-center bg-[#09090b] px-[19px] text-[12px] font-bold uppercase leading-[0.95] tracking-[-0.12px] text-white"
+          disabled={publishing}
+          className="flex h-[37px] shrink-0 disabled:opacity-60 items-center justify-center bg-[#09090b] px-[19px] text-[12px] font-bold uppercase leading-[0.95] tracking-[-0.12px] text-white"
         >
           <span className="trim-cap">Objavi oglas</span>
         </button>

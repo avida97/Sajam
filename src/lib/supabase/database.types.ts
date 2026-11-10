@@ -439,6 +439,9 @@ isOneToOne: false
 "send_status_checks":
 { Args: Record<PropertyKey, never>; Returns: number
                            },
+"username_available":
+{ Args: { "p_username": string }; Returns: boolean
+                           },
 "vote_help_article":
 { Args: { "p_article": number,"p_helpful": boolean }; Returns: undefined
                            }
