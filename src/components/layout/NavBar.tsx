@@ -13,6 +13,7 @@ export async function NavBar() {
               username: user.profile?.username ?? null,
               displayName: user.profile?.display_name ?? user.email ?? "",
               unreadNotifications: user.unreadNotifications,
+              unreadMessages: user.unreadMessages,
             }
           : null
       }

@@ -28,6 +28,7 @@ export type CurrentUser = {
   email: string | null;
   profile: Database["public"]["Tables"]["profiles"]["Row"] | null;
   unreadNotifications: number;
+  unreadMessages: number;
 };
 
 // Ulogovani korisnik sa profilom, ili null. Bez podešenog Supabase-a uvek null.
@@ -39,12 +40,18 @@ export async function getCurrentUser(): Promise<CurrentUser | null> {
   } = await supabase.auth.getUser();
   if (!user) return null;
 
-  const [{ data: profile }, { count }] = await Promise.all([
+  const [{ data: profile }, { count }, { count: unreadMessages }] = await Promise.all([
     supabase.from("profiles").select("*").eq("id", user.id).maybeSingle(),
     supabase
       .from("notifications")
       .select("id", { count: "exact", head: true })
       .eq("user_id", user.id)
+      .is("read_at", null),
+    // Nepročitane poruke druge strane; RLS ostavlja samo razgovore ovog korisnika.
+    supabase
+      .from("messages")
+      .select("id", { count: "exact", head: true })
+      .neq("sender_id", user.id)
       .is("read_at", null),
   ]);
 
@@ -53,5 +60,6 @@ export async function getCurrentUser(): Promise<CurrentUser | null> {
     email: user.email ?? null,
     profile: profile ?? null,
     unreadNotifications: count ?? 0,
+    unreadMessages: unreadMessages ?? 0,
   };
 }

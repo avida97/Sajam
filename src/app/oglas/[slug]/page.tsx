@@ -10,7 +10,7 @@ import { Gallery } from "@/components/product/Gallery";
 import { ReadMore } from "@/components/product/ReadMore";
 import { CATEGORIES, HIDDEN_FIELDS } from "@/lib/categories";
 import { CONDITIONS } from "@/lib/conditions";
-import { formatRsd, parseListingId } from "@/lib/listings/params";
+import { formatRsd, listingHref, parseListingId } from "@/lib/listings/params";
 import { getListing, getSellerListings, getSimilarListings } from "@/lib/listings/query";
 
 type Props = { params: Promise<{ slug: string }> };
@@ -157,7 +157,12 @@ export default async function ListingPage({ params }: Props) {
             </Link>
           ) : (
             <Link
-              href={`/poruke?oglas=${l.id}`}
+              href={
+                me
+                  ? `/poruke?oglas=${l.id}`
+                  : `${listingHref(l)}?nalog=prijava&posle=${encodeURIComponent(`/poruke?oglas=${l.id}`)}`
+              }
+              scroll={false}
               className="mt-[60px] flex h-[39px] w-[416px] items-center justify-center bg-black text-[13px] font-bold text-white"
             >
               PITAJ PRODAVCA

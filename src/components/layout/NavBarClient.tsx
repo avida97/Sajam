@@ -13,6 +13,7 @@ type NavUser = {
   username: string | null;
   displayName: string;
   unreadNotifications: number;
+  unreadMessages: number;
 } | null;
 
 export function NavBarClient({ user }: { user: NavUser }) {
@@ -216,8 +217,9 @@ function AccountMenu({ user }: { user: NonNullable<NavUser> }) {
     };
   }, [open]);
 
-  const items = [
+  const items: Array<{ href: string; label: string; count?: number }> = [
     { href: user.username ? `/prodavac/${user.username}` : "/moj-profil", label: "Moj profil" },
+    { href: "/poruke", label: "Poruke", count: user.unreadMessages },
     { href: "/moji-oglasi", label: "Moji oglasi" },
     { href: "/moj-profil/izmeni", label: "Podešavanja profila" },
   ];
@@ -229,9 +231,17 @@ function AccountMenu({ user }: { user: NonNullable<NavUser> }) {
         aria-label={`Moj nalog: ${user.displayName}`}
         aria-expanded={open}
         onClick={() => setOpen((o) => !o)}
-        className="block size-[29px] overflow-hidden rounded-full bg-field"
+        className="relative block size-[29px] rounded-full bg-field"
       >
-        {user.avatarUrl && <Image src={user.avatarUrl} alt="" width={29} height={29} className="size-full object-cover" />}
+        {user.avatarUrl && (
+          <Image src={user.avatarUrl} alt="" width={29} height={29} className="size-full rounded-full object-cover" />
+        )}
+        {user.unreadMessages > 0 && (
+          <span
+            aria-label="Imaš nepročitane poruke"
+            className="absolute -right-[2px] -top-[2px] size-[10px] rounded-full border-[1.5px] border-white bg-alert"
+          />
+        )}
       </button>
       {open && (
         <div className="absolute right-0 top-[41px] z-50 w-[220px] overflow-hidden rounded-[10px] bg-white py-[8px] shadow-[0_8px_24px_rgba(0,0,0,0.12)]">
@@ -241,9 +251,14 @@ function AccountMenu({ user }: { user: NonNullable<NavUser> }) {
               key={i.href}
               href={i.href}
               onClick={() => setOpen(false)}
-              className="block px-[18px] py-[10px] text-[14px] font-medium text-black hover:bg-[#f5f6f8]"
+              className="flex items-center justify-between px-[18px] py-[10px] text-[14px] font-medium text-black hover:bg-[#f5f6f8]"
             >
               {i.label}
+              {!!i.count && (
+                <span className="flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-alert px-[5px] text-[10px] font-medium text-white">
+                  {i.count > 9 ? "9+" : i.count}
+                </span>
+              )}
             </Link>
           ))}
           <button
