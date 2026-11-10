@@ -2,11 +2,13 @@
 
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { IsbnField } from "@/components/sell/IsbnField";
 import { CATEGORIES, HIDDEN_FIELDS, type ItemType } from "@/lib/categories";
 import { CONDITIONS, type Condition } from "@/lib/conditions";
 import { GENRES, LANGUAGES } from "@/lib/genres";
 import { listingHref } from "@/lib/listings/params";
+import type { BookInfo } from "@/lib/isbn";
 import { createClient } from "@/lib/supabase/client";
 
 // Id-jevi potkategorija („knjige/strane-knjige“) i žanrova („knjiga/roman“) iz baze.
@@ -60,6 +62,22 @@ export function SellForm({ refs, signedIn }: { refs: SellRefs | null; signedIn: 
   const [photos, setPhotos] = useState<Array<{ file: File; url: string }>>([]);
   const [notice, setNotice] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
+  const formRef = useRef<HTMLFormElement>(null);
+
+  // Popunjava prazna polja podacima nađenim po ISBN-u; ono što je korisnik već upisao ostaje.
+  const fillFromIsbn = useCallback((info: BookInfo) => {
+    const form = formRef.current;
+    if (!form) return;
+    const set = (name: string, value: string | number | null) => {
+      const el = form.elements.namedItem(name) as HTMLInputElement | HTMLSelectElement | null;
+      if (el && value != null && !el.value) el.value = String(value);
+    };
+    set("naziv", info.title);
+    set("autor", info.authors);
+    set("izdavac", info.publisher);
+    set("broj_stranica", info.pageCount);
+    set("jezik", info.language);
+  }, []);
 
   const category = CATEGORIES.find((c) => c.itemType === type)!;
   const genres = GENRES[type];
@@ -184,7 +202,7 @@ export function SellForm({ refs, signedIn }: { refs: SellRefs | null; signedIn: 
   const priceNum = Number(price.replace(/\D/g, "")) || 0;
 
   return (
-    <form onSubmit={onSubmit} className="mx-auto flex w-[636px] flex-col pb-[80px] pt-[80px]">
+    <form ref={formRef} onSubmit={onSubmit} className="mx-auto flex w-[636px] flex-col pb-[80px] pt-[80px]">
       <div className="text-center text-black">
         <h1 className="trim-cap font-serif text-[32px] font-medium italic leading-[0.95] tracking-[-0.32px]">
           Sell an item
@@ -309,7 +327,7 @@ export function SellForm({ refs, signedIn }: { refs: SellRefs | null; signedIn: 
         )}
         {!hidden.includes("isbn") && (
           <Field label="ISBN" optional>
-            <input name="isbn" placeholder="npr. 978-86-10-02436-4" className={inputCls} />
+            <IsbnField className={inputCls} onFound={fillFromIsbn} />
           </Field>
         )}
         <Field label="Jezik">
