@@ -1,14 +1,22 @@
+import { cache } from "react";
 import { BUNDLE_RANGES } from "@/lib/genres";
+import { loadDbListings } from "./db";
 import { PLACEHOLDER_LISTINGS } from "./placeholder";
 import type { CatalogListing, ListingFilters, SortKey } from "./types";
 
 // 4 reda po 5 kartica, kao u Figmi (Products Knjige).
 export const PAGE_SIZE = 20;
 
-// Jedino mesto odakle stranice kataloga dobijaju oglase.
-// Za sada iz probnih podataka; kasnije isti potpis, ali upit nad Supabase tabelom listings.
-function available(): CatalogListing[] {
-  return PLACEHOLDER_LISTINGS.filter((l) => l.status === "dostupno");
+// Jedino mesto odakle stranice kataloga dobijaju oglase: iz baze, a dok u bazi
+// nema nijednog oglasa, iz probnih podataka. Za početak se oglasi učitavaju jednom po
+// zahtevu i filtriraju ovde; kad ih bude više hiljada, filteri prelaze u SQL upit.
+const all = cache(async (): Promise<CatalogListing[]> => {
+  const fromDb = await loadDbListings();
+  return fromDb.length ? fromDb : PLACEHOLDER_LISTINGS;
+});
+
+async function available(): Promise<CatalogListing[]> {
+  return (await all()).filter((l) => l.status === "dostupno");
 }
 
 function inScope(l: CatalogListing, f: ListingFilters) {
@@ -40,7 +48,7 @@ function matches(l: CatalogListing, f: ListingFilters) {
 }
 
 export async function getListings(f: ListingFilters) {
-  const items = sortListings(available().filter((l) => matches(l, f)), f.sort ?? "najnovije");
+  const items = sortListings((await available()).filter((l) => matches(l, f)), f.sort ?? "najnovije");
   const total = items.length;
   const pageCount = Math.max(1, Math.ceil(total / PAGE_SIZE));
   const page = Math.min(Math.max(1, f.page ?? 1), pageCount);
@@ -49,7 +57,7 @@ export async function getListings(f: ListingFilters) {
 
 // Brojevi pored opcija filtera („Novo (28)“) i spiskovi autora i gradova, za trenutnu kategoriju.
 export async function getFacets(f: ListingFilters) {
-  const scope = available().filter((l) => inScope(l, f));
+  const scope = (await available()).filter((l) => inScope(l, f));
   const count = (pred: (l: CatalogListing) => boolean) => scope.filter(pred).length;
   const uniq = (xs: Array<string | null>) =>
     [...new Set(xs.filter((x): x is string => !!x))].sort((a, b) => a.localeCompare(b, "sr"));
@@ -67,11 +75,11 @@ export async function getFacets(f: ListingFilters) {
 }
 
 export async function getListing(id: number): Promise<CatalogListing | null> {
-  return PLACEHOLDER_LISTINGS.find((l) => l.id === id) ?? null;
+  return (await all()).find((l) => l.id === id) ?? null;
 }
 
 export async function getNewestListings(limit: number, category?: string): Promise<CatalogListing[]> {
-  const items = available().filter((l) => !category || l.categorySlug === category);
+  const items = (await available()).filter((l) => !category || l.categorySlug === category);
   return sortListings(items, "najnovije").slice(0, limit);
 }
 
@@ -81,13 +89,13 @@ export async function getTrendingListings(limit: number, category?: string) {
 }
 
 export async function getSimilarListings(l: CatalogListing, limit: number) {
-  return available()
+  return (await available())
     .filter((x) => x.id !== l.id && x.subcategorySlug === l.subcategorySlug && x.categorySlug === l.categorySlug)
     .slice(0, limit);
 }
 
 export async function getSellerListings(l: CatalogListing, limit: number) {
-  return available()
+  return (await available())
     .filter((x) => x.id !== l.id && x.seller.username === l.seller.username)
     .slice(0, limit);
 }
