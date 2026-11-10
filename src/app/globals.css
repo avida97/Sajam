@@ -34,3 +34,6 @@ textarea.sell-field:not(:placeholder-shown),
 select.sell-field:not(:has(option[value=""]:checked)) {
   border-color: #000;
 }
+.sell-field.sell-field[aria-invalid="true"] {
+  border-color: var(--color-alert);
+}

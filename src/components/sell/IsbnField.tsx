@@ -77,10 +77,10 @@ export function IsbnField({ className, onPick }: { className: string; onPick: (h
             type="button"
             onClick={openQr}
             aria-expanded={showQr}
-            className="absolute right-[4px] top-[4px] flex h-[28px] items-center gap-[6px] border border-[#dfdfdf] bg-white px-[8px] text-[11px] font-semibold text-black hover:border-black"
+            className="absolute right-[4px] top-[4px] flex h-[28px] items-center gap-[6px] bg-[#09090b] px-[10px] text-[11px] font-bold uppercase text-white"
           >
-            <Image src="/icons/camera.svg" alt="" width={14} height={13} />
-            Telefonom
+            <Image src="/icons/camera.svg" alt="" width={14} height={13} className="invert" />
+            Skeniraj
           </button>
         )}
       </BookSuggest>

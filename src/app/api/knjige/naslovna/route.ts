@@ -13,7 +13,15 @@ export async function GET(req: NextRequest) {
   if (url.protocol !== "https:" || !COVER_HOSTS.includes(url.hostname)) {
     return NextResponse.json(null, { status: 400 });
   }
-  const res = await fetch(url, { signal: AbortSignal.timeout(8000), next: { revalidate: 86400 } }).catch(() => null);
+  const res = await fetch(url, {
+    signal: AbortSignal.timeout(8000),
+    headers: { "user-agent": "Mozilla/5.0 (compatible; Sajam/1.0)", accept: "image/*" },
+    cache: "no-store",
+  }).catch((e) => {
+    console.warn("Naslovna:", url.toString(), e);
+    return null;
+  });
+  if (res && !res.ok) console.warn("Naslovna:", url.toString(), res.status);
   const type = res?.headers.get("content-type") ?? "";
   if (!res?.ok || !type.startsWith("image/")) return NextResponse.json(null, { status: 404 });
   const body = await res.arrayBuffer();

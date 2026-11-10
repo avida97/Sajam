@@ -65,7 +65,10 @@ export function SellForm({ refs, signedIn }: { refs: SellRefs | null; signedIn: 
   const fileRef = useRef<HTMLInputElement>(null);
   const formRef = useRef<HTMLFormElement>(null);
 
-  const [bookNote, setBookNote] = useState<{ tone: "info" | "ok" | "warn"; text: string } | null>(null);
+  const [photoError, setPhotoError] = useState(false);
+  const [priceError, setPriceError] = useState(false);
+  const photoGridRef = useRef<HTMLDivElement>(null);
+  const priceRef = useRef<HTMLLabelElement>(null);
   const pickRef = useRef(0);
 
   // Izabrana knjiga iz padajuće liste popunjava formu. Sva polja ostaju izmenljiva.
@@ -73,7 +76,6 @@ export function SellForm({ refs, signedIn }: { refs: SellRefs | null; signedIn: 
     const form = formRef.current;
     if (!form) return;
     const n = ++pickRef.current;
-    setBookNote({ tone: "info", text: `Učitavam podatke za „${hit.title}“...` });
     const detail: BookDetail | null = await fetch(`/api/knjige/${encodeURIComponent(hit.id)}`)
       .then((r) => (r.ok ? r.json() : null))
       .catch(() => null);
@@ -91,13 +93,12 @@ export function SellForm({ refs, signedIn }: { refs: SellRefs | null; signedIn: 
       genre: null,
     };
 
-    const filled: string[] = [];
-    const set = (name: string, label: string, value: string | number | null) => {
+    const set = (name: string, _label: string, value: string | number | null) => {
       const el = form.elements.namedItem(name) as HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement | null;
       if (!el || value == null || value === "") return;
       if (el instanceof HTMLSelectElement && ![...el.options].some((o) => o.value === String(value))) return;
       el.value = String(value);
-      filled.push(label);
+      el.setAttribute("aria-invalid", "false");
     };
     set("naziv", "naziv", book.title);
     set("autor", "autor", book.authors);
@@ -110,37 +111,28 @@ export function SellForm({ refs, signedIn }: { refs: SellRefs | null; signedIn: 
     set("opis", "opis", book.description);
 
     // Naslovna iz baze ide kao prva fotografija (može da se ukloni); prethodna iz baze se menja.
-    let cover = false;
-    if (book.cover) {
-      const blob = await fetch(`/api/knjige/naslovna?u=${encodeURIComponent(book.cover)}`)
+    // Redom se probaju: velika slika iz detalja, sličica iz liste, pa Open Library po ISBN-u.
+    const isbn = book.isbn ?? hit.isbn;
+    const candidates = [
+      book.cover,
+      hit.thumb?.replace(/zoom=\d/, "zoom=1"),
+      isbn && `https://covers.openlibrary.org/b/isbn/${isbn}-L.jpg?default=false`,
+    ].filter((u): u is string => !!u);
+    for (const u of candidates) {
+      const blob = await fetch(`/api/knjige/naslovna?u=${encodeURIComponent(u)}`)
         .then((r) => (r.ok ? r.blob() : null))
         .catch(() => null);
       if (n !== pickRef.current) return;
-      if (blob && blob.size > 2000) {
-        const ext = blob.type.split("/")[1]?.replace("jpeg", "jpg") ?? "jpg";
-        const file = new File([blob], `naslovna.${ext}`, { type: blob.type });
-        setPhotos((p) => {
-          p.filter((x) => x.fromDb).forEach((x) => URL.revokeObjectURL(x.url));
-          return [{ file, url: URL.createObjectURL(file), fromDb: true }, ...p.filter((x) => !x.fromDb)].slice(0, PHOTO_SLOTS.length);
-        });
-        cover = true;
-        filled.push("naslovna fotografija");
-      }
+      if (!blob || blob.size < 2000 || !blob.type.startsWith("image/")) continue;
+      const ext = blob.type.split("/")[1]?.replace("jpeg", "jpg") ?? "jpg";
+      const file = new File([blob], `naslovna.${ext}`, { type: blob.type });
+      setPhotos((p) => {
+        p.filter((x) => x.fromDb).forEach((x) => URL.revokeObjectURL(x.url));
+        return [{ file, url: URL.createObjectURL(file), fromDb: true }, ...p.filter((x) => !x.fromDb)].slice(0, PHOTO_SLOTS.length);
+      });
+      setPhotoError(false);
+      break;
     }
-
-    const missing = [
-      !(form.elements.namedItem("potkategorija") as HTMLSelectElement | null)?.value && "kategorija",
-      !(form.elements.namedItem("stanje") as HTMLSelectElement | null)?.value && "stanje",
-      "svoje fotografije knjige",
-      !(form.elements.namedItem("cena") as HTMLInputElement | null)?.value && "cena",
-    ].filter(Boolean);
-    setBookNote({
-      tone: "ok",
-      text:
-        `Popunjeno iz baze: ${filled.join(", ")}. Proveri podatke, sve možeš da izmeniš. ` +
-        `Još dodaj: ${missing.join(", ")}.` +
-        (cover ? " Naslovna iz baze je prva fotografija, a dodaj i slike svog primerka." : ""),
-    });
   }, []);
 
   const category = CATEGORIES.find((c) => c.itemType === type)!;
@@ -160,6 +152,7 @@ export function SellForm({ refs, signedIn }: { refs: SellRefs | null; signedIn: 
       .slice(0, PHOTO_SLOTS.length - photos.length)
       .map((file) => ({ file, url: URL.createObjectURL(file) }));
     setPhotos((p) => [...p, ...next]);
+    if (next.length) setPhotoError(false);
   };
 
   const removePhoto = (i: number) => {
@@ -170,8 +163,34 @@ export function SellForm({ refs, signedIn }: { refs: SellRefs | null; signedIn: 
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (publishing) return;
-    if (photos.length === 0) {
-      setNotice("Dodaj bar jednu fotografiju artikla.");
+
+    // Obavezna polja (odluka V 10. 11. 2026): prazna dobijaju crveni okvir, bez dodatnog teksta.
+    const form = e.currentTarget;
+    const required = ["potkategorija", genres.length > 0 && "zanr", "broj", "stanje", "naziv", !hidden.includes("author") && "autor", "jezik"];
+    const bad: HTMLElement[] = [];
+    for (const name of required) {
+      if (!name) continue;
+      const el = form.elements.namedItem(name) as HTMLInputElement | HTMLSelectElement | null;
+      if (!el) continue;
+      const empty = el.value.trim() === "";
+      el.setAttribute("aria-invalid", String(empty));
+      if (empty) bad.push(el);
+    }
+    const isbnEl = form.elements.namedItem("isbn") as HTMLInputElement | null;
+    if (isbnEl) {
+      const raw = isbnEl.value.toUpperCase().replace(/[^0-9X]/g, "");
+      const wrong = raw !== "" && !/^(97[89])?[0-9]{9}[0-9X]$/.test(raw);
+      isbnEl.setAttribute("aria-invalid", String(wrong));
+      if (wrong) bad.push(isbnEl);
+    }
+    setPhotoError(photos.length === 0);
+    if (photos.length === 0 && photoGridRef.current) bad.push(photoGridRef.current);
+    setPriceError(!priceNum);
+    if (!priceNum && priceRef.current) bad.push(priceRef.current);
+    if (bad.length) {
+      setNotice(null);
+      const top = bad.reduce((a, b) => (b.getBoundingClientRect().top < a.getBoundingClientRect().top ? b : a));
+      top.scrollIntoView({ behavior: "smooth", block: "center" });
       return;
     }
     if (!refs) {
@@ -192,15 +211,7 @@ export function SellForm({ refs, signedIn }: { refs: SellRefs | null; signedIn: 
     const categoryId = refs.subcategories[`${category.slug}/${text("potkategorija")}`];
     const genreSlug = text("zanr");
     const isbnRaw = text("isbn")?.toUpperCase().replace(/[^0-9X]/g, "") ?? null;
-    if (isbnRaw && !/^(97[89])?[0-9]{9}[0-9X]$/.test(isbnRaw)) {
-      setNotice("ISBN nije ispravan. Unesi 10 ili 13 cifara, npr. 978-86-10-02436-4.");
-      return;
-    }
     const pages = text("broj_stranica");
-    if (!priceNum) {
-      setNotice("Unesi cenu artikla.");
-      return;
-    }
 
     setPublishing(true);
     setNotice("Objavljujem oglas...");
@@ -267,7 +278,14 @@ export function SellForm({ refs, signedIn }: { refs: SellRefs | null; signedIn: 
   const priceNum = Number(price.replace(/\D/g, "")) || 0;
 
   return (
-    <form ref={formRef} onSubmit={onSubmit} className="mx-auto flex w-[636px] flex-col pb-[80px] pt-[80px]">
+    <form
+      ref={formRef}
+      noValidate
+      onSubmit={onSubmit}
+      onChange={(e) => {
+        const t = e.target as HTMLElement;
+        if (t.getAttribute("aria-invalid") === "true") t.setAttribute("aria-invalid", "false");
+      }} className="mx-auto flex w-[636px] flex-col pb-[80px] pt-[80px]">
       <div className="text-center text-black">
         <h1 className="trim-cap font-serif text-[32px] font-medium italic leading-[0.95] tracking-[-0.32px]">
           Sell an item
@@ -343,13 +361,13 @@ export function SellForm({ refs, signedIn }: { refs: SellRefs | null; signedIn: 
             e.target.value = "";
           }}
         />
-        <div className="relative h-[323px] w-[636px]">
+        <div ref={photoGridRef} className="relative h-[323px] w-[636px]">
           {PHOTO_SLOTS.map((s, i) => {
             const photo = photos[i];
             return (
               <div
                 key={i}
-                className="absolute overflow-clip bg-[#f5f6f8]"
+                className={`absolute overflow-clip bg-[#f5f6f8] ${i === 0 && photoError ? "border border-alert" : ""}`}
                 style={{ left: s.left, top: s.top, width: s.w, height: s.h }}
               >
                 {photo ? (
@@ -386,38 +404,7 @@ export function SellForm({ refs, signedIn }: { refs: SellRefs | null; signedIn: 
         </div>
       </Section>
 
-      {isBook && (
-        <div className="mt-[60px] bg-[#f5f6f8] px-[20px] py-[18px]">
-          <p className="text-[15px] font-semibold leading-[1.3] text-black">Objavi knjigu za par sekundi</p>
-          <ol className="mt-[10px] list-decimal space-y-[4px] pl-[18px] text-[13px] leading-[1.45] text-[#52525b]">
-            <li>
-              Skeniraj bar-kod sa poleđine knjige: na telefonu dugmetom <b className="font-semibold text-black">Skeniraj</b>, a
-              na računaru dugmetom <b className="font-semibold text-black">Telefonom</b>. Možeš i da upišeš ISBN, naziv ili
-              autora.
-            </li>
-            <li>Sa spiska izaberi svoju knjigu.</li>
-            <li>
-              Sajam sam popuni naziv, autora, izdavača, broj stranica, jezik, kategoriju, žanr, opis i naslovnu
-              fotografiju. Ti samo proveriš podatke, dodaš slike svog primerka, stanje i cenu.
-            </li>
-          </ol>
-          <p className="mt-[10px] text-[12px] leading-[1.4] text-[#7c7c7c]">
-            Popunjena polja imaju crni okvir, a prazna sivi, pa se odmah vidi šta je ostalo.
-          </p>
-          {bookNote && (
-            <p
-              role="status"
-              className={`mt-[12px] border-l-2 pl-[10px] text-[13px] leading-[1.45] ${
-                bookNote.tone === "ok" ? "border-[#15803d] text-[#14532d]" : "border-[#a1a1aa] text-[#52525b]"
-              }`}
-            >
-              {bookNote.text}
-            </p>
-          )}
-        </div>
-      )}
-
-      <div className={`${isBook ? "mt-[32px]" : "mt-[60px]"} grid grid-cols-[306px_306px] gap-x-[24px] gap-y-[24px]`}>
+      <div className="mt-[60px] grid grid-cols-[306px_306px] gap-x-[24px] gap-y-[24px]">
         <Field label="Naziv">
           <BookSuggest by="naslov" name="naziv" required placeholder="npr. Rat i mir" className={inputCls} enabled={isBook} onPick={pickBook} />
         </Field>
@@ -434,7 +421,11 @@ export function SellForm({ refs, signedIn }: { refs: SellRefs | null; signedIn: 
           </Field>
         )}
         {!hidden.includes("isbn") && (
-          <Field label="ISBN" optional>
+          <Field
+            label="ISBN"
+            optional
+            info="ISBN je broj od 10 ili 13 cifara koji stoji iznad bar-koda na poleđini knjige, ili na prvim stranama (npr. 978-86-10-02436-4). Upiši ga ili ga skeniraj dugmetom Skeniraj, i Sajam će sam popuniti podatke o knjizi."
+          >
             <IsbnField className={inputCls} onPick={pickBook} />
           </Field>
         )}
@@ -473,16 +464,18 @@ export function SellForm({ refs, signedIn }: { refs: SellRefs | null; signedIn: 
 
       <Section title="Cena artikla" className="mt-[60px]" gap={28}>
         <div className="flex gap-[24px]">
-          <label className="relative block h-[49px] w-[306px] border border-black">
-            <span className="trim-cap absolute left-[9px] top-[7px] text-[11px] leading-[0.95] text-black">Price</span>
-            <span className="absolute left-[9px] top-[21px] flex items-center text-[18px] font-semibold text-black">
+          <label ref={priceRef} className={`relative flex h-[49px] w-[306px] items-center border ${priceError ? "border-alert" : "border-black"}`}>
+            <span className="ml-[9px] flex items-center text-[18px] font-semibold text-black">
               <span className="mr-[5px]">RSD</span>
               <input
                 name="cena"
                 required
                 inputMode="numeric"
                 value={price}
-                onChange={(e) => setPrice(e.target.value.replace(/\D/g, "").slice(0, 9))}
+                onChange={(e) => {
+                  setPrice(e.target.value.replace(/\D/g, "").slice(0, 9));
+                  setPriceError(false);
+                }}
                 placeholder="1000"
                 className="w-[220px] bg-transparent placeholder:text-[#b3b3b3] focus:outline-none"
               />
@@ -531,12 +524,38 @@ function Section({
   );
 }
 
-function Field({ label, optional, children }: { label: string; optional?: boolean; children: React.ReactNode }) {
+function Field({
+  label,
+  optional,
+  info,
+  children,
+}: {
+  label: string;
+  optional?: boolean;
+  info?: string;
+  children: React.ReactNode;
+}) {
   return (
     <label className="block">
-      <span className="block text-[17px] font-semibold leading-[16px] text-black">
+      <span className="flex items-center text-[17px] font-semibold leading-[16px] text-black">
         {label}
         {optional && <span className="ml-[4px] text-[13px] font-normal text-[#7c7c7c]">(opciono)</span>}
+        {info && (
+          <span
+            tabIndex={0}
+            aria-label={info}
+            onClick={(e) => e.preventDefault()}
+            className="group relative ml-[6px] flex size-[16px] cursor-help items-center justify-center focus:outline-none"
+          >
+            <Image src="/icons/info.svg" alt="" width={11} height={11} />
+            <span
+              role="tooltip"
+              className="pointer-events-none absolute bottom-[22px] left-1/2 z-40 hidden w-[280px] -translate-x-1/2 bg-ink px-[12px] py-[10px] text-[12px] font-normal leading-[1.45] text-white group-hover:block group-focus:block"
+            >
+              {info}
+            </span>
+          </span>
+        )}
       </span>
       <span className="mt-[12px] block">{children}</span>
     </label>
