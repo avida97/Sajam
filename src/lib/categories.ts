@@ -18,6 +18,7 @@ export const CATEGORIES: Category[] = [
     name: "Knjige",
     itemType: "knjiga",
     subcategories: [
+      { slug: "beletristika", name: "Beletristika" },
       { slug: "knjige-za-decu", name: "Knjige za decu" },
       { slug: "casopisi", name: "Časopisi" },
       { slug: "antikvarne-knjige", name: "Antikvarne knjige" },

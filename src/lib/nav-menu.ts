@@ -19,6 +19,7 @@ export type MenuPanel = {
 // Opisi potkategorija prepisani iz Figme, redom kao u CATEGORIES.
 const DESCRIPTIONS: Record<string, string[]> = {
   knjige: [
+    "Romani, priče i ostala proza",
     "Knjige za najmlađe čitaoce",
     "Tematski paketi polovnih knjiga",
     "Retka i antikvarna polovna izdanja",
@@ -86,6 +87,7 @@ const HEADINGS: Record<string, { description: string; cta: string }> = {
 // pa je ovde zapisan eksplicitno (leva kolona odozgo, pa desna).
 const FIGMA_ORDER: Record<string, string[]> = {
   knjige: [
+    "beletristika",
     "knjige-za-decu",
     "antikvarne-knjige",
     "strucna-literatura",

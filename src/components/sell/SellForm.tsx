@@ -148,7 +148,7 @@ export function SellForm({ refs, signedIn }: { refs: SellRefs | null; signedIn: 
         publisher: hidden.includes("publisher") ? null : text("izdavac"),
         bundle_count: Number(text("broj") ?? 1),
         condition: text("stanje") as Condition,
-        condition_note: text("opis"),
+        description: text("opis"),
         price_rsd: priceNum,
       })
       .select("id")
@@ -243,7 +243,12 @@ export function SellForm({ refs, signedIn }: { refs: SellRefs | null; signedIn: 
         </div>
       </Section>
 
-      <Section title="Fotografije artikla" className="mt-[60px]" gap={34}>
+      <Section
+        title="Fotografije artikla"
+        hint="Dodaj što više fotografija, do 7: prednju i zadnju stranu, hrbat i svako oštećenje. Oglasi sa više fotografija se brže prodaju."
+        className="mt-[60px]"
+        gap={34}
+      >
         <input
           ref={fileRef}
           type="file"
@@ -303,7 +308,7 @@ export function SellForm({ refs, signedIn }: { refs: SellRefs | null; signedIn: 
           </Field>
         )}
         {!hidden.includes("isbn") && (
-          <Field label="ISBN">
+          <Field label="ISBN" optional>
             <input name="isbn" placeholder="npr. 978-86-10-02436-4" className={inputCls} />
           </Field>
         )}
@@ -330,10 +335,10 @@ export function SellForm({ refs, signedIn }: { refs: SellRefs | null; signedIn: 
           </Field>
         )}
         <div className="col-span-2">
-          <Field label={`Opis stanja ${noun}`}>
+          <Field label="Opis">
             <textarea
               name="opis"
-              placeholder="Stanje sam označio kao “veoma dobro” isključivo jer je jednom pročitana, dakle ipak je korišćena, ali nema oštećenja, mrlja ili slično..."
+              placeholder="Opiši artikal: stanje, eventualna oštećenja, o čemu se radi u knjizi ili šta sve dobija kupac..."
               className="block h-[124px] w-[636px] resize-none border border-[#dfdfdf] bg-white p-[16px] text-[14px] leading-[1.4] text-black placeholder:text-[#71717a] focus:border-black focus:outline-none"
             />
           </Field>
@@ -357,18 +362,6 @@ export function SellForm({ refs, signedIn }: { refs: SellRefs | null; signedIn: 
               />
             </span>
           </label>
-          <div className="relative h-[49px] w-[306px] bg-[#f5f5f5]">
-            <span className="trim-cap absolute left-[10px] top-[8px] text-[11px] leading-[0.95] text-[#696969]">You earn</span>
-            <span className="trim-cap absolute left-[10px] top-[25px] text-[18px] font-semibold leading-[0.95] text-[#b3b3b3]">
-              RSD {priceNum.toLocaleString("sr-RS")}
-            </span>
-            <span
-              title="Sajam ne uzima proviziju: ceo iznos ide tebi."
-              className="absolute left-[287px] top-[8px]"
-            >
-              <Image src="/icons/info.svg" alt="Informacija" width={11} height={11} />
-            </span>
-          </div>
         </div>
       </Section>
 
@@ -390,11 +383,24 @@ export function SellForm({ refs, signedIn }: { refs: SellRefs | null; signedIn: 
   );
 }
 
-function Section({ title, className, gap, children }: { title: string; className?: string; gap: number; children: React.ReactNode }) {
+function Section({
+  title,
+  hint,
+  className,
+  gap,
+  children,
+}: {
+  title: string;
+  hint?: string;
+  className?: string;
+  gap: number;
+  children: React.ReactNode;
+}) {
   return (
     <section className={className}>
       <h2 className="text-[17px] font-semibold leading-[16px] text-black">{title}</h2>
-      <div style={{ marginTop: gap - 16 }}>{children}</div>
+      {hint && <p className="mt-[8px] text-[13px] leading-[1.4] text-[#7c7c7c]">{hint}</p>}
+      <div style={{ marginTop: hint ? 16 : gap - 16 }}>{children}</div>
     </section>
   );
 }

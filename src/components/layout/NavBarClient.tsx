@@ -156,7 +156,9 @@ export function NavBarClient({ user }: { user: NavUser }) {
 
 function MegaMenu({ panel, onNavigate }: { panel: MenuPanel; onNavigate: () => void }) {
   return (
-    <div className="absolute left-1/2 top-[136px] h-[289px] w-[937px] -translate-x-1/2 overflow-hidden rounded-[10px] bg-white">
+    <div
+      style={{ height: panel.items.length > 6 ? 370 : 289 }}
+      className="absolute left-1/2 top-[136px] w-[937px] -translate-x-1/2 overflow-hidden rounded-[10px] bg-white">
       <Link
         href={panel.href}
         onClick={onNavigate}
@@ -166,7 +168,10 @@ function MegaMenu({ panel, onNavigate }: { panel: MenuPanel; onNavigate: () => v
         <span className="text-[15px] leading-[1.5] text-[#777574]">{panel.description}</span>
       </Link>
 
-      <ul className="absolute left-[241px] top-[42px] grid grid-flow-col grid-cols-[156px_156px] grid-rows-3 gap-x-[45px] gap-y-[17px] font-medium">
+      <ul
+        className="absolute left-[241px] top-[42px] grid grid-flow-col grid-cols-[156px_156px] gap-x-[45px] gap-y-[17px] font-medium"
+        style={{ gridTemplateRows: `repeat(${Math.max(3, Math.ceil(panel.items.length / 2))}, auto)` }}
+      >
         {panel.items.map((item) => (
           <li key={item.href}>
             <Link href={item.href} onClick={onNavigate} className="flex flex-col gap-[10px]">

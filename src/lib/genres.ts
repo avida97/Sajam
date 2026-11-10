@@ -45,7 +45,7 @@ export const GENRES: Record<ItemType, Array<{ slug: string; name: string }>> = {
 };
 
 // Jezici iz Figme (filter „Jezik“ na stranici Knjige).
-export const LANGUAGES = ["Srpski", "Engleski", "Ruski", "Srpsko-hrvatski", "Slovenački"];
+export const LANGUAGES = ["Srpski", "Engleski", "Ruski", "Hrvatski", "Slovenački"];
 
 // Opsezi iz Figme (filter „Broj knjiga u paketu“).
 export const BUNDLE_RANGES = [

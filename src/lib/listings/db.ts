@@ -11,7 +11,7 @@ const SELECT = `
   id, title, author, price_rsd, condition, condition_note, item_type, city, description,
   publisher, language, page_count, isbn, bundle_count, status, created_at, updated_at,
   shipping_methods, payment_methods,
-  category:categories!inner ( slug, parent:categories!parent_id ( slug ) ),
+  category:categories!inner ( slug, parent:parent_id ( slug ) ),
   genre:genres ( slug, name ),
   seller:profiles!listings_seller_id_fkey ( username, display_name, avatar_url ),
   images:listing_images ( path, position )

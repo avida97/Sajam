@@ -447,7 +447,7 @@ isOneToOne: false
                            }
           }
           Enums: {
-            "help_section": "kupovina"|"prodaja"|"nalog","item_condition": "novo"|"kao_novo"|"vrlo_dobro"|"dobro"|"zadovoljavajuce","item_type": "knjiga"|"muzika"|"igra"|"manga_strip"|"oprema","listing_status": "dostupno"|"rezervisano"|"prodato"|"uklonjen","payment_method": "tekuci_racun"|"pouzece"|"gotovina","report_status": "otvorena"|"resena"|"odbacena","shipping_method": "posta"|"licno"
+            "help_section": "kupovina"|"prodaja"|"nalog","item_condition": "novo"|"kao_novo"|"korisceno","item_type": "knjiga"|"muzika"|"igra"|"manga_strip"|"oprema","listing_status": "dostupno"|"rezervisano"|"prodato"|"uklonjen","payment_method": "tekuci_racun"|"pouzece"|"gotovina","report_status": "otvorena"|"resena"|"odbacena","shipping_method": "posta"|"licno"
           }
           CompositeTypes: {
             [_ in never]: never

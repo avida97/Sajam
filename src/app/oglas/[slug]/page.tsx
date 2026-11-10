@@ -53,9 +53,10 @@ const fmtDate = (iso: string) => {
 // a glavno dugme je „Pitaj prodavca“ (poruke).
 export default async function ListingPage({ params }: Props) {
   const l = await load((await params).slug);
-  const category = CATEGORIES.find((c) => c.slug === l.categorySlug)!;
+  const category = CATEGORIES.find((c) => c.slug === l.categorySlug);
+  if (!category) notFound();
   const sub = category.subcategories.find((s) => s.slug === l.subcategorySlug);
-  const condition = CONDITIONS.find((c) => c.value === l.condition)!;
+  const condition = CONDITIONS.find((c) => c.value === l.condition) ?? CONDITIONS[CONDITIONS.length - 1];
   const hidden = HIDDEN_FIELDS[l.item_type];
   const title = l.placeholder ? "Naziv artikla" : l.title;
   const [similar, fromSeller] = await Promise.all([getSimilarListings(l, 30), getSellerListings(l, 30)]);
