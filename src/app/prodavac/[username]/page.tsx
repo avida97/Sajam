@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 import { ProductCard } from "@/components/catalog/ProductCard";
 import { MainButton } from "@/components/ui/MainButton";
 import { getListingsBySeller } from "@/lib/listings/query";
+import { SellerReviews } from "@/components/account/SellerReviews";
 import { getProfile, getReviews } from "@/lib/profiles";
 import { getCurrentUser } from "@/lib/supabase/server";
 
@@ -95,24 +96,7 @@ export default async function SellerPage({ params, searchParams }: Props) {
         <div className="mx-auto min-h-[420px] max-w-site px-[182px] py-[48px]">
           {showReviews ? (
             reviews.length ? (
-              <ul className="flex max-w-[760px] flex-col gap-[12px]">
-                {reviews.map((r) => (
-                  <li key={r.id} className="bg-white p-[20px]">
-                    <div className="flex items-center justify-between text-[13px]">
-                      <span className="font-semibold">
-                        {"★".repeat(r.rating)}
-                        <span className="text-[#d4d4d8]">{"★".repeat(5 - r.rating)}</span>
-                      </span>
-                      <span className="text-[#7c7c7c]">{fmtDate(r.createdAt)}</span>
-                    </div>
-                    {r.comment && <p className="mt-[10px] text-[14px] leading-[1.5]">{r.comment}</p>}
-                    <p className="mt-[10px] text-[12px] text-[#666]">
-                      {r.reviewer ? `@${r.reviewer.username}` : "Kupac"}
-                      {r.listingTitle && ` · ${r.listingTitle}`}
-                    </p>
-                  </li>
-                ))}
-              </ul>
+              <SellerReviews reviews={reviews} />
             ) : (
               <Empty title="Još nema recenzija" text="Recenzije ostavljaju kupci posle kupovine." />
             )

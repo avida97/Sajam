@@ -3,6 +3,8 @@ import { createClient } from "@supabase/supabase-js";
 import { connection } from "next/server";
 import type { Database } from "@/lib/supabase/database.types";
 import { SUPABASE_ANON_KEY, SUPABASE_URL, isSupabaseConfigured } from "@/lib/supabase/env";
+import { listingImageUrl } from "@/lib/listings/db";
+import { listingHref } from "@/lib/listings/params";
 
 // Javni profil prodavca i njegove recenzije, čitano kao gost (iste dozvole kao posetilac).
 
@@ -22,9 +24,12 @@ export type ProfileReview = {
   rating: number;
   comment: string | null;
   createdAt: string;
+  tags: string[];
   reviewer: { username: string; displayName: string; avatarUrl: string | null } | null;
-  listingTitle: string | null;
+  listing: { title: string; author: string | null; image: string | null; href: string } | null;
 };
+
+export type SellerStats = { sold: number; reviews: number; avg: number | null; positivePct: number | null };
 
 function anon() {
   return createClient<Database>(SUPABASE_URL, SUPABASE_ANON_KEY, {
@@ -54,7 +59,9 @@ export async function getReviews(sellerId: string): Promise<ProfileReview[]> {
   const { data, error } = await anon()
     .from("reviews")
     .select(
-      "id, rating, comment, created_at, reviewer:profiles!reviews_reviewer_id_fkey ( username, display_name, avatar_url ), listing:listings ( title )",
+      `id, rating, comment, tags, created_at,
+       reviewer:profiles!reviews_reviewer_id_fkey ( username, display_name, avatar_url ),
+       listing:listings ( id, title, author, images:listing_images ( path, position ) )`,
     )
     .eq("seller_id", sellerId)
     .order("created_at", { ascending: false })
@@ -70,8 +77,38 @@ export async function getReviews(sellerId: string): Promise<ProfileReview[]> {
       rating: r.rating,
       comment: r.comment,
       createdAt: r.created_at,
+      tags: r.tags ?? [],
       reviewer: rev ? { username: rev.username, displayName: rev.display_name, avatarUrl: rev.avatar_url } : null,
-      listingTitle: (r.listing as { title: string } | null)?.title ?? null,
+      listing: toReviewListing(r.listing as unknown as ReviewListingRow | null),
     };
   });
+}
+
+type ReviewListingRow = {
+  id: number;
+  title: string;
+  author: string | null;
+  images: Array<{ path: string; position: number }> | null;
+};
+
+function toReviewListing(l: ReviewListingRow | null): ProfileReview["listing"] {
+  if (!l) return null;
+  const first = [...(l.images ?? [])].sort((a, b) => a.position - b.position)[0];
+  return { title: l.title, author: l.author, image: first ? listingImageUrl(first.path) : null, href: listingHref(l) };
+}
+
+/** Brojevi u kartici prodavca na oglasu: prodato, broj ocena i procenat pozitivnih (4 i 5 zvezdica). */
+export async function getSellerStats(username: string): Promise<SellerStats | null> {
+  if (!isSupabaseConfigured) return null;
+  const db = anon();
+  const { data: p } = await db.from("profiles").select("id").eq("username", username).maybeSingle();
+  if (!p) return null;
+  const { data } = await db.from("seller_stats").select("*").eq("seller_id", p.id).maybeSingle();
+  if (!data) return null;
+  return {
+    sold: Number(data.sold_count ?? 0),
+    reviews: Number(data.review_count ?? 0),
+    avg: data.rating_avg == null ? null : Number(data.rating_avg),
+    positivePct: data.positive_pct == null ? null : Number(data.positive_pct),
+  };
 }

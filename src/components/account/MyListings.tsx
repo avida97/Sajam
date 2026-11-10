@@ -16,6 +16,9 @@ export type MyListing = {
   status: "dostupno" | "rezervisano" | "prodato";
   createdAt: string;
   image: string | null;
+  soldTo: string | null;
+  /** Ko je pisao o ovom oglasu (najskoriji prvi). */
+  buyers: Array<{ id: string; username: string; displayName: string }>;
 };
 
 const STATUSES: Array<{ value: MyListing["status"]; label: string }> = [
@@ -37,22 +40,31 @@ export function MyListings({
   const [confirm, setConfirm] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  const setStatus = async (id: number, status: MyListing["status"]) => {
+  // Kad se bira Prodato, a o oglasu je neko pisao, prvo se pita kome je prodato.
+  const [picking, setPicking] = useState<number | null>(null);
+  const [buyer, setBuyer] = useState<string>("");
+
+  // Vremena rezervacije i prodaje upisuje baza.
+  const setStatus = async (id: number, status: MyListing["status"], soldTo: string | null = null) => {
     const prev = items;
-    setItems((xs) => xs.map((x) => (x.id === id ? { ...x, status } : x)));
-    const now = new Date().toISOString();
+    setItems((xs) => xs.map((x) => (x.id === id ? { ...x, status, soldTo } : x)));
+    setPicking(null);
     const { error } = await createClient()
       .from("listings")
-      .update({
-        status,
-        reserved_at: status === "rezervisano" ? now : null,
-        sold_at: status === "prodato" ? now : null,
-      })
+      .update({ status, sold_to: status === "prodato" ? soldTo : null })
       .eq("id", id);
     if (error) {
       setItems(prev);
       setError("Status nije promenjen. Pokušaj ponovo.");
     } else router.refresh();
+  };
+
+  const onStatus = (l: MyListing, status: MyListing["status"]) => {
+    setError(null);
+    if (status === "prodato" && l.buyers.length) {
+      setBuyer(l.soldTo ?? l.buyers[0].id);
+      setPicking(l.id);
+    } else setStatus(l.id, status);
   };
 
   // Brisanje = status „uklonjen“: oglas nestaje sa sajta, a razgovori i recenzije ostaju.
@@ -100,7 +112,8 @@ export function MyListings({
       ) : (
         <ul className="mt-[40px] divide-y-[0.5px] divide-[#e1e1e1] border-y-[0.5px] border-[#e1e1e1]">
           {items.map((l) => (
-            <li key={l.id} className="flex items-center gap-[20px] py-[16px]">
+            <li key={l.id} className="py-[16px]">
+             <div className="flex items-center gap-[20px]">
               <Link
                 href={listingHref(l)}
                 className="relative block h-[96px] w-[74px] shrink-0 overflow-hidden bg-[#f5f6f8]"
@@ -128,15 +141,29 @@ export function MyListings({
                 <p className="mt-[8px] text-[13px] font-medium">
                   {formatRsd(l.price)}
                 </p>
+                {l.status === "prodato" && picking !== l.id && (
+                  <p className="mt-[6px] text-[12px] text-[#52525b]">
+                    {l.soldTo
+                      ? `Kupac: ${l.buyers.find((b) => b.id === l.soldTo)?.displayName ?? "sa Sajma"}. Poziv za ocenu je poslat.`
+                      : "Prodato van Sajma."}
+                    {l.buyers.length > 0 && (
+                      <button
+                        type="button"
+                        onClick={() => onStatus(l, "prodato")}
+                        className="ml-[8px] font-medium text-black underline"
+                      >
+                        Promeni
+                      </button>
+                    )}
+                  </p>
+                )}
               </div>
 
               <div className="relative h-[36px] w-[160px]">
                 <select
                   aria-label={`Status oglasa ${l.title}`}
-                  value={l.status}
-                  onChange={(e) =>
-                    setStatus(l.id, e.target.value as MyListing["status"])
-                  }
+                  value={picking === l.id ? "prodato" : l.status}
+                  onChange={(e) => onStatus(l, e.target.value as MyListing["status"])}
                   className="sell-field h-[36px] w-[160px] appearance-none border border-black bg-white pl-[11px] pr-[30px] text-[14px] focus:outline-none"
                 >
                   {STATUSES.map((s) => (
@@ -185,6 +212,43 @@ export function MyListings({
                   </button>
                 )}
               </span>
+             </div>
+              {picking === l.id && (
+                <fieldset className="ml-[94px] mt-[14px] max-w-[520px] bg-[#f5f6f8] p-[18px]">
+                  <legend className="sr-only">Kome je prodato</legend>
+                  <p className="text-[14px] font-semibold">Kome je prodato?</p>
+                  <p className="mt-[4px] text-[12px] text-[#52525b]">
+                    Poziv za ocenu dobija izabrani kupac, i samo taj kupac može da te oceni.
+                  </p>
+                  <div className="mt-[12px] flex flex-col gap-[8px] text-[14px]">
+                    {[...l.buyers, { id: "", username: "", displayName: "Nekom van Sajma" }].map((b) => (
+                      <label key={b.id || "van"} className="flex cursor-pointer items-center gap-[10px]">
+                        <input
+                          type="radio"
+                          name={`kupac-${l.id}`}
+                          checked={buyer === b.id}
+                          onChange={() => setBuyer(b.id)}
+                          className="size-[16px] accent-black"
+                        />
+                        {b.displayName}
+                        {b.username && <span className="text-[12px] text-[#71717a]">@{b.username}</span>}
+                      </label>
+                    ))}
+                  </div>
+                  <div className="mt-[16px] flex items-center gap-[14px]">
+                    <button
+                      type="button"
+                      onClick={() => setStatus(l.id, "prodato", buyer || null)}
+                      className="h-[33px] bg-ink px-[19px] text-[11px] font-bold uppercase text-white"
+                    >
+                      Označi kao prodato
+                    </button>
+                    <button type="button" onClick={() => setPicking(null)} className="text-[12px] font-medium underline">
+                      Odustani
+                    </button>
+                  </div>
+                </fieldset>
+              )}
             </li>
           ))}
         </ul>

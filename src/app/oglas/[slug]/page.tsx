@@ -1,6 +1,7 @@
 import { PAYMENT as PAYMENT_OPTIONS, SHIPPING as SHIPPING_OPTIONS } from "@/lib/shipping";
 import type { Metadata } from "next";
 import { getCurrentUser } from "@/lib/supabase/server";
+import { getSellerStats } from "@/lib/profiles";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -62,7 +63,12 @@ export default async function ListingPage({ params }: Props) {
   const condition = CONDITIONS.find((c) => c.value === l.condition) ?? CONDITIONS[CONDITIONS.length - 1];
   const hidden = HIDDEN_FIELDS[l.item_type];
   const title = l.placeholder ? "Naziv artikla" : l.title;
-  const [similar, fromSeller, me] = await Promise.all([getSimilarListings(l, 30), getSellerListings(l, 30), getCurrentUser()]);
+  const [similar, fromSeller, me, stats] = await Promise.all([
+    getSimilarListings(l, 30),
+    getSellerListings(l, 30),
+    getCurrentUser(),
+    l.placeholder ? null : getSellerStats(l.seller.username),
+  ]);
   const own = !!me?.profile && me.profile.username === l.seller.username;
 
   const meta = [
@@ -203,20 +209,24 @@ export default async function ListingPage({ params }: Props) {
             </div>
             <div className="relative flex h-[75px] items-start px-[19.5px] pt-[24px] text-[12px]">
               <div className="flex w-[58px] flex-col gap-[8px]">
-                <p className="trim-cap font-semibold">0</p>
+                <p className="trim-cap font-semibold">{stats?.sold ?? 0}</p>
                 <p className="trim-cap">prodato</p>
               </div>
               <div className="-mt-[4px] ml-[10px] flex h-[35px] gap-[14px] border-l-[0.5px] border-[#ccc] pl-[10.5px] pt-[4px]">
                 <div className="flex w-[46px] flex-col gap-[8px]">
-                  <p className="trim-cap font-semibold">0</p>
+                  <Link href={`/prodavac/${l.seller.username}?tab=recenzije`} className="trim-cap font-semibold hover:underline">
+                    {stats?.reviews ?? 0}
+                  </Link>
                   <p className="trim-cap">ocena</p>
                 </div>
                 <div className="flex w-[93px] flex-col gap-[8px]">
-                  <p className="trim-cap font-semibold">—</p>
+                  <p className="trim-cap font-semibold">{stats?.positivePct != null ? `${stats.positivePct}%` : "—"}</p>
                   <p className="trim-cap">pozitivnih ocena</p>
                 </div>
               </div>
-              <Image src="/icons/info.svg" alt="" width={11} height={11} className="absolute right-[20px] top-[20px]" />
+              <span title="Pozitivne ocene su ocene sa 4 i 5 zvezdica." className="absolute right-[20px] top-[20px]">
+                <Image src="/icons/info.svg" alt="Pozitivne ocene su ocene sa 4 i 5 zvezdica." width={11} height={11} />
+              </span>
             </div>
           </div>
           <p className="mt-[12px] text-[12px] leading-[1.4] text-[#737373]">

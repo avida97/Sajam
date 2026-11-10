@@ -90,6 +90,7 @@ export function Inbox({ meId, conversations, selectedId, messages, draft }: Prop
             listing={selected.listing}
             other={selected.other}
             role={selected.role}
+            canReview={selected.canReview}
             messages={dedupe([...messages, ...incoming])}
           />
         ) : (
@@ -186,8 +187,10 @@ function Thread({
   role,
   messages,
   draft,
+  canReview,
 }: {
   meId: string;
+  canReview?: boolean;
   conversationId?: string;
   listing: ChatListing;
   other: ChatPerson;
@@ -283,6 +286,17 @@ function Thread({
           </span>
         </Link>
       </header>
+      {canReview && (
+        <div className="flex items-center justify-between gap-[16px] border-b-[0.5px] border-[#e1e1e1] bg-[#f5f6f8] px-[20px] py-[12px] text-[13px]">
+          <span>Prodavac je označio da je artikal prodat tebi. Kako je prošla kupovina?</span>
+          <Link
+            href={`/recenzija/${listing.id}`}
+            className="flex h-[33px] shrink-0 items-center bg-ink px-[19px] text-[11px] font-bold uppercase text-white"
+          >
+            Oceni prodavca
+          </Link>
+        </div>
+      )}
 
       <div className="min-h-0 flex-1 overflow-y-auto px-[24px] py-[20px]" aria-live="polite">
         {draft && (

@@ -330,14 +330,14 @@ isOneToOne: false
                   ]
                 },"reviews": {
                   Row: {
-                    "comment": string | null,"created_at": string,"id": number,"listing_id": number,"rating": number,"reviewer_id": string,"seller_id": string
+                    "comment": string | null,"created_at": string,"id": number,"listing_id": number,"rating": number,"reviewer_id": string,"seller_id": string,"tags": string[]
                   }
                   ComputedFields: never
                   Insert: {
-                    "comment"?: string | null,"created_at"?: string,"id"?: never,"listing_id": number,"rating": number,"reviewer_id": string,"seller_id": string
+                    "comment"?: string | null,"created_at"?: string,"id"?: never,"listing_id": number,"rating": number,"reviewer_id": string,"seller_id": string,"tags"?: string[]
                   }
                   Update: {
-                    "comment"?: string | null,"created_at"?: string,"id"?: never,"listing_id"?: number,"rating"?: number,"reviewer_id"?: string,"seller_id"?: string
+                    "comment"?: string | null,"created_at"?: string,"id"?: never,"listing_id"?: number,"rating"?: number,"reviewer_id"?: string,"seller_id"?: string,"tags"?: string[]
                   }
                   Relationships: [
                     {

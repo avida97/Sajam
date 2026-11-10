@@ -23,6 +23,8 @@ export type ConversationSummary = {
   lastAt: string;
   lastFromMe: boolean;
   unread: number;
+  /** Kupac kome je prodavac označio prodaju, a još nije ostavio ocenu. */
+  canReview: boolean;
 };
 
 export type ChatMessage = {
@@ -67,7 +69,7 @@ export async function getConversations(meId: string): Promise<ConversationSummar
     .from("conversations")
     .select(
       `id, buyer_id, seller_id, last_message_at,
-       listing:listings ( id, title, price_rsd, status, images:listing_images ( path, position ) ),
+       listing:listings ( id, title, price_rsd, status, sold_to, images:listing_images ( path, position ) ),
        buyer:profiles!conversations_buyer_id_fkey ( username, display_name, avatar_url ),
        seller:profiles!conversations_seller_id_fkey ( username, display_name, avatar_url )`,
     )
@@ -77,15 +79,19 @@ export async function getConversations(meId: string): Promise<ConversationSummar
   if (!convs?.length) return [];
 
   // Poslednje poruke svih razgovora odjednom; za početak je dovoljno 1000 najnovijih.
-  const { data: msgs } = await supabase
-    .from("messages")
-    .select("conversation_id, sender_id, body, created_at, read_at")
-    .in("conversation_id", convs.map((c) => c.id))
-    .order("created_at", { ascending: false })
-    .limit(1000);
+  const [{ data: msgs }, { data: reviewed }] = await Promise.all([
+    supabase
+      .from("messages")
+      .select("conversation_id, sender_id, body, created_at, read_at")
+      .in("conversation_id", convs.map((c) => c.id))
+      .order("created_at", { ascending: false })
+      .limit(1000),
+    supabase.from("reviews").select("listing_id").eq("reviewer_id", meId),
+  ]);
+  const done = new Set((reviewed ?? []).map((r) => r.listing_id));
 
   return convs.flatMap((c) => {
-    const listing = c.listing as unknown as ListingRow | null;
+    const listing = c.listing as unknown as (ListingRow & { sold_to: string | null }) | null;
     if (!listing) return [];
     const mine = (msgs ?? []).filter((m) => m.conversation_id === c.id);
     const last = mine[0];
@@ -100,6 +106,7 @@ export async function getConversations(meId: string): Promise<ConversationSummar
         lastAt: last?.created_at ?? c.last_message_at,
         lastFromMe: last?.sender_id === meId,
         unread: mine.filter((m) => m.sender_id !== meId && !m.read_at).length,
+        canReview: isBuyer && listing.status === "prodato" && listing.sold_to === meId && !done.has(listing.id),
       } satisfies ConversationSummary,
     ];
   });
