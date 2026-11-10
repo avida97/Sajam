@@ -4,7 +4,7 @@ import Image from "next/image";
 import { useCallback, useEffect, useRef, useState } from "react";
 import QRCode from "qrcode";
 import { IsbnScanner } from "@/components/sell/IsbnScanner";
-import { cleanIsbn, isValidIsbn, lookupIsbn, type BookInfo } from "@/lib/isbn";
+import { cleanIsbn, isValidIsbn, type BookInfo } from "@/lib/isbn";
 
 type Status = { tone: "info" | "ok" | "warn"; text: string } | null;
 
@@ -29,7 +29,9 @@ export function IsbnField({ className, onFound }: { className: string; onFound: 
       const ctrl = new AbortController();
       abortRef.current = ctrl;
       setStatus({ tone: "info", text: "Tražim knjigu po ISBN-u..." });
-      const info = await lookupIsbn(isbn, ctrl.signal);
+      const info: BookInfo | null = await fetch(`/api/isbn/${isbn}`, { signal: ctrl.signal })
+        .then((r) => (r.ok ? r.json() : null))
+        .catch(() => null);
       if (ctrl.signal.aborted) return;
       if (info?.title) {
         onFound(info);

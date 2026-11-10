@@ -43,9 +43,14 @@ const LANGUAGE_CODES: Record<string, BookInfo["language"]> = {
   slv: "Slovenački",
 };
 
-async function fromGoogle(isbn: string, signal: AbortSignal): Promise<BookInfo | null> {
-  const res = await fetch(`https://www.googleapis.com/books/v1/volumes?q=isbn:${isbn}`, { signal });
-  if (!res.ok) return null;
+async function fromGoogle(isbn: string, signal: AbortSignal, key?: string): Promise<BookInfo | null> {
+  // Bez ključa Google deli jednu dnevnu kvotu na sve korisnike na svetu, pa skoro uvek vraća 429.
+  const k = key ? `&key=${encodeURIComponent(key)}` : "";
+  const res = await fetch(`https://www.googleapis.com/books/v1/volumes?q=isbn:${isbn}${k}`, { signal });
+  if (!res.ok) {
+    if (res.status === 429 || res.status === 403) console.warn("Google Books:", res.status, await res.text());
+    return null;
+  }
   const data = await res.json();
   const v = data.items?.[0]?.volumeInfo;
   if (!v) return null;
@@ -61,7 +66,7 @@ async function fromGoogle(isbn: string, signal: AbortSignal): Promise<BookInfo |
 async function fromOpenLibrary(isbn: string, signal: AbortSignal): Promise<BookInfo | null> {
   const res = await fetch(
     `https://openlibrary.org/api/books?bibkeys=ISBN:${isbn}&format=json&jscmd=data`,
-    { signal },
+    { signal, headers: { "user-agent": "Sajam/1.0 (book marketplace)" } },
   );
   if (!res.ok) return null;
   const b = (await res.json())[`ISBN:${isbn}`];
@@ -76,10 +81,10 @@ async function fromOpenLibrary(isbn: string, signal: AbortSignal): Promise<BookI
   };
 }
 
-/** Traži knjigu u obe baze i spaja ono što nađe (Google ima prednost). */
-export async function lookupIsbn(isbn: string, signal: AbortSignal): Promise<BookInfo | null> {
+/** Poziva se samo sa servera (src/app/api/isbn). Traži knjigu u obe baze i spaja ono što nađe (Google ima prednost). */
+export async function lookupIsbn(isbn: string, signal: AbortSignal, googleKey?: string): Promise<BookInfo | null> {
   const safe = <T,>(p: Promise<T>) => p.catch(() => null);
-  const google = await safe(fromGoogle(isbn, signal));
+  const google = await safe(fromGoogle(isbn, signal, googleKey));
   const complete = google && google.title && google.authors && google.publisher && google.pageCount;
   const open = complete ? null : await safe(fromOpenLibrary(isbn, signal));
   if (!google && !open) return null;
