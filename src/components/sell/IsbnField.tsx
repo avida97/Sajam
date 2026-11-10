@@ -3,70 +3,25 @@
 import Image from "next/image";
 import { useCallback, useEffect, useRef, useState } from "react";
 import QRCode from "qrcode";
+import { BookSuggest } from "@/components/sell/BookSuggest";
 import { IsbnScanner } from "@/components/sell/IsbnScanner";
-import { cleanIsbn, isValidIsbn, type BookInfo } from "@/lib/isbn";
+import type { BookHit } from "@/lib/isbn";
 
-type Status = { tone: "info" | "ok" | "warn"; text: string } | null;
-
-// Polje ISBN: kad se upiše ili skenira ispravan broj, podaci o knjizi se traže u javnim
-// bazama i popunjavaju formu. Na telefonu je tu dugme „Skeniraj“, a na računaru QR kod
-// koji otvara istu formu na telefonu, sa kamerom spremnom za skeniranje.
-export function IsbnField({ className, onFound }: { className: string; onFound: (info: BookInfo) => void }) {
-  const [value, setValue] = useState("");
-  const [status, setStatus] = useState<Status>(null);
+// Polje ISBN: upisan ili skeniran broj otvara listu knjiga sa tim brojem. Na telefonu je
+// tu dugme „Skeniraj“, a na računaru „Telefonom“ sa QR kodom koji otvara istu formu na
+// telefonu, sa kamerom spremnom za skeniranje.
+export function IsbnField({ className, onPick }: { className: string; onPick: (hit: BookHit) => void }) {
   const [touch, setTouch] = useState(false);
   const [scanning, setScanning] = useState(false);
+  const [trigger, setTrigger] = useState<{ value: string; n: number } | null>(null);
   const [qr, setQr] = useState<string | null>(null);
   const [showQr, setShowQr] = useState(false);
-  const abortRef = useRef<AbortController | null>(null);
-  const lastRef = useRef<string | null>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
-  const search = useCallback(
-    async (isbn: string) => {
-      if (lastRef.current === isbn) return;
-      lastRef.current = isbn;
-      abortRef.current?.abort();
-      const ctrl = new AbortController();
-      abortRef.current = ctrl;
-      setStatus({ tone: "info", text: "Tražim knjigu po ISBN-u..." });
-      // 404 = knjige nema u bazama; sve drugo (server ili mreža ne rade) = „error“.
-      const info: BookInfo | null | "error" = await fetch(`/api/isbn/${isbn}`, { signal: ctrl.signal })
-        .then((r) => (r.ok ? r.json() : r.status === 404 ? null : "error"))
-        .catch(() => "error");
-      if (ctrl.signal.aborted) return;
-      if (info === "error") {
-        lastRef.current = null;
-        setStatus({ tone: "warn", text: "Pretraga po ISBN-u trenutno ne radi. Popuni podatke ručno." });
-      } else if (info?.title) {
-        onFound(info);
-        setStatus({ tone: "ok", text: "Podaci o knjizi su popunjeni. Proveri ih pre objave." });
-      } else {
-        setStatus({ tone: "warn", text: "Knjiga nije pronađena. Popuni podatke ručno." });
-      }
-    },
-    [onFound],
-  );
-
-  const onChange = (raw: string) => {
-    setValue(raw);
-    const isbn = cleanIsbn(raw);
-    if (isValidIsbn(isbn)) search(isbn);
-    else {
-      lastRef.current = null;
-      abortRef.current?.abort();
-      const looksDone = isbn.length === 13 || (isbn.length === 10 && !isbn.startsWith("97"));
-      setStatus(looksDone ? { tone: "warn", text: "Proveri broj, ovaj ISBN nije ispravan." } : null);
-    }
-  };
-
-  const onDetected = useCallback(
-    (isbn: string) => {
-      setScanning(false);
-      setValue(isbn);
-      search(isbn);
-    },
-    [search],
-  );
+  const onDetected = useCallback((isbn: string) => {
+    setScanning(false);
+    setTrigger((t) => ({ value: isbn, n: (t?.n ?? 0) + 1 }));
+  }, []);
   const closeScanner = useCallback(() => setScanning(false), []);
 
   useEffect(() => {
@@ -80,7 +35,6 @@ export function IsbnField({ className, onFound }: { className: string; onFound: 
       const q = params.toString();
       window.history.replaceState(null, "", window.location.pathname + (q ? `?${q}` : ""));
     }
-    return () => abortRef.current?.abort();
   }, []);
 
   const openQr = async () => {
@@ -98,16 +52,17 @@ export function IsbnField({ className, onFound }: { className: string; onFound: 
 
   return (
     <div className="relative">
-      <div className="relative">
-        <input
-          name="isbn"
-          inputMode="numeric"
-          autoComplete="off"
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-          placeholder="npr. 978-86-10-02436-4"
-          className={`${className} pr-[96px]`}
-        />
+      <BookSuggest
+        by="isbn"
+        name="isbn"
+        placeholder="npr. 978-86-10-02436-4"
+        className={className}
+        padRight={96}
+        enabled
+        inputRef={inputRef}
+        trigger={trigger}
+        onPick={onPick}
+      >
         {touch ? (
           <button
             type="button"
@@ -128,18 +83,7 @@ export function IsbnField({ className, onFound }: { className: string; onFound: 
             Telefonom
           </button>
         )}
-      </div>
-
-      {status && (
-        <p
-          role="status"
-          className={`mt-[8px] text-[12px] leading-[1.4] ${
-            status.tone === "ok" ? "text-[#15803d]" : status.tone === "warn" ? "text-[#b45309]" : "text-[#7c7c7c]"
-          }`}
-        >
-          {status.text}
-        </p>
-      )}
+      </BookSuggest>
 
       {showQr && (
         <div className="absolute left-0 top-[44px] z-30 w-[306px] border border-[#dfdfdf] bg-white p-[16px] shadow-[0_8px_24px_rgba(0,0,0,0.12)]">
@@ -150,6 +94,7 @@ export function IsbnField({ className, onFound }: { className: string; onFound: 
           </p>
           <div className="mt-[12px] flex justify-center">
             {qr ? (
+              // eslint-disable-next-line @next/next/no-img-element
               <img src={qr} alt="QR kod za nastavak na telefonu" width={180} height={180} />
             ) : (
               <div className="size-[180px] bg-field" />

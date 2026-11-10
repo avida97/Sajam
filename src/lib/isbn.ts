@@ -1,14 +1,31 @@
-// ISBN: čišćenje, provera kontrolne cifre i traženje podataka o knjizi u javnim bazama
-// (Google Books, pa Open Library). Obe baze su besplatne, bez ključa, i rade iz pregledača.
+// ISBN i tipovi podataka o knjizi iz javnih baza. Ovaj fajl sme i u pregledač;
+// samo traženje (src/lib/books.ts) radi na serveru, zbog Google ključa.
 
 import { LANGUAGES } from "@/lib/genres";
 
-export type BookInfo = {
-  title: string | null;
+/** Jedan red u padajućoj listi rezultata. */
+export type BookHit = {
+  id: string;
+  title: string;
+  authors: string | null;
+  publisher: string | null;
+  year: string | null;
+  isbn: string | null;
+  thumb: string | null;
+};
+
+/** Sve što forma može da popuni kad se izabere knjiga. Sve ostaje izmenljivo. */
+export type BookDetail = {
+  title: string;
   authors: string | null;
   publisher: string | null;
   pageCount: number | null;
   language: (typeof LANGUAGES)[number] | null;
+  isbn: string | null;
+  description: string | null;
+  cover: string | null;
+  subcategory: string | null;
+  genre: string | null;
 };
 
 /** Ostavlja samo cifre i X: „978-86-10-02436-4“ → „9788610024364“. */
@@ -27,73 +44,4 @@ export function isValidIsbn(isbn: string) {
     return sum % 11 === 0;
   }
   return false;
-}
-
-// ISO 639-1 (Google) i 639-2 (Open Library) kodovi jezika koje forma nudi.
-const LANGUAGE_CODES: Record<string, BookInfo["language"]> = {
-  sr: "Srpski",
-  srp: "Srpski",
-  en: "Engleski",
-  eng: "Engleski",
-  ru: "Ruski",
-  rus: "Ruski",
-  hr: "Hrvatski",
-  hrv: "Hrvatski",
-  sl: "Slovenački",
-  slv: "Slovenački",
-};
-
-async function fromGoogle(isbn: string, signal: AbortSignal, key?: string): Promise<BookInfo | null> {
-  // Bez ključa Google deli jednu dnevnu kvotu na sve korisnike na svetu, pa skoro uvek vraća 429.
-  const k = key ? `&key=${encodeURIComponent(key)}` : "";
-  const res = await fetch(`https://www.googleapis.com/books/v1/volumes?q=isbn:${isbn}${k}`, { signal });
-  if (!res.ok) {
-    if (res.status === 429 || res.status === 403) console.warn("Google Books:", res.status, await res.text());
-    return null;
-  }
-  const data = await res.json();
-  const v = data.items?.[0]?.volumeInfo;
-  if (!v) return null;
-  return {
-    title: [v.title, v.subtitle].filter(Boolean).join(": ") || null,
-    authors: v.authors?.join(", ") ?? null,
-    publisher: v.publisher ?? null,
-    pageCount: v.pageCount || null,
-    language: LANGUAGE_CODES[v.language] ?? null,
-  };
-}
-
-async function fromOpenLibrary(isbn: string, signal: AbortSignal): Promise<BookInfo | null> {
-  const res = await fetch(
-    `https://openlibrary.org/api/books?bibkeys=ISBN:${isbn}&format=json&jscmd=data`,
-    { signal, headers: { "user-agent": "Sajam/1.0 (book marketplace)" } },
-  );
-  if (!res.ok) return null;
-  const b = (await res.json())[`ISBN:${isbn}`];
-  if (!b) return null;
-  const lang = b.languages?.[0]?.key?.split("/").pop();
-  return {
-    title: [b.title, b.subtitle].filter(Boolean).join(": ") || null,
-    authors: b.authors?.map((a: { name: string }) => a.name).join(", ") || null,
-    publisher: b.publishers?.[0]?.name ?? null,
-    pageCount: b.number_of_pages || null,
-    language: (lang && LANGUAGE_CODES[lang]) ?? null,
-  };
-}
-
-/** Poziva se samo sa servera (src/app/api/isbn). Traži knjigu u obe baze i spaja ono što nađe (Google ima prednost). */
-export async function lookupIsbn(isbn: string, signal: AbortSignal, googleKey?: string): Promise<BookInfo | null> {
-  const safe = <T,>(p: Promise<T>) => p.catch(() => null);
-  const google = await safe(fromGoogle(isbn, signal, googleKey));
-  const complete = google && google.title && google.authors && google.publisher && google.pageCount;
-  const open = complete ? null : await safe(fromOpenLibrary(isbn, signal));
-  if (!google && !open) return null;
-  const pick = <K extends keyof BookInfo>(k: K) => google?.[k] ?? open?.[k] ?? null;
-  return {
-    title: pick("title"),
-    authors: pick("authors"),
-    publisher: pick("publisher"),
-    pageCount: pick("pageCount"),
-    language: pick("language"),
-  };
 }

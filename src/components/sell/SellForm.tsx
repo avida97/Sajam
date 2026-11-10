@@ -8,7 +8,8 @@ import { CATEGORIES, HIDDEN_FIELDS, type ItemType } from "@/lib/categories";
 import { CONDITIONS, type Condition } from "@/lib/conditions";
 import { GENRES, LANGUAGES } from "@/lib/genres";
 import { listingHref } from "@/lib/listings/params";
-import type { BookInfo } from "@/lib/isbn";
+import type { BookDetail, BookHit } from "@/lib/isbn";
+import { BookSuggest } from "@/components/sell/BookSuggest";
 import { createClient } from "@/lib/supabase/client";
 
 // Id-jevi potkategorija („knjige/strane-knjige“) i žanrova („knjiga/roman“) iz baze.
@@ -51,7 +52,7 @@ const PHOTO_SLOTS = [
 ];
 
 const inputCls =
-  "h-[36px] w-[306px] border border-[#dfdfdf] bg-white px-[16px] text-[14px] leading-[16px] text-black placeholder:text-[#71717a] focus:border-black focus:outline-none";
+  "sell-field h-[36px] w-[306px] border border-[#dfdfdf] bg-white px-[16px] text-[14px] leading-[16px] text-black placeholder:text-[#71717a] focus:border-black focus:outline-none";
 
 export function SellForm({ refs, signedIn }: { refs: SellRefs | null; signedIn: boolean }) {
   const router = useRouter();
@@ -59,30 +60,94 @@ export function SellForm({ refs, signedIn }: { refs: SellRefs | null; signedIn: 
   const [type, setType] = useState<ItemType>("knjiga");
   const [publishing, setPublishing] = useState(false);
   const [price, setPrice] = useState("");
-  const [photos, setPhotos] = useState<Array<{ file: File; url: string }>>([]);
+  const [photos, setPhotos] = useState<Array<{ file: File; url: string; fromDb?: boolean }>>([]);
   const [notice, setNotice] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
   const formRef = useRef<HTMLFormElement>(null);
 
-  // Popunjava prazna polja podacima nađenim po ISBN-u; ono što je korisnik već upisao ostaje.
-  const fillFromIsbn = useCallback((info: BookInfo) => {
+  const [bookNote, setBookNote] = useState<{ tone: "info" | "ok" | "warn"; text: string } | null>(null);
+  const pickRef = useRef(0);
+
+  // Izabrana knjiga iz padajuće liste popunjava formu. Sva polja ostaju izmenljiva.
+  const pickBook = useCallback(async (hit: BookHit) => {
     const form = formRef.current;
     if (!form) return;
-    const set = (name: string, value: string | number | null) => {
-      const el = form.elements.namedItem(name) as HTMLInputElement | HTMLSelectElement | null;
-      if (el && value != null && !el.value) el.value = String(value);
+    const n = ++pickRef.current;
+    setBookNote({ tone: "info", text: `Učitavam podatke za „${hit.title}“...` });
+    const detail: BookDetail | null = await fetch(`/api/knjige/${encodeURIComponent(hit.id)}`)
+      .then((r) => (r.ok ? r.json() : null))
+      .catch(() => null);
+    if (n !== pickRef.current) return;
+    const book: BookDetail = detail ?? {
+      title: hit.title,
+      authors: hit.authors,
+      publisher: hit.publisher,
+      isbn: hit.isbn,
+      pageCount: null,
+      language: null,
+      description: null,
+      cover: null,
+      subcategory: null,
+      genre: null,
     };
-    set("naziv", info.title);
-    set("autor", info.authors);
-    set("izdavac", info.publisher);
-    set("broj_stranica", info.pageCount);
-    set("jezik", info.language);
+
+    const filled: string[] = [];
+    const set = (name: string, label: string, value: string | number | null) => {
+      const el = form.elements.namedItem(name) as HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement | null;
+      if (!el || value == null || value === "") return;
+      if (el instanceof HTMLSelectElement && ![...el.options].some((o) => o.value === String(value))) return;
+      el.value = String(value);
+      filled.push(label);
+    };
+    set("naziv", "naziv", book.title);
+    set("autor", "autor", book.authors);
+    set("isbn", "ISBN", book.isbn);
+    set("izdavac", "izdavač", book.publisher);
+    set("broj_stranica", "broj stranica", book.pageCount);
+    set("jezik", "jezik", book.language);
+    set("potkategorija", "kategorija", book.subcategory);
+    set("zanr", "žanr", book.genre);
+    set("opis", "opis", book.description);
+
+    // Naslovna iz baze ide kao prva fotografija (može da se ukloni); prethodna iz baze se menja.
+    let cover = false;
+    if (book.cover) {
+      const blob = await fetch(`/api/knjige/naslovna?u=${encodeURIComponent(book.cover)}`)
+        .then((r) => (r.ok ? r.blob() : null))
+        .catch(() => null);
+      if (n !== pickRef.current) return;
+      if (blob && blob.size > 2000) {
+        const ext = blob.type.split("/")[1]?.replace("jpeg", "jpg") ?? "jpg";
+        const file = new File([blob], `naslovna.${ext}`, { type: blob.type });
+        setPhotos((p) => {
+          p.filter((x) => x.fromDb).forEach((x) => URL.revokeObjectURL(x.url));
+          return [{ file, url: URL.createObjectURL(file), fromDb: true }, ...p.filter((x) => !x.fromDb)].slice(0, PHOTO_SLOTS.length);
+        });
+        cover = true;
+        filled.push("naslovna fotografija");
+      }
+    }
+
+    const missing = [
+      !(form.elements.namedItem("potkategorija") as HTMLSelectElement | null)?.value && "kategorija",
+      !(form.elements.namedItem("stanje") as HTMLSelectElement | null)?.value && "stanje",
+      "svoje fotografije knjige",
+      !(form.elements.namedItem("cena") as HTMLInputElement | null)?.value && "cena",
+    ].filter(Boolean);
+    setBookNote({
+      tone: "ok",
+      text:
+        `Popunjeno iz baze: ${filled.join(", ")}. Proveri podatke, sve možeš da izmeniš. ` +
+        `Još dodaj: ${missing.join(", ")}.` +
+        (cover ? " Naslovna iz baze je prva fotografija, a dodaj i slike svog primerka." : ""),
+    });
   }, []);
 
   const category = CATEGORIES.find((c) => c.itemType === type)!;
   const genres = GENRES[type];
   const hidden = HIDDEN_FIELDS[type];
   const noun = NOUN[type];
+  const isBook = type === "knjiga" || type === "manga_strip";
 
   const photosRef = useRef(photos);
   photosRef.current = photos;
@@ -291,6 +356,11 @@ export function SellForm({ refs, signedIn }: { refs: SellRefs | null; signedIn: 
                   <>
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img src={photo.url} alt={`Fotografija ${i + 1}`} className="size-full object-cover" />
+                    {photo.fromDb && (
+                      <span className="absolute bottom-[6px] left-[6px] bg-white px-[6px] py-[3px] text-[10px] font-medium leading-none text-black">
+                        Naslovna iz baze
+                      </span>
+                    )}
                     <button
                       type="button"
                       onClick={() => removePhoto(i)}
@@ -316,18 +386,56 @@ export function SellForm({ refs, signedIn }: { refs: SellRefs | null; signedIn: 
         </div>
       </Section>
 
-      <div className="mt-[60px] grid grid-cols-[306px_306px] gap-x-[24px] gap-y-[24px]">
+      {isBook && (
+        <div className="mt-[60px] bg-[#f5f6f8] px-[20px] py-[18px]">
+          <p className="text-[15px] font-semibold leading-[1.3] text-black">Objavi knjigu za par sekundi</p>
+          <ol className="mt-[10px] list-decimal space-y-[4px] pl-[18px] text-[13px] leading-[1.45] text-[#52525b]">
+            <li>
+              Skeniraj bar-kod sa poleđine knjige: na telefonu dugmetom <b className="font-semibold text-black">Skeniraj</b>, a
+              na računaru dugmetom <b className="font-semibold text-black">Telefonom</b>. Možeš i da upišeš ISBN, naziv ili
+              autora.
+            </li>
+            <li>Sa spiska izaberi svoju knjigu.</li>
+            <li>
+              Sajam sam popuni naziv, autora, izdavača, broj stranica, jezik, kategoriju, žanr, opis i naslovnu
+              fotografiju. Ti samo proveriš podatke, dodaš slike svog primerka, stanje i cenu.
+            </li>
+          </ol>
+          <p className="mt-[10px] text-[12px] leading-[1.4] text-[#7c7c7c]">
+            Popunjena polja imaju crni okvir, a prazna sivi, pa se odmah vidi šta je ostalo.
+          </p>
+          {bookNote && (
+            <p
+              role="status"
+              className={`mt-[12px] border-l-2 pl-[10px] text-[13px] leading-[1.45] ${
+                bookNote.tone === "ok" ? "border-[#15803d] text-[#14532d]" : "border-[#a1a1aa] text-[#52525b]"
+              }`}
+            >
+              {bookNote.text}
+            </p>
+          )}
+        </div>
+      )}
+
+      <div className={`${isBook ? "mt-[32px]" : "mt-[60px]"} grid grid-cols-[306px_306px] gap-x-[24px] gap-y-[24px]`}>
         <Field label="Naziv">
-          <input name="naziv" required placeholder="npr. Rat i mir" className={inputCls} />
+          <BookSuggest by="naslov" name="naziv" required placeholder="npr. Rat i mir" className={inputCls} enabled={isBook} onPick={pickBook} />
         </Field>
         {!hidden.includes("author") && (
           <Field label="Autor">
-            <input name="autor" placeholder={type === "muzika" ? "npr. Riblja Čorba" : "npr. Lav Tolstoj"} className={inputCls} />
+            <BookSuggest
+              by="autor"
+              name="autor"
+              placeholder={type === "muzika" ? "npr. Riblja Čorba" : "npr. Lav Tolstoj"}
+              className={inputCls}
+              enabled={isBook}
+              onPick={pickBook}
+            />
           </Field>
         )}
         {!hidden.includes("isbn") && (
           <Field label="ISBN" optional>
-            <IsbnField className={inputCls} onFound={fillFromIsbn} />
+            <IsbnField className={inputCls} onPick={pickBook} />
           </Field>
         )}
         <Field label="Jezik">
@@ -357,7 +465,7 @@ export function SellForm({ refs, signedIn }: { refs: SellRefs | null; signedIn: 
             <textarea
               name="opis"
               placeholder="Opiši artikal: stanje, eventualna oštećenja, o čemu se radi u knjizi ili šta sve dobija kupac..."
-              className="block h-[124px] w-[636px] resize-none border border-[#dfdfdf] bg-white p-[16px] text-[14px] leading-[1.4] text-black placeholder:text-[#71717a] focus:border-black focus:outline-none"
+              className="sell-field block h-[124px] w-[636px] resize-none border border-[#dfdfdf] bg-white p-[16px] text-[14px] leading-[1.4] text-black placeholder:text-[#71717a] focus:border-black focus:outline-none"
             />
           </Field>
         </div>
@@ -452,7 +560,7 @@ function Select({
         name={name}
         required={required}
         defaultValue=""
-        className="h-[36px] w-[306px] appearance-none border border-[#dfdfdf] bg-white pl-[11px] pr-[36px] text-[14px] leading-[16px] text-black focus:border-black focus:outline-none"
+        className="sell-field h-[36px] w-[306px] appearance-none border border-[#dfdfdf] bg-white pl-[11px] pr-[36px] text-[14px] leading-[16px] text-black focus:border-black focus:outline-none"
       >
         <option value="">{placeholder}</option>
         {options.map((o) => (

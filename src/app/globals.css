@@ -27,3 +27,10 @@ body {
 @utility trim-cap {
   text-box: trim-both cap alphabetic;
 }
+
+/* Forma za prodaju: popunjeno polje dobija crni okvir (kao polja u prozoru za prijavu iz Figme). */
+input.sell-field:not(:placeholder-shown),
+textarea.sell-field:not(:placeholder-shown),
+select.sell-field:not(:has(option[value=""]:checked)) {
+  border-color: #000;
+}
