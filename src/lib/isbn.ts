@@ -23,7 +23,8 @@ export type BookDetail = {
   language: (typeof LANGUAGES)[number] | null;
   isbn: string | null;
   description: string | null;
-  cover: string | null;
+  /** Naslovne redom po pouzdanosti; prva koja se učita ide u oglas. */
+  covers: string[];
   subcategory: string | null;
   genre: string | null;
 };

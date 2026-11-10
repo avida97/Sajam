@@ -10,20 +10,19 @@ const DAY = { next: { revalidate: 86400 } };
 
 export class UpstreamError extends Error {}
 
-// ISO 639-1 (Google) i 639-2 (Open Library) kodovi jezika koje forma nudi.
-const LANGUAGE_CODES: Record<string, BookDetail["language"]> = {
-  sr: "Srpski",
-  srp: "Srpski",
-  en: "Engleski",
-  eng: "Engleski",
-  ru: "Ruski",
-  rus: "Ruski",
-  hr: "Hrvatski",
-  hrv: "Hrvatski",
-  sl: "Slovenački",
-  slv: "Slovenački",
-};
-const DOMESTIC = new Set(["sr", "srp", "hr", "hrv", "bs", "bos", "sh", "cnr"]);
+// Jezik se NE uzima iz Google-a: on za većinu srpskih knjiga piše „en“. Umesto toga se čita
+// iz ISBN-a (grupa izdavača po zemlji); ako se ne zna, polje ostaje prazno.
+// 978-86 Srbija, 978-953 Hrvatska, 978-961 Slovenija, 978-5 Rusija, 978-0/1 i 979-8 engleski.
+function languageFromIsbn(isbn: string | null): BookDetail["language"] {
+  if (!isbn) return null;
+  const i = isbn.length === 10 ? `978${isbn}` : isbn;
+  if (i.startsWith("97886")) return "Srpski";
+  if (i.startsWith("978953")) return "Hrvatski";
+  if (i.startsWith("978961")) return "Slovenački";
+  if (i.startsWith("9785")) return "Ruski";
+  if (/^978[01]|^9798/.test(i)) return "Engleski";
+  return null;
+}
 
 // Google kategorije (npr. „Fiction / Mystery & Detective / General“) → naše potkategorije Knjiga.
 // Prvo pravilo koje se poklopi pobeđuje; ako ništa ne odgovara, polje ostaje prazno.
@@ -52,12 +51,12 @@ const GENRE_RULES: Array<[RegExp, string]> = [
   [/fiction/i, "roman"],
 ];
 
-function classify(categories: string[], language: string | null) {
+function classify(categories: string[], language: BookDetail["language"]) {
   const text = categories.join(" | ");
   const match = (rules: Array<[RegExp, string]>) => rules.find(([re]) => re.test(text))?.[1] ?? null;
   let subcategory = match(SUBCATEGORY_RULES);
-  // Knjiga na stranom jeziku, a nije za decu, udžbenik ni stručna → „Strane knjige“.
-  if (language && !DOMESTIC.has(language) && (subcategory === null || subcategory === "beletristika")) {
+  // Samo kad se iz ISBN-a sigurno zna da je knjiga na engleskom ili ruskom → „Strane knjige“.
+  if ((language === "Engleski" || language === "Ruski") && (subcategory === null || subcategory === "beletristika")) {
     subcategory = "strane-knjige";
   }
   return { subcategory, genre: match(GENRE_RULES) };
@@ -164,6 +163,24 @@ export async function searchBooks(by: SearchBy, q: string): Promise<BookHit[]> {
       thumb: https(v.imageLinks?.smallThumbnail ?? v.imageLinks?.thumbnail),
     }));
 
+  // Google nema ništa po nazivu ili autoru → Open Library (samo izdanja sa ISBN-om, da bi detalji radili).
+  if (hits.length === 0 && by !== "isbn") {
+    const docs = await olSearch(by === "naslov" ? { title: q } : { author: q }, 10).catch(() => []);
+    for (const d of docs) {
+      const isbn = d.isbn?.find((i) => i.length === 13) ?? d.isbn?.[0];
+      if (!d.title || !isbn || hits.length >= 6) continue;
+      hits.push({
+        id: `ol-${isbn}`,
+        title: d.title,
+        authors: d.author_name?.join(", ") ?? null,
+        publisher: d.publisher?.[0] ?? null,
+        year: d.first_publish_year ? String(d.first_publish_year) : null,
+        isbn,
+        thumb: d.cover_i ? `https://covers.openlibrary.org/b/id/${d.cover_i}-S.jpg` : null,
+      });
+    }
+  }
+
   if (hits.length === 0 && by === "isbn") {
     const b = await openLibrary(q);
     if (b?.title) {
@@ -187,18 +204,21 @@ export async function getBook(id: string): Promise<BookDetail | null> {
     const isbn = id.slice(3);
     const b = await openLibrary(isbn);
     if (!b?.title) return null;
-    const lang = b.languages?.[0]?.key?.split("/").pop() ?? null;
     const notes = typeof b.notes === "string" ? b.notes : b.notes?.value;
+    const language = languageFromIsbn(isbn);
+    const title = titleOf(b);
+    const authors = b.authors?.map((a) => a.name).join(", ") || null;
+    const own = b.cover?.large ?? b.cover?.medium;
     return {
-      title: titleOf(b),
-      authors: b.authors?.map((a) => a.name).join(", ") || null,
+      title,
+      authors,
       publisher: b.publishers?.[0]?.name ?? null,
       pageCount: b.number_of_pages || null,
-      language: (lang && LANGUAGE_CODES[lang]) || null,
+      language,
       isbn,
       description: plainText(notes),
-      cover: b.cover?.large ?? b.cover?.medium ?? null,
-      ...classify(b.subjects?.map((s) => s.name) ?? [], lang),
+      covers: own ? [own] : await otherCovers(isbn, b.title ?? title, authors),
+      ...classify(b.subjects?.map((s) => s.name) ?? [], language),
     };
   }
 
@@ -206,17 +226,66 @@ export async function getBook(id: string): Promise<BookDetail | null> {
   const v = vol?.volumeInfo;
   if (!v?.title) return null;
   const img = v.imageLinks ?? {};
+  const isbn = isbnOf(v);
+  const language = languageFromIsbn(isbn);
+  const authors = v.authors?.join(", ") ?? null;
+  const own = https(img.large ?? img.medium ?? img.small ?? img.thumbnail);
   return {
     title: titleOf(v),
-    authors: v.authors?.join(", ") ?? null,
+    authors,
     publisher: v.publisher ?? null,
     pageCount: v.pageCount || null,
-    language: (v.language && LANGUAGE_CODES[v.language]) || null,
-    isbn: isbnOf(v),
+    language,
+    isbn,
     description: plainText(v.description),
-    cover: https(img.large ?? img.medium ?? img.small ?? img.thumbnail),
-    ...classify(v.categories ?? [], v.language ?? null),
+    covers: own ? [own] : await otherCovers(isbn, v.title, authors),
+    ...classify(v.categories ?? [], language),
   };
+}
+
+/**
+ * Kad Google nema naslovnu za to izdanje: Open Library po ISBN-u, Open Library po nazivu i
+ * autoru, pa druga Google izdanja iste knjige. Adrese se ne proveravaju ovde; pregledač ih
+ * probava redom preko /api/knjige/naslovna, koja odbija sve što nije slika.
+ */
+async function otherCovers(isbn: string | null, title: string, authors: string | null): Promise<string[]> {
+  const covers: string[] = [];
+  if (isbn) covers.push(`https://covers.openlibrary.org/b/isbn/${isbn}-L.jpg?default=false`);
+  const author = authors?.split(",")[0]?.trim();
+  const [ol, g] = await Promise.all([
+    olSearch({ title, ...(author ? { author } : {}) }, 5).catch(() => []),
+    google("", {
+      q: `intitle:"${title}"${author ? ` inauthor:"${author}"` : ""}`,
+      maxResults: "10",
+      fields: "items(volumeInfo(imageLinks/thumbnail))",
+    }).catch(() => null),
+  ]);
+  for (const d of ol) if (d.cover_i) covers.push(`https://covers.openlibrary.org/b/id/${d.cover_i}-L.jpg`);
+  for (const it of (g?.items ?? []) as GoogleVolume[]) {
+    const t = https(it.volumeInfo.imageLinks?.thumbnail);
+    if (t) covers.push(t.replace(/zoom=\d/, "zoom=1"));
+  }
+  return [...new Set(covers)].slice(0, 8);
+}
+
+type OlDoc = {
+  title?: string;
+  author_name?: string[];
+  publisher?: string[];
+  first_publish_year?: number;
+  isbn?: string[];
+  cover_i?: number;
+};
+
+async function olSearch(params: Record<string, string>, limit: number): Promise<OlDoc[]> {
+  const qs = new URLSearchParams({ ...params, limit: String(limit), fields: "title,author_name,publisher,first_publish_year,isbn,cover_i" });
+  const res = await fetch(`https://openlibrary.org/search.json?${qs}`, {
+    ...DAY,
+    signal: AbortSignal.timeout(8000),
+    headers: { "user-agent": "Sajam/1.0 (book marketplace)" },
+  });
+  if (!res.ok) return [];
+  return ((await res.json()).docs ?? []) as OlDoc[];
 }
 
 /** Naslovne slike se preuzimaju samo sa ovih adresa (vidi /api/knjige/naslovna). */

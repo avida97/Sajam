@@ -88,7 +88,7 @@ export function SellForm({ refs, signedIn }: { refs: SellRefs | null; signedIn: 
       pageCount: null,
       language: null,
       description: null,
-      cover: null,
+      covers: [],
       subcategory: null,
       genre: null,
     };
@@ -114,10 +114,15 @@ export function SellForm({ refs, signedIn }: { refs: SellRefs | null; signedIn: 
     // Redom se probaju: velika slika iz detalja, sličica iz liste, pa Open Library po ISBN-u.
     const isbn = book.isbn ?? hit.isbn;
     const candidates = [
-      book.cover,
-      hit.thumb?.replace(/zoom=\d/, "zoom=1"),
-      isbn && `https://covers.openlibrary.org/b/isbn/${isbn}-L.jpg?default=false`,
-    ].filter((u): u is string => !!u);
+      ...new Set(
+        [
+          book.covers[0],
+          hit.thumb?.replace(/zoom=\d/, "zoom=1").replace(/-S\.jpg$/, "-L.jpg"),
+          ...book.covers.slice(1),
+          isbn && `https://covers.openlibrary.org/b/isbn/${isbn}-L.jpg?default=false`,
+        ].filter((u): u is string => !!u),
+      ),
+    ];
     for (const u of candidates) {
       const blob = await fetch(`/api/knjige/naslovna?u=${encodeURIComponent(u)}`)
         .then((r) => (r.ok ? r.blob() : null))
@@ -423,7 +428,6 @@ export function SellForm({ refs, signedIn }: { refs: SellRefs | null; signedIn: 
         {!hidden.includes("isbn") && (
           <Field
             label="ISBN"
-            optional
             info="ISBN je broj od 10 ili 13 cifara koji stoji iznad bar-koda na poleđini knjige, ili na prvim stranama (npr. 978-86-10-02436-4). Upiši ga ili ga skeniraj dugmetom Skeniraj, i Sajam će sam popuniti podatke o knjizi."
           >
             <IsbnField className={inputCls} onPick={pickBook} />
