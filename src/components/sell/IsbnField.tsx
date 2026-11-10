@@ -29,11 +29,15 @@ export function IsbnField({ className, onFound }: { className: string; onFound: 
       const ctrl = new AbortController();
       abortRef.current = ctrl;
       setStatus({ tone: "info", text: "Tražim knjigu po ISBN-u..." });
-      const info: BookInfo | null = await fetch(`/api/isbn/${isbn}`, { signal: ctrl.signal })
-        .then((r) => (r.ok ? r.json() : null))
-        .catch(() => null);
+      // 404 = knjige nema u bazama; sve drugo (server ili mreža ne rade) = „error“.
+      const info: BookInfo | null | "error" = await fetch(`/api/isbn/${isbn}`, { signal: ctrl.signal })
+        .then((r) => (r.ok ? r.json() : r.status === 404 ? null : "error"))
+        .catch(() => "error");
       if (ctrl.signal.aborted) return;
-      if (info?.title) {
+      if (info === "error") {
+        lastRef.current = null;
+        setStatus({ tone: "warn", text: "Pretraga po ISBN-u trenutno ne radi. Popuni podatke ručno." });
+      } else if (info?.title) {
         onFound(info);
         setStatus({ tone: "ok", text: "Podaci o knjizi su popunjeni. Proveri ih pre objave." });
       } else {
