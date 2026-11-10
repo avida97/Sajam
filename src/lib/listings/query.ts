@@ -108,3 +108,9 @@ function sortListings(items: CatalogListing[], sort: SortKey): CatalogListing[] 
   else copy.sort((a, b) => b.created_at.localeCompare(a.created_at));
   return copy;
 }
+
+/** Svi oglasi prodavca (i rezervisani i prodati), za njegov profil. */
+export async function getListingsBySeller(username: string) {
+  const items = (await all()).filter((l) => l.seller.username === username && !l.placeholder);
+  return sortListings(items, "najnovije");
+}

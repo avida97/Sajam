@@ -10,6 +10,7 @@ export async function NavBar() {
         user
           ? {
               avatarUrl: user.profile?.avatar_url ?? null,
+              username: user.profile?.username ?? null,
               displayName: user.profile?.display_name ?? user.email ?? "",
               unreadNotifications: user.unreadNotifications,
             }

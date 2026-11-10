@@ -2,13 +2,15 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { signOut } from "@/app/auth/actions";
 import { useEffect, useRef, useState } from "react";
 import { MainButton } from "@/components/ui/MainButton";
 import { MENU_PANELS, type MenuPanel } from "@/lib/nav-menu";
 
 type NavUser = {
   avatarUrl: string | null;
+  username: string | null;
   displayName: string;
   unreadNotifications: number;
 } | null;
@@ -83,15 +85,7 @@ export function NavBarClient({ user }: { user: NavUser }) {
                     </span>
                   )}
                 </Link>
-                <Link
-                  href="/moj-profil"
-                  aria-label={`Profil: ${user.displayName}`}
-                  className="ml-[26px] block size-[29px] overflow-hidden rounded-full bg-field"
-                >
-                  {user.avatarUrl && (
-                    <Image src={user.avatarUrl} alt="" width={29} height={29} className="size-full object-cover" />
-                  )}
-                </Link>
+                <AccountMenu user={user} />
               </>
             ) : (
               // Neprijavljen posetilac (Figma: nav bar na ekranu „Prijavi se“ 912:27724).
@@ -198,6 +192,74 @@ function MegaMenu({ panel, onNavigate }: { panel: MenuPanel; onNavigate: () => v
           {panel.ctaText}
         </span>
       </Link>
+    </div>
+  );
+}
+
+// Meni ispod slike profila. Nema ga u Figmi; napravljen od panela mega-menija (bela kartica,
+// zaobljena 10px, tekst 14px), za Ankin pregled.
+function AccountMenu({ user }: { user: NonNullable<NavUser> }) {
+  const [open, setOpen] = useState(false);
+  const router = useRouter();
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!open) return;
+    const close = (e: MouseEvent | KeyboardEvent) => {
+      if (e instanceof KeyboardEvent ? e.key === "Escape" : !ref.current?.contains(e.target as Node)) setOpen(false);
+    };
+    window.addEventListener("mousedown", close);
+    window.addEventListener("keydown", close);
+    return () => {
+      window.removeEventListener("mousedown", close);
+      window.removeEventListener("keydown", close);
+    };
+  }, [open]);
+
+  const items = [
+    { href: user.username ? `/prodavac/${user.username}` : "/moj-profil", label: "Moj profil" },
+    { href: "/moji-oglasi", label: "Moji oglasi" },
+    { href: "/moj-profil/izmeni", label: "Podešavanja profila" },
+  ];
+
+  return (
+    <div ref={ref} className="relative ml-[26px]">
+      <button
+        type="button"
+        aria-label={`Moj nalog: ${user.displayName}`}
+        aria-expanded={open}
+        onClick={() => setOpen((o) => !o)}
+        className="block size-[29px] overflow-hidden rounded-full bg-field"
+      >
+        {user.avatarUrl && <Image src={user.avatarUrl} alt="" width={29} height={29} className="size-full object-cover" />}
+      </button>
+      {open && (
+        <div className="absolute right-0 top-[41px] z-50 w-[220px] overflow-hidden rounded-[10px] bg-white py-[8px] shadow-[0_8px_24px_rgba(0,0,0,0.12)]">
+          <p className="truncate px-[18px] pb-[10px] pt-[6px] text-[12px] text-[#777574]">{user.displayName}</p>
+          {items.map((i) => (
+            <Link
+              key={i.href}
+              href={i.href}
+              onClick={() => setOpen(false)}
+              className="block px-[18px] py-[10px] text-[14px] font-medium text-black hover:bg-[#f5f6f8]"
+            >
+              {i.label}
+            </Link>
+          ))}
+          <button
+            type="button"
+            onClick={async () => {
+              setOpen(false);
+              await signOut();
+              router.push("/");
+              router.refresh();
+            }}
+            className="mt-[4px] block w-full border-t-[0.7px] border-line px-[18px] pb-[8px] pt-[14px] text-left text-[14px] font-medium text-black hover:bg-[#f5f6f8]"
+          >
+            Odjavi se
+          </button>
+        </div>
+      )}
     </div>
   );
 }

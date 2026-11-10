@@ -1,5 +1,6 @@
 import { PAYMENT as PAYMENT_OPTIONS, SHIPPING as SHIPPING_OPTIONS } from "@/lib/shipping";
 import type { Metadata } from "next";
+import { getCurrentUser } from "@/lib/supabase/server";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -23,13 +24,14 @@ const ALL_LABEL: Record<string, string> = {
   "mange-i-stripovi": "Sve mange i stripovi",
   oprema: "Sva oprema",
 };
-// Desna kolona „More information“ iz Figme; sadržaj je u centru za pomoć.
-const MORE_INFO = [
-  { label: "Expert authentication", href: "/pomoc" },
-  { label: "Payment", href: "/pomoc/kupovina" },
-  { label: "Express Delivery", href: "/pomoc/kupovina" },
-  { label: "Returns", href: "/pomoc/kupovina" },
-  { label: "Help", href: "/pomoc" },
+// Desna kolona: umesto „More information“ iz Figme (Expert authentication, Express Delivery,
+// Returns — to Sajam ne radi) koraci kupovine, na istim pločicama (odluka V 10. 11. 2026).
+const BUY_STEPS = [
+  { title: "1. Pitaj prodavca", text: "Klikni „Pitaj prodavca“ i u porukama se dogovori oko stanja, slanja i cene." },
+  { title: "2. Dogovor i rezervacija", text: "Kad se dogovorite, prodavac rezerviše artikal za tebe, pa ga niko drugi ne može kupiti." },
+  { title: "3. Plaćanje", text: "Plaćaš direktno prodavcu, na jedan od načina iz oglasa. Sajam ne naplaćuje proviziju." },
+  { title: "4. Slanje ili preuzimanje", text: "Prodavac šalje poštom ili se nalazite lično, kako ste se dogovorili u porukama." },
+  { title: "5. Oceni prodavca", text: "Kad artikal stigne, oceni prodavca. Ocene pomažu drugim kupcima da biraju." },
 ];
 
 async function load(slug: string) {
@@ -60,7 +62,8 @@ export default async function ListingPage({ params }: Props) {
   const condition = CONDITIONS.find((c) => c.value === l.condition) ?? CONDITIONS[CONDITIONS.length - 1];
   const hidden = HIDDEN_FIELDS[l.item_type];
   const title = l.placeholder ? "Naziv artikla" : l.title;
-  const [similar, fromSeller] = await Promise.all([getSimilarListings(l, 30), getSellerListings(l, 30)]);
+  const [similar, fromSeller, me] = await Promise.all([getSimilarListings(l, 30), getSellerListings(l, 30), getCurrentUser()]);
+  const own = !!me?.profile && me.profile.username === l.seller.username;
 
   const meta = [
     l.bundle_count > 1 ? `${l.bundle_count} ${l.item_type === "knjiga" ? "knjiga" : "artikala"} u paketu` : null,
@@ -81,14 +84,14 @@ export default async function ListingPage({ params }: Props) {
       "Slanje",
       <>
         {l.shipping_methods.map((m) => SHIPPING[m]).join(", ") || "—"}{"  "}
-        <Link href="/pomoc/kupovina" className="text-[13px] font-medium underline">More info</Link>
+        <a href="#kako-ide-kupovina" className="text-[13px] font-medium underline">Kako ide</a>
       </>,
     ],
     [
       "Plaćanje",
       <>
         {l.payment_methods.map((m) => PAYMENT[m]).join(", ") || "—"}{"  "}
-        <Link href="/pomoc/kupovina" className="text-[13px] font-medium underline">More info</Link>
+        <a href="#kako-ide-kupovina" className="text-[13px] font-medium underline">Kako ide</a>
       </>,
     ],
     ["Stanje", l.condition_note ?? condition.label],
@@ -140,12 +143,26 @@ export default async function ListingPage({ params }: Props) {
             {l.placeholder ? "Cena RSD" : formatRsd(l.price_rsd).replace(" ", "")}
           </p>
 
-          <Link
-            href={`/poruke?oglas=${l.id}`}
-            className="mt-[60px] flex h-[39px] w-[416px] items-center justify-center bg-black text-[13px] font-bold text-white"
-          >
-            PITAJ PRODAVCA
-          </Link>
+          {l.status !== "dostupno" && (
+            <p className="mt-[14px] inline-block bg-white px-[10px] py-[5px] text-[12px] font-semibold">
+              {l.status === "prodato" ? "Prodato" : "Rezervisano"}
+            </p>
+          )}
+          {own ? (
+            <Link
+              href={`/prodaj?izmeni=${l.id}`}
+              className="mt-[60px] flex h-[39px] w-[416px] items-center justify-center bg-black text-[13px] font-bold text-white"
+            >
+              IZMENI OGLAS
+            </Link>
+          ) : (
+            <Link
+              href={`/poruke?oglas=${l.id}`}
+              className="mt-[60px] flex h-[39px] w-[416px] items-center justify-center bg-black text-[13px] font-bold text-white"
+            >
+              PITAJ PRODAVCA
+            </Link>
+          )}
 
           <div className="mt-[40px]">
             <p className="trim-cap text-[14px] font-semibold">SAŽETAK</p>
@@ -157,7 +174,7 @@ export default async function ListingPage({ params }: Props) {
       </section>
 
       {/* Detalji: prodavac, opis i podaci, dodatne informacije */}
-      <section className="mx-auto flex h-[609px] max-w-site gap-[24px] pl-[182px] pt-[50px] text-black">
+      <section className="mx-auto flex min-h-[609px] max-w-site pb-[40px] gap-[24px] pl-[182px] pt-[50px] text-black">
         <div className="w-[306px]">
           <h2 className="font-serif text-[36px] font-medium italic">Detalji</h2>
           <p className="trim-cap mt-[18px] text-[14px] font-semibold leading-[1.4]">PRODAVAC</p>
@@ -198,7 +215,7 @@ export default async function ListingPage({ params }: Props) {
             </div>
           </div>
           <p className="mt-[12px] text-[12px] leading-[1.4] text-[#737373]">
-            This item is offered by an individual seller. Its price has been suggested by its seller.
+            Artikal prodaje fizičko lice, a cenu je odredio prodavac.
           </p>
         </div>
 
@@ -221,14 +238,17 @@ export default async function ListingPage({ params }: Props) {
         </div>
 
         <div className="w-[306px] pt-[65px]">
-          <p className="trim-cap text-[14px] font-semibold leading-[1.4]">MORE INFORMATION</p>
+          <p id="kako-ide-kupovina" className="trim-cap scroll-mt-[40px] text-[14px] font-semibold leading-[1.4]">KAKO IDE KUPOVINA</p>
           <ul className="mt-[12px] flex flex-col gap-[10px]">
-            {MORE_INFO.map((m) => (
-              <li key={m.label}>
-                <Link href={m.href} className="flex h-[54px] items-center justify-between bg-[#f5f6f8] pl-[24px] pr-[24px] text-[14px] leading-[1.4]">
-                  {m.label}
-                  <Image src="/icons/plus.svg" alt="" width={14} height={14} />
-                </Link>
+            {BUY_STEPS.map((step) => (
+              <li key={step.title}>
+                <details className="group bg-[#f5f6f8]">
+                  <summary className="flex h-[54px] cursor-pointer list-none items-center justify-between px-[24px] text-[14px] leading-[1.4] [&::-webkit-details-marker]:hidden">
+                    {step.title}
+                    <Image src="/icons/plus.svg" alt="" width={14} height={14} className="transition-transform group-open:rotate-45" />
+                  </summary>
+                  <p className="-mt-[6px] px-[24px] pb-[18px] text-[13px] leading-[1.5] text-[#52525b]">{step.text}</p>
+                </details>
               </li>
             ))}
           </ul>

@@ -16,6 +16,19 @@ import { createClient } from "@/lib/supabase/client";
 // Id-jevi potkategorija („knjige/strane-knjige“) i žanrova („knjiga/roman“) iz baze.
 export type SellRefs = { subcategories: Record<string, number>; genres: Record<string, number> };
 
+// Postojeći oglas koji se menja (/prodaj?izmeni=<id>).
+export type EditListing = {
+  id: number;
+  type: ItemType;
+  values: Record<string, string>;
+  price: string;
+  shipping: ShippingMethod[];
+  payment: PaymentMethod[];
+  images: Array<{ path: string; url: string }>;
+};
+
+type Photo = { file?: File; path?: string; url: string; fromDb?: boolean };
+
 // „2 knjige“, „5 knjiga“, „1 artikal“, „3 artikla“, „7 artikala“.
 function countLabel(n: number, book: boolean) {
   const last = n % 10;
@@ -55,21 +68,21 @@ const PHOTO_SLOTS = [
 const inputCls =
   "sell-field h-[36px] w-[306px] border border-[#dfdfdf] bg-white px-[16px] text-[14px] leading-[16px] text-black placeholder:text-[#71717a] focus:border-black focus:outline-none";
 
-export function SellForm({ refs, signedIn }: { refs: SellRefs | null; signedIn: boolean }) {
+export function SellForm({ refs, signedIn, editing }: { refs: SellRefs | null; signedIn: boolean; editing?: EditListing | null }) {
   const router = useRouter();
   const pathname = usePathname();
-  const [type, setType] = useState<ItemType>("knjiga");
+  const [type, setType] = useState<ItemType>(editing?.type ?? "knjiga");
   const [publishing, setPublishing] = useState(false);
-  const [price, setPrice] = useState("");
-  const [photos, setPhotos] = useState<Array<{ file: File; url: string; fromDb?: boolean }>>([]);
+  const [price, setPrice] = useState(editing?.price ?? "");
+  const [photos, setPhotos] = useState<Photo[]>(() => editing?.images.map((i) => ({ path: i.path, url: i.url })) ?? []);
   const [notice, setNotice] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
   const formRef = useRef<HTMLFormElement>(null);
 
   const [photoError, setPhotoError] = useState(false);
   const [priceError, setPriceError] = useState(false);
-  const [shipping, setShipping] = useState<ShippingMethod[]>(["posta"]);
-  const [payment, setPayment] = useState<PaymentMethod[]>(["tekuci_racun"]);
+  const [shipping, setShipping] = useState<ShippingMethod[]>(editing?.shipping ?? ["posta"]);
+  const [payment, setPayment] = useState<PaymentMethod[]>(editing?.payment ?? ["tekuci_racun"]);
   const [shipError, setShipError] = useState(false);
   const shipRef = useRef<HTMLDivElement>(null);
   const photoGridRef = useRef<HTMLDivElement>(null);
@@ -153,7 +166,17 @@ export function SellForm({ refs, signedIn }: { refs: SellRefs | null; signedIn: 
 
   const photosRef = useRef(photos);
   photosRef.current = photos;
-  useEffect(() => () => photosRef.current.forEach((p) => URL.revokeObjectURL(p.url)), []);
+  useEffect(() => () => photosRef.current.forEach((p) => p.file && URL.revokeObjectURL(p.url)), []);
+
+  // Izmena oglasa: polja se popune iz baze kad se forma prikaže.
+  useEffect(() => {
+    const form = formRef.current;
+    if (!editing || !form) return;
+    for (const [name, value] of Object.entries(editing.values)) {
+      const el = form.elements.namedItem(name) as HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement | null;
+      if (el && value) el.value = value;
+    }
+  }, [editing]);
 
   const addPhotos = (files: FileList | null) => {
     if (!files) return;
@@ -166,7 +189,7 @@ export function SellForm({ refs, signedIn }: { refs: SellRefs | null; signedIn: 
   };
 
   const removePhoto = (i: number) => {
-    URL.revokeObjectURL(photos[i].url);
+    if (photos[i].file) URL.revokeObjectURL(photos[i].url);
     setPhotos((p) => p.filter((_, j) => j !== i));
   };
 
@@ -227,7 +250,7 @@ export function SellForm({ refs, signedIn }: { refs: SellRefs | null; signedIn: 
     const pages = text("broj_stranica");
 
     setPublishing(true);
-    setNotice("Objavljujem oglas...");
+    setNotice(editing ? "Čuvam izmene..." : "Objavljujem oglas...");
     const supabase = createClient();
     const {
       data: { user },
@@ -240,51 +263,72 @@ export function SellForm({ refs, signedIn }: { refs: SellRefs | null; signedIn: 
     }
 
     const title = text("naziv")!;
-    const { data: listing, error } = await supabase
-      .from("listings")
-      .insert({
-        seller_id: user.id,
-        item_type: type,
-        category_id: categoryId,
-        genre_id: genreSlug ? (refs.genres[`${type}/${genreSlug}`] ?? null) : null,
-        title,
-        author: hidden.includes("author") ? null : text("autor"),
-        isbn: hidden.includes("isbn") ? null : isbnRaw,
-        language: text("jezik"),
-        page_count: hidden.includes("page_count") || !pages ? null : Number(pages),
-        publisher: hidden.includes("publisher") ? null : text("izdavac"),
-        bundle_count: Number(text("broj") ?? 1),
-        condition: text("stanje") as Condition,
-        description: text("opis"),
-        price_rsd: priceNum,
-        city: text("grad"),
-        shipping_methods: shipping,
-        payment_methods: payment,
-      })
-      .select("id")
-      .single();
+    const fields = {
+      item_type: type,
+      category_id: categoryId,
+      genre_id: genreSlug ? (refs.genres[`${type}/${genreSlug}`] ?? null) : null,
+      title,
+      author: hidden.includes("author") ? null : text("autor"),
+      isbn: hidden.includes("isbn") ? null : isbnRaw,
+      language: text("jezik"),
+      page_count: hidden.includes("page_count") || !pages ? null : Number(pages),
+      publisher: hidden.includes("publisher") ? null : text("izdavac"),
+      bundle_count: Number(text("broj") ?? 1),
+      condition: text("stanje") as Condition,
+      description: text("opis"),
+      price_rsd: priceNum,
+      city: text("grad"),
+      shipping_methods: shipping,
+      payment_methods: payment,
+    };
+    const { data: listing, error } = editing
+      ? await supabase.from("listings").update(fields).eq("id", editing.id).select("id").single()
+      : await supabase.from("listings").insert({ seller_id: user.id, ...fields }).select("id").single();
     if (error || !listing) {
       setPublishing(false);
-      setNotice("Oglas nije objavljen. Proveri polja i pokušaj ponovo.");
+      setNotice(editing ? "Izmene nisu sačuvane. Pokušaj ponovo." : "Oglas nije objavljen. Proveri polja i pokušaj ponovo.");
       return;
     }
 
     // Fotografije idu direktno iz pregledača u Supabase Storage: <korisnik>/<oglas>/<redni broj>.
+    // Kod izmene se postojeće slike zadržavaju, a redosled se upisuje iznova.
+    const paths: string[] = [];
     for (const [i, p] of photos.entries()) {
-      const ext = (p.file.name.split(".").pop() ?? "jpg").toLowerCase().replace(/[^a-z0-9]/g, "") || "jpg";
+      if (p.path) {
+        paths.push(p.path);
+        continue;
+      }
+      const file = p.file!;
+      const ext = (file.name.split(".").pop() ?? "jpg").toLowerCase().replace(/[^a-z0-9]/g, "") || "jpg";
       const path = `${user.id}/${listing.id}/${i}-${Date.now()}.${ext}`;
-      const up = await supabase.storage.from("listing-images").upload(path, p.file, { contentType: p.file.type });
-      const row = up.error ? null : await supabase.from("listing_images").insert({ listing_id: listing.id, path, position: i });
-      if (up.error || row?.error) {
-        await supabase.from("listings").delete().eq("id", listing.id);
+      const up = await supabase.storage.from("listing-images").upload(path, file, { contentType: file.type });
+      if (up.error) {
+        if (!editing) await supabase.from("listings").delete().eq("id", listing.id);
         setPublishing(false);
         setNotice(
-          up.error?.message.toLowerCase().includes("size")
+          up.error.message.toLowerCase().includes("size")
             ? "Neka fotografija je veća od 8 MB. Smanji je pa pokušaj ponovo."
-            : "Fotografije nisu otpremljene, pa oglas nije objavljen. Pokušaj ponovo.",
+            : editing
+              ? "Nove fotografije nisu otpremljene. Pokušaj ponovo."
+              : "Fotografije nisu otpremljene, pa oglas nije objavljen. Pokušaj ponovo.",
         );
         return;
       }
+      paths.push(path);
+    }
+    if (editing) {
+      const removed = editing.images.map((i) => i.path).filter((p) => !paths.includes(p));
+      await supabase.from("listing_images").delete().eq("listing_id", listing.id);
+      if (removed.length) await supabase.storage.from("listing-images").remove(removed);
+    }
+    const rows = await supabase
+      .from("listing_images")
+      .insert(paths.map((path, position) => ({ listing_id: listing.id, path, position })));
+    if (rows.error) {
+      if (!editing) await supabase.from("listings").delete().eq("id", listing.id);
+      setPublishing(false);
+      setNotice("Fotografije nisu sačuvane. Pokušaj ponovo.");
+      return;
     }
 
     router.push(listingHref({ id: listing.id, title }));
@@ -304,7 +348,7 @@ export function SellForm({ refs, signedIn }: { refs: SellRefs | null; signedIn: 
       }} className="mx-auto flex w-[636px] flex-col pb-[80px] pt-[80px]">
       <div className="text-center text-black">
         <h1 className="trim-cap font-serif text-[32px] font-medium italic leading-[0.95] tracking-[-0.32px]">
-          Sell an item
+          {editing ? "Izmeni oglas" : "Sell an item"}
         </h1>
         <p className="mt-[24px] text-[14px] leading-[1.5]">What type of item are you selling?</p>
       </div>
@@ -538,7 +582,7 @@ export function SellForm({ refs, signedIn }: { refs: SellRefs | null; signedIn: 
           disabled={publishing}
           className="flex h-[37px] shrink-0 disabled:opacity-60 items-center justify-center bg-[#09090b] px-[19px] text-[12px] font-bold uppercase leading-[0.95] tracking-[-0.12px] text-white"
         >
-          <span className="trim-cap">Objavi oglas</span>
+          <span className="trim-cap">{editing ? "Sačuvaj izmene" : "Objavi oglas"}</span>
         </button>
       </div>
     </form>
