@@ -73,5 +73,5 @@ export default async function ProdajPage({ searchParams }: Props) {
       };
     }
   }
-  return <SellForm refs={refs} signedIn={!!user} editing={editing} />;
+  return <SellForm refs={refs} signedIn={!!user} editing={editing} defaultCity={user?.profile?.city ?? null} />;
 }

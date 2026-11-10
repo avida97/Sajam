@@ -7,8 +7,10 @@ import { signOut } from "@/app/auth/actions";
 import { useEffect, useRef, useState } from "react";
 import { MainButton } from "@/components/ui/MainButton";
 import { MENU_PANELS, type MenuPanel } from "@/lib/nav-menu";
+import { createClient } from "@/lib/supabase/client";
 
 type NavUser = {
+  id: string;
   avatarUrl: string | null;
   username: string | null;
   displayName: string;
@@ -16,7 +18,8 @@ type NavUser = {
   unreadMessages: number;
 } | null;
 
-export function NavBarClient({ user }: { user: NavUser }) {
+export function NavBarClient({ user: initial }: { user: NavUser }) {
+  const user = useLiveCounts(initial);
   const [open, setOpen] = useState<string | null>(null);
   const ref = useRef<HTMLDivElement>(null);
   const panel = MENU_PANELS.find((p) => p.key === open) ?? null;
@@ -238,9 +241,11 @@ function AccountMenu({ user }: { user: NonNullable<NavUser> }) {
         )}
         {user.unreadMessages > 0 && (
           <span
-            aria-label="Imaš nepročitane poruke"
-            className="absolute -right-[2px] -top-[2px] size-[10px] rounded-full border-[1.5px] border-white bg-alert"
-          />
+            aria-label={`Nepročitane poruke: ${user.unreadMessages}`}
+            className="absolute -right-[5px] -top-[4px] flex size-[15px] items-center justify-center rounded-full border-[1.5px] border-white bg-alert text-[8px] font-medium leading-none text-white"
+          >
+            {user.unreadMessages > 9 ? "9+" : user.unreadMessages}
+          </span>
         )}
       </button>
       {open && (
@@ -277,4 +282,46 @@ function AccountMenu({ user }: { user: NonNullable<NavUser> }) {
       )}
     </div>
   );
+}
+
+// Brojevi na zvoncu i na slici profila se menjaju uživo: baza za svaku novu poruku pravi
+// obaveštenje primaocu, pa je dovoljno slušati nova obaveštenja tog korisnika.
+function useLiveCounts(initial: NavUser): NavUser {
+  const [extra, setExtra] = useState({ notifications: 0, messages: 0 });
+  const id = initial?.id;
+  // Kad server pošalje sveže brojeve (nova stranica, osvežavanje), lokalni dodaci se brišu.
+  const [seen, setSeen] = useState(initial);
+  if (seen !== initial) {
+    setSeen(initial);
+    setExtra({ notifications: 0, messages: 0 });
+  }
+  useEffect(() => {
+    if (!id) return;
+    const supabase = createClient();
+    const channel = supabase
+      .channel(`obavestenja-${id}-${Math.random().toString(36).slice(2)}`)
+      .on(
+        "postgres_changes",
+        { event: "INSERT", schema: "public", table: "notifications", filter: `user_id=eq.${id}` },
+        (payload) => {
+          const type = (payload.new as { type?: string }).type;
+          // Na stranici Poruke je otvoren razgovor već pročitan, pa se tamo ne broji.
+          if (type === "nova_poruka" && window.location.pathname === "/poruke") return;
+          setExtra((e) => ({
+            notifications: e.notifications + 1,
+            messages: e.messages + (type === "nova_poruka" ? 1 : 0),
+          }));
+        },
+      )
+      .subscribe();
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [id]);
+  if (!initial) return null;
+  return {
+    ...initial,
+    unreadNotifications: initial.unreadNotifications + extra.notifications,
+    unreadMessages: initial.unreadMessages + extra.messages,
+  };
 }

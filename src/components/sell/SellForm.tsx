@@ -36,7 +36,41 @@ function countLabel(n: number, book: boolean) {
   if (book) return `${n} ${last === 1 && !teen ? "knjiga" : last >= 2 && last <= 4 && !teen ? "knjige" : "knjiga"}`;
   return `${n} ${last === 1 && !teen ? "artikal" : last >= 2 && last <= 4 && !teen ? "artikla" : "artikala"}`;
 }
-const BUNDLE_COUNTS = [...Array.from({ length: 20 }, (_, i) => i + 1), 25, 30, 40, 50];
+const BUNDLE_TILES = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+
+// Primeri u poljima, po vrsti artikla (da kod igre ne piše „knjiga“).
+const EXAMPLES: Record<ItemType, { title: string; author: string; publisher: string; description: string }> = {
+  knjiga: {
+    title: "npr. Rat i mir",
+    author: "npr. Lav Tolstoj",
+    publisher: "npr. Laguna",
+    description: "Opiši knjigu: stanje, eventualna oštećenja (podvlačenja, posvete, požutele strane) i o čemu se radi u knjizi...",
+  },
+  manga_strip: {
+    title: "npr. Naruto, tom 1",
+    author: "npr. Masaši Kišimoto",
+    publisher: "npr. Darkwood",
+    description: "Opiši izdanje: stanje, eventualna oštećenja i koji brojevi ili tomovi su u paketu...",
+  },
+  muzika: {
+    title: "npr. Mrtva priroda",
+    author: "npr. Riblja Čorba",
+    publisher: "npr. PGP RTS",
+    description: "Opiši izdanje: format (ploča, CD, kaseta), stanje omota i nosača, spisak pesama ili posebnosti izdanja...",
+  },
+  igra: {
+    title: "npr. Catan",
+    author: "",
+    publisher: "npr. Kosmos",
+    description: "Opiši igru: platforma ili vrsta, da li je kompletna (kutija, uputstvo, delovi), stanje i da li sve radi...",
+  },
+  oprema: {
+    title: "npr. Gramofon Pioneer PL-12D",
+    author: "",
+    publisher: "",
+    description: "Opiši opremu: šta tačno dobija kupac, stanje, eventualna oštećenja i da li sve radi...",
+  },
+};
 
 // Prekidač tipa artikla (Figma „Kategorije“ 934:32855): položaji teksta i crne pilule su iz dizajna.
 const TYPES: Array<{ type: ItemType; label: string; text: number; pill: [number, number] }> = [
@@ -68,7 +102,17 @@ const PHOTO_SLOTS = [
 const inputCls =
   "sell-field h-[36px] w-[306px] border border-[#dfdfdf] bg-white px-[16px] text-[14px] leading-[16px] text-black placeholder:text-[#71717a] focus:border-black focus:outline-none";
 
-export function SellForm({ refs, signedIn, editing }: { refs: SellRefs | null; signedIn: boolean; editing?: EditListing | null }) {
+export function SellForm({
+  refs,
+  signedIn,
+  editing,
+  defaultCity,
+}: {
+  refs: SellRefs | null;
+  signedIn: boolean;
+  editing?: EditListing | null;
+  defaultCity?: string | null;
+}) {
   const router = useRouter();
   const pathname = usePathname();
   const [type, setType] = useState<ItemType>(editing?.type ?? "knjiga");
@@ -88,6 +132,15 @@ export function SellForm({ refs, signedIn, editing }: { refs: SellRefs | null; s
   const photoGridRef = useRef<HTMLDivElement>(null);
   const priceRef = useRef<HTMLLabelElement>(null);
   const pickRef = useRef(0);
+  const bundleRef = useRef<HTMLDivElement>(null);
+
+  // Broj artikala u paketu: kockice 1–10 ili drugi broj upisan ručno.
+  const [bundle, setBundle] = useState(editing?.values.broj ?? "");
+  const [bundleOther, setBundleOther] = useState(() => !!editing && !BUNDLE_TILES.includes(Number(editing.values.broj)));
+  const [bundleError, setBundleError] = useState(false);
+  // Jezik: ponuđeni ili „Drugo“ pa upisan ručno.
+  const knownLang = (v: string) => (LANGUAGES as readonly string[]).includes(v);
+  const [langOther, setLangOther] = useState(() => !!editing?.values.jezik && !knownLang(editing.values.jezik));
 
   // Izabrana knjiga iz padajuće liste popunjava formu. Sva polja ostaju izmenljiva.
   const pickBook = useCallback(async (hit: BookHit) => {
@@ -124,6 +177,7 @@ export function SellForm({ refs, signedIn, editing }: { refs: SellRefs | null; s
     set("izdavac", "izdavač", book.publisher);
     set("broj_stranica", "broj stranica", book.pageCount);
     set("jezik", "jezik", book.language);
+    if (book.language) setLangOther(false);
     set("potkategorija", "kategorija", book.subcategory);
     set("zanr", "žanr", book.genre);
     set("opis", "opis", book.description);
@@ -173,7 +227,14 @@ export function SellForm({ refs, signedIn, editing }: { refs: SellRefs | null; s
     const form = formRef.current;
     if (!editing || !form) return;
     for (const [name, value] of Object.entries(editing.values)) {
+      if (name === "broj") continue;
       const el = form.elements.namedItem(name) as HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement | null;
+      if (name === "jezik" && value && !(LANGUAGES as readonly string[]).includes(value)) {
+        if (el) el.value = "drugo";
+        const other = form.elements.namedItem("jezik_drugo") as HTMLInputElement | null;
+        if (other) other.value = value;
+        continue;
+      }
       if (el && value) el.value = value;
     }
   }, [editing]);
@@ -199,7 +260,15 @@ export function SellForm({ refs, signedIn, editing }: { refs: SellRefs | null; s
 
     // Obavezna polja (odluka V 10. 11. 2026): prazna dobijaju crveni okvir, bez dodatnog teksta.
     const form = e.currentTarget;
-    const required = ["potkategorija", genres.length > 0 && "zanr", "broj", "stanje", "naziv", !hidden.includes("author") && "autor", "jezik"];
+    const required = [
+      "potkategorija",
+      genres.length > 0 && "zanr",
+      "stanje",
+      "naziv",
+      !hidden.includes("author") && "autor",
+      "jezik",
+      langOther && "jezik_drugo",
+    ];
     const bad: HTMLElement[] = [];
     for (const name of required) {
       if (!name) continue;
@@ -216,6 +285,9 @@ export function SellForm({ refs, signedIn, editing }: { refs: SellRefs | null; s
       isbnEl.setAttribute("aria-invalid", String(wrong));
       if (wrong) bad.push(isbnEl);
     }
+    const noBundle = !(Number(bundle) >= 1);
+    setBundleError(noBundle);
+    if (noBundle && bundleRef.current) bad.push(bundleRef.current);
     setPhotoError(photos.length === 0);
     if (photos.length === 0 && photoGridRef.current) bad.push(photoGridRef.current);
     const noShip = shipping.length === 0 || payment.length === 0;
@@ -270,10 +342,10 @@ export function SellForm({ refs, signedIn, editing }: { refs: SellRefs | null; s
       title,
       author: hidden.includes("author") ? null : text("autor"),
       isbn: hidden.includes("isbn") ? null : isbnRaw,
-      language: text("jezik"),
+      language: langOther ? text("jezik_drugo") : text("jezik"),
       page_count: hidden.includes("page_count") || !pages ? null : Number(pages),
       publisher: hidden.includes("publisher") ? null : text("izdavac"),
-      bundle_count: Number(text("broj") ?? 1),
+      bundle_count: Number(bundle),
       condition: text("stanje") as Condition,
       description: text("opis"),
       price_rsd: priceNum,
@@ -390,11 +462,64 @@ export function SellForm({ refs, signedIn, editing }: { refs: SellRefs | null; s
           ) : (
             <span />
           )}
-          <Select
-            name="broj"
-            placeholder={type === "knjiga" ? "Broj knjiga u paketu" : "Broj artikala u paketu"}
-            options={BUNDLE_COUNTS.map((n) => ({ value: String(n), label: countLabel(n, type === "knjiga") }))}
-          />
+          <div ref={bundleRef} className="col-span-2">
+            <p className="text-[14px] font-medium text-black">
+              {type === "knjiga" ? "Broj knjiga u paketu" : "Broj artikala u paketu"}
+            </p>
+            <div role="radiogroup" aria-label="Broj u paketu" className="mt-[12px] flex gap-[8px]">
+              {BUNDLE_TILES.map((n) => {
+                const on = !bundleOther && bundle === String(n);
+                return (
+                  <button
+                    key={n}
+                    type="button"
+                    role="radio"
+                    aria-checked={on}
+                    aria-label={countLabel(n, type === "knjiga")}
+                    onClick={() => {
+                      setBundle(String(n));
+                      setBundleOther(false);
+                      setBundleError(false);
+                    }}
+                    className={`size-[44px] border text-[14px] font-medium ${
+                      on ? "border-black bg-black text-white" : bundleError ? "border-alert bg-white" : "border-[#dfdfdf] bg-white hover:border-black"
+                    }`}
+                  >
+                    {n}
+                  </button>
+                );
+              })}
+              {bundleOther ? (
+                <input
+                  autoFocus
+                  type="number"
+                  min={1}
+                  max={999}
+                  aria-label="Drugi broj"
+                  value={bundle}
+                  onChange={(e) => {
+                    setBundle(e.target.value.replace(/\D/g, "").slice(0, 3));
+                    setBundleError(false);
+                  }}
+                  placeholder="Broj"
+                  className={`h-[44px] w-[116px] border px-[12px] text-[14px] text-black focus:outline-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none ${
+                    bundleError ? "border-alert" : "border-black"
+                  }`}
+                />
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setBundleOther(true);
+                    setBundle("");
+                  }}
+                  className={`h-[44px] w-[116px] border bg-white text-[13px] font-medium ${bundleError ? "border-alert" : "border-[#dfdfdf] hover:border-black"}`}
+                >
+                  Drugi broj
+                </button>
+              )}
+            </div>
+          </div>
           <Select
             name="stanje"
             placeholder={`Stanje ${noun}`}
@@ -466,14 +591,14 @@ export function SellForm({ refs, signedIn, editing }: { refs: SellRefs | null; s
 
       <div className="mt-[60px] grid grid-cols-[306px_306px] gap-x-[24px] gap-y-[24px]">
         <Field label="Naziv">
-          <BookSuggest by="naslov" name="naziv" required placeholder="npr. Rat i mir" className={inputCls} enabled={isBook} onPick={pickBook} />
+          <BookSuggest by="naslov" name="naziv" required placeholder={EXAMPLES[type].title} className={inputCls} enabled={isBook} onPick={pickBook} />
         </Field>
         {!hidden.includes("author") && (
           <Field label="Autor">
             <BookSuggest
               by="autor"
               name="autor"
-              placeholder={type === "muzika" ? "npr. Riblja Čorba" : "npr. Lav Tolstoj"}
+              placeholder={EXAMPLES[type].author}
               className={inputCls}
               enabled={isBook}
               onPick={pickBook}
@@ -489,7 +614,15 @@ export function SellForm({ refs, signedIn, editing }: { refs: SellRefs | null; s
           </Field>
         )}
         <Field label="Jezik">
-          <Select name="jezik" placeholder="Izaberi jezik" options={LANGUAGES.map((l) => ({ value: l, label: l }))} />
+          <Select
+            name="jezik"
+            placeholder="Izaberi jezik"
+            options={[...LANGUAGES.map((l) => ({ value: l as string, label: l as string })), { value: "drugo", label: "Drugo" }]}
+            onChange={(v) => setLangOther(v === "drugo")}
+          />
+          {langOther && (
+            <input name="jezik_drugo" autoFocus placeholder="Upiši jezik, npr. Nemački" maxLength={40} className={`${inputCls} mt-[10px]`} />
+          )}
         </Field>
         {!hidden.includes("page_count") && (
           <Field label="Broj stranica" optional>
@@ -507,14 +640,14 @@ export function SellForm({ refs, signedIn, editing }: { refs: SellRefs | null; s
         )}
         {!hidden.includes("publisher") && (
           <Field label={type === "muzika" ? "Izdavačka kuća" : "Izdavač"} optional>
-            <input name="izdavac" placeholder="npr. Laguna" className={inputCls} />
+            <input name="izdavac" placeholder={EXAMPLES[type].publisher} className={inputCls} />
           </Field>
         )}
         <div className="col-span-2">
           <Field label="Opis">
             <textarea
               name="opis"
-              placeholder="Opiši artikal: stanje, eventualna oštećenja, o čemu se radi u knjizi ili šta sve dobija kupac..."
+              placeholder={EXAMPLES[type].description}
               className="sell-field block h-[124px] w-[636px] resize-none border border-[#dfdfdf] bg-white p-[16px] text-[14px] leading-[1.4] text-black placeholder:text-[#71717a] focus:border-black focus:outline-none"
             />
           </Field>
@@ -544,7 +677,15 @@ export function SellForm({ refs, signedIn, editing }: { refs: SellRefs | null; s
             }}
           />
           <Field label="Grad" optional>
-            <Select name="grad" placeholder="Izaberi grad" options={CITIES.map((c) => ({ value: c, label: c }))} />
+            <Select
+              name="grad"
+              placeholder="Izaberi grad"
+              defaultValue={editing ? "" : (defaultCity ?? "")}
+              options={[
+                ...(defaultCity && !(CITIES as readonly string[]).includes(defaultCity) ? [{ value: defaultCity, label: defaultCity }] : []),
+                ...CITIES.map((c) => ({ value: c as string, label: c as string })),
+              ]}
+            />
           </Field>
         </div>
       </Section>
@@ -654,18 +795,23 @@ function Select({
   placeholder,
   options,
   required,
+  defaultValue = "",
+  onChange,
 }: {
   name: string;
   placeholder: string;
   options: Array<{ value: string; label: string }>;
   required?: boolean;
+  defaultValue?: string;
+  onChange?: (value: string) => void;
 }) {
   return (
     <div className="relative h-[36px] w-[306px]">
       <select
         name={name}
         required={required}
-        defaultValue=""
+        defaultValue={defaultValue}
+        onChange={onChange ? (e) => onChange(e.target.value) : undefined}
         className="sell-field h-[36px] w-[306px] appearance-none border border-[#dfdfdf] bg-white pl-[11px] pr-[36px] text-[14px] leading-[16px] text-black focus:border-black focus:outline-none"
       >
         <option value="">{placeholder}</option>

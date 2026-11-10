@@ -44,7 +44,7 @@ export function ProductCard({ listing }: { listing: CatalogListing }) {
         </div>
         <p className="mt-[18px] flex h-[16px] items-center gap-[1px] text-[12px] text-black">
           <Image src="/icons/location.svg" alt="" width={14} height={14} />
-          {listing.city ?? "Lokacija"}
+          {listing.city ?? (listing.placeholder ? "Lokacija" : "")}
         </p>
         <p className="absolute bottom-0 left-0 flex h-[31px] w-[196px] items-center justify-center bg-[#1b1a1a] text-[12px] font-medium uppercase text-white">
           {listing.placeholder ? "Cena RSD" : formatRsd(listing.price_rsd)}

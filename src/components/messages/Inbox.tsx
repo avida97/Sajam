@@ -19,7 +19,7 @@ type Props = {
   draft: Draft | null;
 };
 
-const QUICK = ["Zdravo, da li je artikal još dostupan?", "Zdravo, kako šalješ i koliko košta slanje?"];
+const QUICK = ["Zdravo, da li je artikal još dostupan?", "Zdravo, u kakvom je stanju artikal?"];
 
 // Ekrana nema u Figmi; napravljen od postojećih polja, dugmadi i kartica, za Ankin pregled.
 export function Inbox({ meId, conversations, selectedId, messages, draft }: Props) {
@@ -33,8 +33,10 @@ export function Inbox({ meId, conversations, selectedId, messages, draft }: Prop
   useEffect(() => setIncoming([]), [selectedId]);
   useEffect(() => {
     const supabase = createClient();
+    // Posebno ime kanala za svako otvaranje: Supabase vraća postojeći kanal istog imena,
+    // a on ne prima nove slušaoce posle subscribe() (to je rušilo stranicu).
     const channel = supabase
-      .channel("poruke")
+      .channel(`poruke-${meId}-${Math.random().toString(36).slice(2)}`)
       .on("postgres_changes", { event: "INSERT", schema: "public", table: "messages" }, (payload) => {
         const m = payload.new as {
           id: number;

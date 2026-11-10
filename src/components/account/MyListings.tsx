@@ -61,8 +61,8 @@ export function MyListings({
 
   const onStatus = (l: MyListing, status: MyListing["status"]) => {
     setError(null);
-    if (status === "prodato" && l.buyers.length) {
-      setBuyer(l.soldTo ?? l.buyers[0].id);
+    if (status === "prodato") {
+      setBuyer(l.soldTo ?? l.buyers[0]?.id ?? "");
       setPicking(l.id);
     } else setStatus(l.id, status);
   };
@@ -146,7 +146,7 @@ export function MyListings({
                     {l.soldTo
                       ? `Kupac: ${l.buyers.find((b) => b.id === l.soldTo)?.displayName ?? "sa Sajma"}. Poziv za ocenu je poslat.`
                       : "Prodato van Sajma."}
-                    {l.buyers.length > 0 && (
+                    {(
                       <button
                         type="button"
                         onClick={() => onStatus(l, "prodato")}
@@ -217,8 +217,10 @@ export function MyListings({
                 <fieldset className="ml-[94px] mt-[14px] max-w-[520px] bg-[#f5f6f8] p-[18px]">
                   <legend className="sr-only">Kome je prodato</legend>
                   <p className="text-[14px] font-semibold">Kome je prodato?</p>
-                  <p className="mt-[4px] text-[12px] text-[#52525b]">
-                    Poziv za ocenu dobija izabrani kupac, i samo taj kupac može da te oceni.
+                  <p className="mt-[4px] text-[12px] leading-[1.5] text-[#52525b]">
+                    {l.buyers.length
+                      ? "Poziv za ocenu dobija izabrani kupac, i samo taj kupac može da te oceni."
+                      : "Niko još nije pisao o ovom oglasu kroz Sajam. Kupac koji ti piše o oglasu pojaviće se ovde, pa će moći da te oceni."}
                   </p>
                   <div className="mt-[12px] flex flex-col gap-[8px] text-[14px]">
                     {[...l.buyers, { id: "", username: "", displayName: "Nekom van Sajma" }].map((b) => (

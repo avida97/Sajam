@@ -79,30 +79,23 @@ export default async function ListingPage({ params }: Props) {
     l.city,
   ].filter(Boolean) as string[];
 
+  // Prazno polje ostaje prazno; probni tekst samo kod probnih oglasa (dok baza nije povezana).
+  const empty = l.placeholder ? "—" : "";
   const details: Array<[string, React.ReactNode]> = [
     ["Naslov", title],
-    ...(!hidden.includes("author") ? [["Autor", l.author ?? "—"] as [string, React.ReactNode]] : []),
-    ["Jezik", l.language ?? "—"],
-    ["Žanr", l.genre?.name ?? "—"],
-    ...(!hidden.includes("isbn") ? [["ISBN", l.isbn ?? "—"] as [string, React.ReactNode]] : []),
+    ...(!hidden.includes("author") ? [["Autor", l.author ?? empty] as [string, React.ReactNode]] : []),
+    ["Jezik", l.language ?? empty],
+    ["Žanr", l.genre?.name ?? empty],
+    ["Slanje", l.shipping_methods.map((m) => SHIPPING[m]).join(", ") || empty],
+    ["Plaćanje", l.payment_methods.map((m) => PAYMENT[m]).join(", ") || empty],
+    ["Stanje", l.condition_note ?? condition.label],
+  ];
+  // Tehnički podaci idu na kraj liste, sivim slovima, da se ne ističu.
+  const minor: Array<[string, string]> = [
+    ...(!hidden.includes("isbn") && (l.isbn || l.placeholder) ? [["ISBN", l.isbn ?? empty] as [string, string]] : []),
     ["Objavljeno", fmtDate(l.created_at)],
     ["Ažurirano", fmtDate(l.updated_at)],
-    ["ID Oglasa", String(l.id)],
-    [
-      "Slanje",
-      <>
-        {l.shipping_methods.map((m) => SHIPPING[m]).join(", ") || "—"}{"  "}
-        <a href="#kako-ide-kupovina" className="text-[13px] font-medium underline">Kako ide</a>
-      </>,
-    ],
-    [
-      "Plaćanje",
-      <>
-        {l.payment_methods.map((m) => PAYMENT[m]).join(", ") || "—"}{"  "}
-        <a href="#kako-ide-kupovina" className="text-[13px] font-medium underline">Kako ide</a>
-      </>,
-    ],
-    ["Stanje", l.condition_note ?? condition.label],
+    ["ID oglasa", String(l.id)],
   ];
 
   return (
@@ -177,7 +170,7 @@ export default async function ListingPage({ params }: Props) {
           <div className="mt-[40px]">
             <p className="trim-cap text-[14px] font-semibold">SAŽETAK</p>
             <div className="mt-[22px]">
-              <ReadMore text={l.description ?? "Opis artikla."} />
+              <ReadMore text={l.description ?? (l.placeholder ? "Opis artikla." : "")} />
             </div>
           </div>
         </div>
@@ -237,7 +230,7 @@ export default async function ListingPage({ params }: Props) {
           <div className="border-b-[0.5px] border-[#e1e1e1] pb-[18px]">
             <p className="trim-cap text-[14px] font-semibold leading-[1.4]">OPIS PROIZVODA</p>
             <div className="mt-[18px]">
-              <ReadMore text={l.description ?? "Opis artikla."} />
+              <ReadMore text={l.description ?? (l.placeholder ? "Opis artikla." : "")} />
             </div>
           </div>
           <p className="trim-cap mt-[40px] text-[14px] font-semibold leading-[1.4]">DETALJI PROIZVODA</p>
@@ -246,6 +239,12 @@ export default async function ListingPage({ params }: Props) {
               <div key={k} className="contents">
                 <dt className="trim-cap">{k}</dt>
                 <dd className="trim-cap">{v}</dd>
+              </div>
+            ))}
+            {minor.map(([k, v], i) => (
+              <div key={k} className="contents text-[12px] text-[#9a9a9a]">
+                <dt className={`trim-cap ${i === 0 ? "mt-[14px]" : ""}`}>{k}</dt>
+                <dd className={`trim-cap ${i === 0 ? "mt-[14px]" : ""}`}>{v}</dd>
               </div>
             ))}
           </dl>
