@@ -216,7 +216,7 @@ export async function getBook(id: string): Promise<BookDetail | null> {
       pageCount: b.number_of_pages || null,
       language,
       isbn,
-      description: plainText(notes),
+      description: plainText(notes) ?? (await otherDescription(isbn, b.title ?? title, authors, language)),
       covers: own ? [own] : await otherCovers(isbn, b.title ?? title, authors),
       ...classify(b.subjects?.map((s) => s.name) ?? [], language),
     };
@@ -237,10 +237,47 @@ export async function getBook(id: string): Promise<BookDetail | null> {
     pageCount: v.pageCount || null,
     language,
     isbn,
-    description: plainText(v.description),
+    description:
+      plainText(v.description) ?? (await otherDescription(isbn, v.title, authors, language, v.language)),
     covers: own ? [own] : await otherCovers(isbn, v.title, authors),
     ...classify(v.categories ?? [], language),
   };
+}
+
+// Jezici čiji opis može da posluži kao sažetak na Sajmu (Google kodovi).
+const LOCAL_LANGS = ["sr", "hr", "bs", "sh", "me", "sl", "mk"];
+
+/**
+ * Kad izabrano izdanje nema opis: drugo izdanje istog ISBN-a, pa druga izdanja iste knjige
+ * (naslov i autor). Uzima se samo opis na jeziku knjige ili na našim jezicima, da sažetak
+ * ne bude na engleskom za domaće izdanje. Greška u bazi ne sme da pokvari izbor knjige.
+ */
+async function otherDescription(
+  isbn: string | null,
+  title: string,
+  authors: string | null,
+  language: BookDetail["language"],
+  langCode?: string,
+): Promise<string | null> {
+  const author = authors?.split(",")[0]?.trim();
+  const english = language === "Engleski" || langCode === "en";
+  const ok = (code?: string) =>
+    !code || LOCAL_LANGS.includes(code) || (english && code === "en") || (!!langCode && code === langCode);
+  const queries = [
+    isbn && `isbn:${isbn}`,
+    `intitle:"${title}"${author ? ` inauthor:"${author}"` : ""}`,
+  ].filter((q): q is string => !!q);
+  for (const q of queries) {
+    const res = (await google("", {
+      q,
+      maxResults: "10",
+      fields: "items(volumeInfo(description,language))",
+    }).catch(() => null)) as { items?: Array<{ volumeInfo: { description?: string; language?: string } }> } | null;
+    const hit = res?.items?.find((i) => i.volumeInfo.description && ok(i.volumeInfo.language));
+    const text = plainText(hit?.volumeInfo.description);
+    if (text) return text;
+  }
+  return null;
 }
 
 /**
