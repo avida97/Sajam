@@ -357,9 +357,9 @@ function EmailSignup({
         </span>
       </Check>
       <p className="mt-[25px] text-[12px] leading-[1.4] text-[#7c7c7c]">
-        By signing up, I accept Sajam&apos;s{" "}
-        <Link href="/pomoc/uslovi" className="underline">Terms and Conditions</Link> and{" "}
-        <Link href="/pomoc/privatnost" className="underline">Privacy Policy</Link>.
+        Registracijom prihvataš{" "}
+        <Link href="/uslovi-koriscenja" className="underline">Uslove korišćenja</Link> i{" "}
+        <Link href="/privatnost" className="underline">Politiku privatnosti</Link> Sajma.
       </p>
       <Submit pending={pending} className="mt-[30px]">Registruj se</Submit>
       <Notice result={result} />

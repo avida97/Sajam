@@ -84,7 +84,7 @@ export const ABOUT_LINKS = [
   { href: "/pomoc/kupovina", name: "O kupovini" },
   { href: "/pomoc/prodaja", name: "O prodaji" },
   { href: "/pomoc/naknade", name: "Naknade" },
-  { href: "/kontakt/mediji", name: "Mediji i novosti" },
+  { href: "/saradnja", name: "Saradnja" },
   { href: "/pomoc", name: "Pomoć" },
   { href: "/kontakt", name: "Kontakt" },
 ];

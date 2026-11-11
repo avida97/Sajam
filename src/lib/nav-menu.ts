@@ -142,7 +142,7 @@ const ABOUT_DESCRIPTIONS = [
   "Kako da pronađeš artikal i dogovoriš kupovinu",
   "Kako da postaviš oglas i prodaš artikal",
   "Prodaja na Sajmu je besplatna, bez provizije",
-  "Novosti o Sajmu i kontakt za novinare",
+  "Za knjižare, izdavače i brendove koji žele da sarađuju sa nama",
   "Odgovori na najčešća pitanja",
   "Piši nam ako ti treba pomoć",
 ];

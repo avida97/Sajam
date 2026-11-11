@@ -5,14 +5,18 @@ import Link from "next/link";
 import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 
-type Topic = "nalog" | "kupovina" | "bezbednost" | "prodaja";
+type Topic = "nalog" | "kupovina" | "bezbednost" | "prodaja" | "utisci" | "drugo" | "saradnja";
 
-const TOPICS: Array<{ value: Topic; label: string }> = [
+const TOPICS: Array<{ value: Topic; label: string; hint?: string }> = [
   { value: "nalog", label: "Nalog i podešavanja" },
   { value: "kupovina", label: "Kupovina" },
   { value: "bezbednost", label: "Bezbednost" },
   { value: "prodaja", label: "Prodaja" },
+  { value: "utisci", label: "Utisci i predlozi", hint: "Uvek smo raspoloženi za nove ideje i kritike" },
+  { value: "drugo", label: "Drugo" },
 ];
+// „Saradnja“ se prikazuje samo kad se forma otvori sa stranice za biznise.
+const SARADNJA: (typeof TOPICS)[number] = { value: "saradnja", label: "Saradnja" };
 
 const EMAIL = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
 
@@ -31,8 +35,9 @@ export function ContactForm({
     message: "",
   });
   const [topics, setTopics] = useState<Topic[]>(
-    TOPICS.some((t) => t.value === initial.topic) ? [initial.topic as Topic] : [],
+    [...TOPICS, SARADNJA].some((t) => t.value === initial.topic) ? [initial.topic as Topic] : [],
   );
+  const topicList = initial.topic === "saradnja" ? [SARADNJA, ...TOPICS] : TOPICS;
   const [invalid, setInvalid] = useState<Set<string>>(new Set());
   const [state, setState] = useState<"idle" | "saving" | "sent" | "error">("idle");
 
@@ -74,7 +79,7 @@ export function ContactForm({
 
   return (
     <div className="mx-auto flex max-w-site gap-[20px] px-[72px] pb-[18px] pt-[20px]">
-      <div className="h-[804px] w-[506px] shrink-0 rounded-[15px] bg-[#f5f6f8] px-[45px] pt-[45px] text-black">
+      <div className="min-h-[804px] w-[506px] shrink-0 rounded-[15px] bg-[#f5f6f8] px-[45px] pb-[45px] pt-[45px] text-black">
         <h1 className="text-[37px] font-semibold leading-[1.1] tracking-[-1.5px]">
           Imaš <span className="font-serif text-[42px] italic tracking-[-1.7px]">problem</span>?
         </h1>
@@ -115,17 +120,22 @@ export function ContactForm({
             <fieldset className="mt-[26px]">
               <legend className="text-[14px]">Sa čime možemo da ti pomognemo?</legend>
               <div className="mt-[18px] grid grid-cols-2 gap-x-[25px] gap-y-[18px]">
-                {TOPICS.map((t) => (
-                  <label key={t.value} className="flex cursor-pointer items-center gap-[15px] text-[16px]">
+                {topicList.map((t) => (
+                  <label key={t.value} className="flex cursor-pointer items-start gap-[15px] text-[16px]">
                     <input
                       type="checkbox"
                       checked={topics.includes(t.value)}
                       onChange={(e) =>
                         setTopics((xs) => (e.target.checked ? [...xs, t.value] : xs.filter((x) => x !== t.value)))
                       }
-                      className="size-[18px] rounded-[2px] accent-black"
+                      className="mt-[2px] size-[18px] shrink-0 rounded-[2px] accent-black"
                     />
-                    {t.label}
+                    <span>
+                      {t.label}
+                      {t.hint && (
+                        <span className="mt-[2px] block text-[12px] leading-[1.3] text-[#666]">{t.hint}</span>
+                      )}
+                    </span>
                   </label>
                 ))}
               </div>
@@ -147,7 +157,7 @@ export function ContactForm({
         )}
       </div>
 
-      <div className="relative h-[804px] w-[770px] overflow-hidden rounded-[15px]">
+      <div className="relative min-h-[804px] w-[770px] overflow-hidden rounded-[15px]">
         <Image src="/images/kontakt/forma.png" alt="" fill sizes="770px" className="object-cover" priority />
       </div>
     </div>

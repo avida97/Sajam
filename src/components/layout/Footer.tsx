@@ -11,7 +11,6 @@ const COLUMNS = [
     links: [
       { name: "O nama", href: "/o-nama" },
       { name: "Kontakt", href: "/kontakt" },
-      { name: "Mediji i novosti", href: "/kontakt/mediji" },
     ],
   },
   {
@@ -27,7 +26,7 @@ const COLUMNS = [
     links: [
       { name: "Centar za pomoć", href: "/pomoc" },
       { name: "Bezbednost", href: "/pomoc/nalog/bezbedna-kupovina" },
-      { name: "Utisci i predlozi", href: "/kontakt/forma" },
+      { name: "Utisci i predlozi", href: "/kontakt/forma?tema=utisci" },
     ],
   },
   {
@@ -35,7 +34,7 @@ const COLUMNS = [
     links: [
       { name: "Uslovi korišćenja", href: "/uslovi-koriscenja" },
       { name: "Politika privatnosti", href: "/privatnost" },
-      { name: "Politika kolačića", href: "/privatnost#kolacici" },
+      { name: "Politika kolačića", href: "/kolacici" },
     ],
     width: "w-[114px]",
   },

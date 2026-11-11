@@ -205,12 +205,24 @@ export const HELP: Record<HelpSectionKey, HelpTopic[]> = {
           slug: "artikal-nije-kao-u-opisu",
           title: "Artikal nije kao u opisu",
           intro:
-            "Prvo piši prodavcu i pošalji fotografije. Većina nesporazuma se reši dogovorom.",
+            "Kupovina na Sajmu je dogovor između tebe i prodavca, pa se ovakve situacije rešavaju direktno sa prodavcem. Većina nesporazuma se reši brzo, jednom porukom.",
           sections: [
             {
-              heading: "Ako dogovor ne uspe",
+              heading: "Piši prodavcu",
               paragraphs: [
-                "Pošalji nam zahtev preko kontakt forme i navedi ID oglasa (piše na dnu stranice oglasa). Pogledaćemo razgovor i javiti se imejlom.",
+                "Javi se prodavcu kroz poruke na Sajmu, opiši šta nije u redu i pošalji fotografije. Zajedno se dogovorite šta je najbolje rešenje, na primer povraćaj artikla, razmena ili umanjenje cene.",
+              ],
+            },
+            {
+              heading: "Ostavi ocenu",
+              paragraphs: [
+                "Kada se kupovina završi, oceni prodavca u skladu sa svojim iskustvom. Iskrena ocena pomaže drugim kupcima da znaju šta mogu da očekuju.",
+              ],
+            },
+            {
+              heading: "Ako postoji ozbiljan problem",
+              paragraphs: [
+                "Ako prodavac ne odgovara, namerno je opisao artikal pogrešno ili sumnjaš na prevaru, prijavi nam to preko kontakt forme i navedi ID oglasa (piše na dnu stranice oglasa). Pogledaćemo prijavu i preduzeti mere prema nalogu prodavca ako je potrebno.",
               ],
             },
           ],
@@ -340,7 +352,7 @@ export const HELP: Record<HelpSectionKey, HelpTopic[]> = {
             {
               heading: "Da li će se to promeniti",
               paragraphs: [
-                "Ako Sajam ikad uvede plaćene usluge, o tome ćemo te obavestiti unapred, a oglasi koje već imaš ostaju besplatni.",
+                "Ako Sajam ikad uvede plaćene usluge, o tome ćemo te obavestiti unapred.",
               ],
             },
           ],

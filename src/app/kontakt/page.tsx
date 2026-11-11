@@ -4,5 +4,5 @@ import { ContactPage } from "@/components/info/ContactPage";
 export const metadata: Metadata = { title: "Kontakt" };
 
 export default function Page() {
-  return <ContactPage tab="mreze" />;
+  return <ContactPage />;
 }

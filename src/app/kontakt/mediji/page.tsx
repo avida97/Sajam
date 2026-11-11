@@ -1,8 +1,6 @@
-import type { Metadata } from "next";
-import { ContactPage } from "@/components/info/ContactPage";
+import { permanentRedirect } from "next/navigation";
 
-export const metadata: Metadata = { title: "Mediji i novosti" };
-
+// „Mediji i novosti“ je zamenjena stranicom za biznise (odluka V 11. 11. 2026).
 export default function Page() {
-  return <ContactPage tab="novosti" />;
+  permanentRedirect("/saradnja");
 }
