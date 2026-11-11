@@ -67,15 +67,6 @@ export function NavBarClient({ user: initial }: { user: NavUser }) {
             />
           </form>
 
-          <button
-            type="button"
-            aria-label="Jezik: srpski"
-            className="ml-[18px] flex h-[21px] items-center gap-[8px]"
-          >
-            <Image src="/icons/flag-sr.png" alt="" width={21} height={21} className="rounded-full" />
-            <Image src="/icons/chevron-down.svg" alt="" width={9} height={5} />
-          </button>
-
           <Link
             href="/"
             className="absolute left-1/2 -translate-x-1/2 font-logo text-[24px] font-bold leading-none text-black"
