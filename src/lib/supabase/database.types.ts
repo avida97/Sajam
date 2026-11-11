@@ -470,6 +470,9 @@ isOneToOne: false
 "record_listing_view":
 { Args: { "p_listing": number }; Returns: undefined
                            },
+"use_ai_summary":
+{ Args: { "p_limit"?: number }; Returns: boolean
+                           },
 "trending_listings":
 { Args: { "p_days"?: number,"p_limit"?: number }; Returns: { "listing_id": number,"score": number }[]
                            },

@@ -4,7 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 
 // POST /api/knjige/sazetak { naslov, autor?, izdavac?, isbn? } → { sazetak } | { nepoznato: true }
 // Sažetak knjige uz pomoć AI, kada knjige nema u bazi knjiga ili baza nema opis (odluka V 11. 11. 2026).
-// Samo za prijavljene korisnike, da niko spolja ne troši ključ. Prodavac uvek može da izmeni tekst.
+// Samo za prijavljene korisnike (najviše 10 dnevno), da niko spolja ne troši ključ. Prodavac uvek može da izmeni tekst.
 
 const UNKNOWN = "NEPOZNATO";
 
@@ -15,28 +15,41 @@ Piši samo ono što pouzdano znaš o baš ovoj knjizi. Ako knjigu ne poznaješ d
 mogu da se odnose na više različitih knjiga, odgovori samo rečju ${UNKNOWN}.
 Vrati samo tekst sažetka, bez naslova, navodnika i uvoda.`;
 
-const clean = (v: unknown, max: number) => (typeof v === "string" ? v.trim().slice(0, max) : "");
+const clean = (v: unknown, max: number) =>
+  typeof v === "string" ? v.trim().slice(0, max) : "";
 
 export async function POST(req: NextRequest) {
   const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) return NextResponse.json({ error: "potrebna prijava" }, { status: 401 });
+  if (!user)
+    return NextResponse.json({ error: "potrebna prijava" }, { status: 401 });
 
+  // AI se uključuje pred lansiranje (odluka V 11. 11. 2026); do tada nema ključa i dugme to javlja.
   if (!process.env.ANTHROPIC_API_KEY) {
-    return NextResponse.json({ error: "AI sažetak nije podešen" }, { status: 503 });
+    return NextResponse.json({ uskoro: true }, { status: 503 });
   }
 
-  const body = (await req.json().catch(() => null)) as Record<string, unknown> | null;
+  const body = (await req.json().catch(() => null)) as Record<
+    string,
+    unknown
+  > | null;
   const title = clean(body?.naslov, 200);
-  if (title.length < 2) return NextResponse.json({ error: "nedostaje naslov" }, { status: 400 });
+  if (title.length < 2)
+    return NextResponse.json({ error: "nedostaje naslov" }, { status: 400 });
   const lines = [
     `Naslov: ${title}`,
     clean(body?.autor, 200) && `Autor: ${clean(body?.autor, 200)}`,
     clean(body?.izdavac, 200) && `Izdavač: ${clean(body?.izdavac, 200)}`,
     clean(body?.isbn, 20) && `ISBN: ${clean(body?.isbn, 20)}`,
   ].filter(Boolean);
+
+  // Najviše 10 AI sažetaka dnevno po korisniku (trošak plaća Sajam).
+  const { data: allowed } = await supabase.rpc("use_ai_summary", {
+    p_limit: 10,
+  });
+  if (!allowed) return NextResponse.json({ limit: true }, { status: 429 });
 
   const client = new Anthropic();
   try {
@@ -49,12 +62,14 @@ export async function POST(req: NextRequest) {
       system: SYSTEM,
       messages: [{ role: "user", content: lines.join("\n") }],
     });
-    if (res.stop_reason === "refusal") return NextResponse.json({ nepoznato: true });
+    if (res.stop_reason === "refusal")
+      return NextResponse.json({ nepoznato: true });
     const text = res.content
       .flatMap((b) => (b.type === "text" ? [b.text] : []))
       .join("")
       .trim();
-    if (!text || text.includes(UNKNOWN)) return NextResponse.json({ nepoznato: true });
+    if (!text || text.includes(UNKNOWN))
+      return NextResponse.json({ nepoznato: true });
     return NextResponse.json({ sazetak: text.slice(0, 5000) });
   } catch (e) {
     if (e instanceof Anthropic.RateLimitError) {

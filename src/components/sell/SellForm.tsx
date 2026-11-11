@@ -11,11 +11,20 @@ import { GENRES, LANGUAGES } from "@/lib/genres";
 import { listingHref } from "@/lib/listings/params";
 import type { BookDetail, BookHit } from "@/lib/isbn";
 import { BookSuggest } from "@/components/sell/BookSuggest";
-import { CITIES, PAYMENT, SHIPPING, type PaymentMethod, type ShippingMethod } from "@/lib/shipping";
+import {
+  CITIES,
+  PAYMENT,
+  SHIPPING,
+  type PaymentMethod,
+  type ShippingMethod,
+} from "@/lib/shipping";
 import { createClient } from "@/lib/supabase/client";
 
 // Id-jevi potkategorija („knjige/strane-knjige“) i žanrova („knjiga/roman“) iz baze.
-export type SellRefs = { subcategories: Record<string, number>; genres: Record<string, number> };
+export type SellRefs = {
+  subcategories: Record<string, number>;
+  genres: Record<string, number>;
+};
 
 // Postojeći oglas koji se menja (/prodaj?izmeni=<id>).
 export type EditListing = {
@@ -33,44 +42,62 @@ type Photo = { file?: File; path?: string; url: string; fromDb?: boolean };
 const BUNDLE_TILES = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 
 // Primeri u poljima, po vrsti artikla (da kod igre ne piše „knjiga“).
-const EXAMPLES: Record<ItemType, { title: string; author: string; publisher: string; description: string }> = {
+const EXAMPLES: Record<
+  ItemType,
+  { title: string; author: string; publisher: string; description: string }
+> = {
   knjiga: {
     title: "npr. Rat i mir",
     author: "npr. Lav Tolstoj",
     publisher: "npr. Laguna",
-    description: "Opiši stanje knjige: eventualna oštećenja, podvlačenja, posvete, požutele ili iscepane strane, stanje korica...",
+    description:
+      "Opiši stanje knjige: eventualna oštećenja, podvlačenja, posvete, požutele ili iscepane strane, stanje korica...",
   },
   manga_strip: {
     title: "npr. Naruto, tom 1",
     author: "npr. Masaši Kišimoto",
     publisher: "npr. Darkwood",
-    description: "Opiši izdanje: stanje, eventualna oštećenja i koji brojevi ili tomovi su u paketu...",
+    description:
+      "Opiši izdanje: stanje, eventualna oštećenja i koji brojevi ili tomovi su u paketu...",
   },
   muzika: {
     title: "npr. Mrtva priroda",
     author: "npr. Riblja Čorba",
     publisher: "npr. PGP RTS",
-    description: "Opiši izdanje: format (ploča, CD, kaseta), stanje omota i nosača, spisak pesama ili posebnosti izdanja...",
+    description:
+      "Opiši izdanje: format (ploča, CD, kaseta), stanje omota i nosača, spisak pesama ili posebnosti izdanja...",
   },
   igra: {
     title: "npr. Catan",
     author: "",
     publisher: "npr. Kosmos",
-    description: "Opiši igru: platforma ili vrsta, da li je kompletna (kutija, uputstvo, delovi), stanje i da li sve radi...",
+    description:
+      "Opiši igru: platforma ili vrsta, da li je kompletna (kutija, uputstvo, delovi), stanje i da li sve radi...",
   },
   oprema: {
     title: "npr. Gramofon Pioneer PL-12D",
     author: "",
     publisher: "",
-    description: "Opiši opremu: šta tačno dobija kupac, stanje, eventualna oštećenja i da li sve radi...",
+    description:
+      "Opiši opremu: šta tačno dobija kupac, stanje, eventualna oštećenja i da li sve radi...",
   },
 };
 
 // Prekidač tipa artikla (Figma „Kategorije“ 934:32855): položaji teksta i crne pilule su iz dizajna.
-const TYPES: Array<{ type: ItemType; label: string; text: number; pill: [number, number] }> = [
+const TYPES: Array<{
+  type: ItemType;
+  label: string;
+  text: number;
+  pill: [number, number];
+}> = [
   { type: "knjiga", label: "Knjiga", text: 24, pill: [6, 75] },
   { type: "muzika", label: "Muzika", text: 118, pill: [100, 81] },
-  { type: "manga_strip", label: "Manga ili strip", text: 218, pill: [200, 123] },
+  {
+    type: "manga_strip",
+    label: "Manga ili strip",
+    text: 218,
+    pill: [200, 123],
+  },
   { type: "igra", label: "Igra", text: 360, pill: [342, 60] },
   { type: "oprema", label: "Oprema", text: 439, pill: [421, 86] },
 ];
@@ -112,15 +139,21 @@ export function SellForm({
   const [type, setType] = useState<ItemType>(editing?.type ?? "knjiga");
   const [publishing, setPublishing] = useState(false);
   const [price, setPrice] = useState(editing?.price ?? "");
-  const [photos, setPhotos] = useState<Photo[]>(() => editing?.images.map((i) => ({ path: i.path, url: i.url })) ?? []);
+  const [photos, setPhotos] = useState<Photo[]>(
+    () => editing?.images.map((i) => ({ path: i.path, url: i.url })) ?? [],
+  );
   const [notice, setNotice] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
   const formRef = useRef<HTMLFormElement>(null);
 
   const [photoError, setPhotoError] = useState(false);
   const [priceError, setPriceError] = useState(false);
-  const [shipping, setShipping] = useState<ShippingMethod[]>(editing?.shipping ?? ["posta"]);
-  const [payment, setPayment] = useState<PaymentMethod[]>(editing?.payment ?? ["tekuci_racun"]);
+  const [shipping, setShipping] = useState<ShippingMethod[]>(
+    editing?.shipping ?? ["posta"],
+  );
+  const [payment, setPayment] = useState<PaymentMethod[]>(
+    editing?.payment ?? ["tekuci_racun"],
+  );
   const [shipError, setShipError] = useState(false);
   const shipRef = useRef<HTMLDivElement>(null);
   const photoGridRef = useRef<HTMLDivElement>(null);
@@ -129,23 +162,31 @@ export function SellForm({
   // Sažetak (samo knjige): o čemu se radi u knjizi. Popunjava se iz baze knjiga ili uz pomoć AI,
   // a prodavac ga uvek može izmeniti (odluka V 11. 11. 2026). Opis je stanje i oštećenja artikla.
   const [summary, setSummary] = useState(editing?.values.sazetak ?? "");
-  const [aiState, setAiState] = useState<"idle" | "loading" | "unknown" | "error">("idle");
+  const [aiState, setAiState] = useState<
+    "idle" | "loading" | "unknown" | "limit" | "soon" | "error"
+  >("idle");
   const bundleRef = useRef<HTMLDivElement>(null);
 
   // Broj artikala u paketu: kockice 1–10 ili drugi broj upisan ručno.
   const [bundle, setBundle] = useState(editing?.values.broj ?? "");
-  const [bundleOther, setBundleOther] = useState(() => !!editing && !BUNDLE_TILES.includes(Number(editing.values.broj)));
+  const [bundleOther, setBundleOther] = useState(
+    () => !!editing && !BUNDLE_TILES.includes(Number(editing.values.broj)),
+  );
   const [bundleError, setBundleError] = useState(false);
   // Jezik: ponuđeni ili „Drugo“ pa upisan ručno.
   const knownLang = (v: string) => (LANGUAGES as readonly string[]).includes(v);
-  const [langOther, setLangOther] = useState(() => !!editing?.values.jezik && !knownLang(editing.values.jezik));
+  const [langOther, setLangOther] = useState(
+    () => !!editing?.values.jezik && !knownLang(editing.values.jezik),
+  );
 
   // Izabrana knjiga iz padajuće liste popunjava formu. Sva polja ostaju izmenljiva.
   const pickBook = useCallback(async (hit: BookHit) => {
     const form = formRef.current;
     if (!form) return;
     const n = ++pickRef.current;
-    const detail: BookDetail | null = await fetch(`/api/knjige/${encodeURIComponent(hit.id)}`)
+    const detail: BookDetail | null = await fetch(
+      `/api/knjige/${encodeURIComponent(hit.id)}`,
+    )
       .then((r) => (r.ok ? r.json() : null))
       .catch(() => null);
     if (n !== pickRef.current) return;
@@ -162,10 +203,22 @@ export function SellForm({
       genre: null,
     };
 
-    const set = (name: string, _label: string, value: string | number | null) => {
-      const el = form.elements.namedItem(name) as HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement | null;
+    const set = (
+      name: string,
+      _label: string,
+      value: string | number | null,
+    ) => {
+      const el = form.elements.namedItem(name) as
+        | HTMLInputElement
+        | HTMLSelectElement
+        | HTMLTextAreaElement
+        | null;
       if (!el || value == null || value === "") return;
-      if (el instanceof HTMLSelectElement && ![...el.options].some((o) => o.value === String(value))) return;
+      if (
+        el instanceof HTMLSelectElement &&
+        ![...el.options].some((o) => o.value === String(value))
+      )
+        return;
       el.value = String(value);
       el.setAttribute("aria-invalid", "false");
     };
@@ -190,21 +243,28 @@ export function SellForm({
           book.covers[0],
           hit.thumb?.replace(/zoom=\d/, "zoom=1").replace(/-S\.jpg$/, "-L.jpg"),
           ...book.covers.slice(1),
-          isbn && `https://covers.openlibrary.org/b/isbn/${isbn}-L.jpg?default=false`,
+          isbn &&
+            `https://covers.openlibrary.org/b/isbn/${isbn}-L.jpg?default=false`,
         ].filter((u): u is string => !!u),
       ),
     ];
     for (const u of candidates) {
-      const blob = await fetch(`/api/knjige/naslovna?u=${encodeURIComponent(u)}`)
+      const blob = await fetch(
+        `/api/knjige/naslovna?u=${encodeURIComponent(u)}`,
+      )
         .then((r) => (r.ok ? r.blob() : null))
         .catch(() => null);
       if (n !== pickRef.current) return;
-      if (!blob || blob.size < 2000 || !blob.type.startsWith("image/")) continue;
+      if (!blob || blob.size < 2000 || !blob.type.startsWith("image/"))
+        continue;
       const ext = blob.type.split("/")[1]?.replace("jpeg", "jpg") ?? "jpg";
       const file = new File([blob], `naslovna.${ext}`, { type: blob.type });
       setPhotos((p) => {
         p.filter((x) => x.fromDb).forEach((x) => URL.revokeObjectURL(x.url));
-        return [{ file, url: URL.createObjectURL(file), fromDb: true }, ...p.filter((x) => !x.fromDb)].slice(0, PHOTO_SLOTS.length);
+        return [
+          { file, url: URL.createObjectURL(file), fromDb: true },
+          ...p.filter((x) => !x.fromDb),
+        ].slice(0, PHOTO_SLOTS.length);
       });
       setPhotoError(false);
       break;
@@ -222,7 +282,10 @@ export function SellForm({
   const writeSummary = async () => {
     const form = formRef.current;
     if (!form) return;
-    const value = (name: string) => ((form.elements.namedItem(name) as HTMLInputElement | null)?.value ?? "").trim();
+    const value = (name: string) =>
+      (
+        (form.elements.namedItem(name) as HTMLInputElement | null)?.value ?? ""
+      ).trim();
     const naslov = value("naziv");
     if (!naslov) {
       const el = form.elements.namedItem("naziv") as HTMLInputElement | null;
@@ -231,26 +294,49 @@ export function SellForm({
       return;
     }
     if (!signedIn) {
-      router.replace(`${pathname}?nalog=prijava&posle=${encodeURIComponent(pathname)}`, { scroll: false });
+      router.replace(
+        `${pathname}?nalog=prijava&posle=${encodeURIComponent(pathname)}`,
+        { scroll: false },
+      );
       return;
     }
     setAiState("loading");
     const res = await fetch("/api/knjige/sazetak", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ naslov, autor: value("autor"), izdavac: value("izdavac"), isbn: value("isbn") }),
+      body: JSON.stringify({
+        naslov,
+        autor: value("autor"),
+        izdavac: value("izdavac"),
+        isbn: value("isbn"),
+      }),
     })
-      .then((r) => (r.ok ? r.json() : null))
+      .then((r) =>
+        r.ok || r.status === 429 || r.status === 503 ? r.json() : null,
+      )
       .catch(() => null);
     if (res?.sazetak) {
       setSummary(res.sazetak);
       setAiState("idle");
-    } else setAiState(res?.nepoznato ? "unknown" : "error");
+    } else
+      setAiState(
+        res?.nepoznato
+          ? "unknown"
+          : res?.limit
+            ? "limit"
+            : res?.uskoro
+              ? "soon"
+              : "error",
+      );
   };
 
   const photosRef = useRef(photos);
   photosRef.current = photos;
-  useEffect(() => () => photosRef.current.forEach((p) => p.file && URL.revokeObjectURL(p.url)), []);
+  useEffect(
+    () => () =>
+      photosRef.current.forEach((p) => p.file && URL.revokeObjectURL(p.url)),
+    [],
+  );
 
   // Izmena oglasa: polja se popune iz baze kad se forma prikaže.
   useEffect(() => {
@@ -258,10 +344,20 @@ export function SellForm({
     if (!editing || !form) return;
     for (const [name, value] of Object.entries(editing.values)) {
       if (name === "broj" || name === "sazetak") continue;
-      const el = form.elements.namedItem(name) as HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement | null;
-      if (name === "jezik" && value && !(LANGUAGES as readonly string[]).includes(value)) {
+      const el = form.elements.namedItem(name) as
+        | HTMLInputElement
+        | HTMLSelectElement
+        | HTMLTextAreaElement
+        | null;
+      if (
+        name === "jezik" &&
+        value &&
+        !(LANGUAGES as readonly string[]).includes(value)
+      ) {
         if (el) el.value = "drugo";
-        const other = form.elements.namedItem("jezik_drugo") as HTMLInputElement | null;
+        const other = form.elements.namedItem(
+          "jezik_drugo",
+        ) as HTMLInputElement | null;
         if (other) other.value = value;
         continue;
       }
@@ -304,7 +400,10 @@ export function SellForm({
     const bad: HTMLElement[] = [];
     for (const name of required) {
       if (!name) continue;
-      const el = form.elements.namedItem(name) as HTMLInputElement | HTMLSelectElement | null;
+      const el = form.elements.namedItem(name) as
+        | HTMLInputElement
+        | HTMLSelectElement
+        | null;
       if (!el) continue;
       const empty = el.value.trim() === "";
       el.setAttribute("aria-invalid", String(empty));
@@ -321,7 +420,8 @@ export function SellForm({
     setBundleError(noBundle);
     if (noBundle && bundleRef.current) bad.push(bundleRef.current);
     setPhotoError(photos.length === 0);
-    if (photos.length === 0 && photoGridRef.current) bad.push(photoGridRef.current);
+    if (photos.length === 0 && photoGridRef.current)
+      bad.push(photoGridRef.current);
     const noShip = shipping.length === 0 || payment.length === 0;
     setShipError(noShip);
     if (noShip && shipRef.current) bad.push(shipRef.current);
@@ -329,7 +429,9 @@ export function SellForm({
     if (!priceNum && priceRef.current) bad.push(priceRef.current);
     if (bad.length) {
       setNotice(null);
-      const top = bad.reduce((a, b) => (b.getBoundingClientRect().top < a.getBoundingClientRect().top ? b : a));
+      const top = bad.reduce((a, b) =>
+        b.getBoundingClientRect().top < a.getBoundingClientRect().top ? b : a,
+      );
       top.scrollIntoView({ behavior: "smooth", block: "center" });
       return;
     }
@@ -339,7 +441,10 @@ export function SellForm({
     }
     if (!signedIn) {
       // Prijava se otvara preko ove stranice, pa popunjena forma i fotografije ostaju.
-      router.replace(`${pathname}?nalog=prijava&posle=${encodeURIComponent(pathname)}`, { scroll: false });
+      router.replace(
+        `${pathname}?nalog=prijava&posle=${encodeURIComponent(pathname)}`,
+        { scroll: false },
+      );
       return;
     }
 
@@ -348,9 +453,13 @@ export function SellForm({
       const v = String(fd.get(name) ?? "").trim();
       return v === "" ? null : v;
     };
-    const categoryId = refs.subcategories[`${category.slug}/${text("potkategorija")}`];
+    const categoryId =
+      refs.subcategories[`${category.slug}/${text("potkategorija")}`];
     const genreSlug = text("zanr");
-    const isbnRaw = text("isbn")?.toUpperCase().replace(/[^0-9X]/g, "") ?? null;
+    const isbnRaw =
+      text("isbn")
+        ?.toUpperCase()
+        .replace(/[^0-9X]/g, "") ?? null;
     const pages = text("broj_stranica");
 
     setPublishing(true);
@@ -362,7 +471,10 @@ export function SellForm({
     if (!user) {
       setPublishing(false);
       setNotice(null);
-      router.replace(`${pathname}?nalog=prijava&posle=${encodeURIComponent(pathname)}`, { scroll: false });
+      router.replace(
+        `${pathname}?nalog=prijava&posle=${encodeURIComponent(pathname)}`,
+        { scroll: false },
+      );
       return;
     }
 
@@ -370,12 +482,15 @@ export function SellForm({
     const fields = {
       item_type: type,
       category_id: categoryId,
-      genre_id: genreSlug ? (refs.genres[`${type}/${genreSlug}`] ?? null) : null,
+      genre_id: genreSlug
+        ? (refs.genres[`${type}/${genreSlug}`] ?? null)
+        : null,
       title,
       author: hidden.includes("author") ? null : text("autor"),
       isbn: hidden.includes("isbn") ? null : isbnRaw,
       language: langOther ? text("jezik_drugo") : text("jezik"),
-      page_count: hidden.includes("page_count") || !pages ? null : Number(pages),
+      page_count:
+        hidden.includes("page_count") || !pages ? null : Number(pages),
       publisher: hidden.includes("publisher") ? null : text("izdavac"),
       bundle_count: Number(bundle),
       condition: text("stanje") as Condition,
@@ -387,11 +502,24 @@ export function SellForm({
       payment_methods: payment,
     };
     const { data: listing, error } = editing
-      ? await supabase.from("listings").update(fields).eq("id", editing.id).select("id").single()
-      : await supabase.from("listings").insert({ seller_id: user.id, ...fields }).select("id").single();
+      ? await supabase
+          .from("listings")
+          .update(fields)
+          .eq("id", editing.id)
+          .select("id")
+          .single()
+      : await supabase
+          .from("listings")
+          .insert({ seller_id: user.id, ...fields })
+          .select("id")
+          .single();
     if (error || !listing) {
       setPublishing(false);
-      setNotice(editing ? "Izmene nisu sačuvane. Pokušaj ponovo." : "Oglas nije objavljen. Proveri polja i pokušaj ponovo.");
+      setNotice(
+        editing
+          ? "Izmene nisu sačuvane. Pokušaj ponovo."
+          : "Oglas nije objavljen. Proveri polja i pokušaj ponovo.",
+      );
       return;
     }
 
@@ -404,11 +532,17 @@ export function SellForm({
         continue;
       }
       const file = p.file!;
-      const ext = (file.name.split(".").pop() ?? "jpg").toLowerCase().replace(/[^a-z0-9]/g, "") || "jpg";
+      const ext =
+        (file.name.split(".").pop() ?? "jpg")
+          .toLowerCase()
+          .replace(/[^a-z0-9]/g, "") || "jpg";
       const path = `${user.id}/${listing.id}/${i}-${Date.now()}.${ext}`;
-      const up = await supabase.storage.from("listing-images").upload(path, file, { contentType: file.type });
+      const up = await supabase.storage
+        .from("listing-images")
+        .upload(path, file, { contentType: file.type });
       if (up.error) {
-        if (!editing) await supabase.from("listings").delete().eq("id", listing.id);
+        if (!editing)
+          await supabase.from("listings").delete().eq("id", listing.id);
         setPublishing(false);
         setNotice(
           up.error.message.toLowerCase().includes("size")
@@ -422,15 +556,26 @@ export function SellForm({
       paths.push(path);
     }
     if (editing) {
-      const removed = editing.images.map((i) => i.path).filter((p) => !paths.includes(p));
-      await supabase.from("listing_images").delete().eq("listing_id", listing.id);
-      if (removed.length) await supabase.storage.from("listing-images").remove(removed);
+      const removed = editing.images
+        .map((i) => i.path)
+        .filter((p) => !paths.includes(p));
+      await supabase
+        .from("listing_images")
+        .delete()
+        .eq("listing_id", listing.id);
+      if (removed.length)
+        await supabase.storage.from("listing-images").remove(removed);
     }
-    const rows = await supabase
-      .from("listing_images")
-      .insert(paths.map((path, position) => ({ listing_id: listing.id, path, position })));
+    const rows = await supabase.from("listing_images").insert(
+      paths.map((path, position) => ({
+        listing_id: listing.id,
+        path,
+        position,
+      })),
+    );
     if (rows.error) {
-      if (!editing) await supabase.from("listings").delete().eq("id", listing.id);
+      if (!editing)
+        await supabase.from("listings").delete().eq("id", listing.id);
       setPublishing(false);
       setNotice("Fotografije nisu sačuvane. Pokušaj ponovo.");
       return;
@@ -449,13 +594,18 @@ export function SellForm({
       onSubmit={onSubmit}
       onChange={(e) => {
         const t = e.target as HTMLElement;
-        if (t.getAttribute("aria-invalid") === "true") t.setAttribute("aria-invalid", "false");
-      }} className="mx-auto flex w-[636px] flex-col pb-[80px] pt-[80px]">
+        if (t.getAttribute("aria-invalid") === "true")
+          t.setAttribute("aria-invalid", "false");
+      }}
+      className="mx-auto flex w-[636px] flex-col pb-[80px] pt-[80px]"
+    >
       <div className="text-center text-black">
         <h1 className="trim-cap font-serif text-[32px] font-medium italic leading-[0.95] tracking-[-0.32px]">
           {editing ? "Izmeni oglas" : "Sell an item"}
         </h1>
-        <p className="mt-[24px] text-[14px] leading-[1.5]">What type of item are you selling?</p>
+        <p className="mt-[24px] text-[14px] leading-[1.5]">
+          What type of item are you selling?
+        </p>
       </div>
 
       <div
@@ -488,18 +638,39 @@ export function SellForm({
       </div>
 
       <Section title="Detalji artikla" className="mt-[70px]" gap={36}>
-        <div key={type} className="grid grid-cols-[306px_306px] gap-x-[24px] gap-y-[18px]">
-          <Select name="potkategorija" placeholder="Kategorija" required options={category.subcategories.map((s) => ({ value: s.slug, label: s.name }))} />
+        <div
+          key={type}
+          className="grid grid-cols-[306px_306px] gap-x-[24px] gap-y-[18px]"
+        >
+          <Select
+            name="potkategorija"
+            placeholder="Kategorija"
+            required
+            options={category.subcategories.map((s) => ({
+              value: s.slug,
+              label: s.name,
+            }))}
+          />
           {genres.length > 0 ? (
-            <Select name="zanr" placeholder="Žanr" options={genres.map((g) => ({ value: g.slug, label: g.name }))} />
+            <Select
+              name="zanr"
+              placeholder="Žanr"
+              options={genres.map((g) => ({ value: g.slug, label: g.name }))}
+            />
           ) : (
             <span />
           )}
           <div ref={bundleRef} className="col-span-2">
             <p className="text-[14px] font-medium text-black">
-              {type === "knjiga" ? "Broj knjiga u paketu" : "Broj artikala u paketu"}
+              {type === "knjiga"
+                ? "Broj knjiga u paketu"
+                : "Broj artikala u paketu"}
             </p>
-            <div role="radiogroup" aria-label="Broj u paketu" className="mt-[12px] flex gap-[8px]">
+            <div
+              role="radiogroup"
+              aria-label="Broj u paketu"
+              className="mt-[12px] flex gap-[8px]"
+            >
               {BUNDLE_TILES.map((n) => {
                 const on = !bundleOther && bundle === String(n);
                 return (
@@ -515,7 +686,11 @@ export function SellForm({
                       setBundleError(false);
                     }}
                     className={`size-[44px] border text-[14px] font-medium ${
-                      on ? "border-black bg-black text-white" : bundleError ? "border-alert bg-white" : "border-[#dfdfdf] bg-white hover:border-black"
+                      on
+                        ? "border-black bg-black text-white"
+                        : bundleError
+                          ? "border-alert bg-white"
+                          : "border-[#dfdfdf] bg-white hover:border-black"
                     }`}
                   >
                     {n}
@@ -557,7 +732,10 @@ export function SellForm({
             name="stanje"
             placeholder={`Stanje ${noun}`}
             required
-            options={CONDITIONS.map((c) => ({ value: c.value, label: c.label }))}
+            options={CONDITIONS.map((c) => ({
+              value: c.value,
+              label: c.label,
+            }))}
           />
         </div>
       </Section>
@@ -591,7 +769,11 @@ export function SellForm({
                 {photo ? (
                   <>
                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={photo.url} alt={`Fotografija ${i + 1}`} className="size-full object-cover" />
+                    <img
+                      src={photo.url}
+                      alt={`Fotografija ${i + 1}`}
+                      className="size-full object-cover"
+                    />
                     {photo.fromDb && (
                       <span className="absolute bottom-[6px] left-[6px] bg-white px-[6px] py-[3px] text-[10px] font-medium leading-none text-black">
                         Naslovna iz baze
@@ -603,17 +785,31 @@ export function SellForm({
                       aria-label="Ukloni fotografiju"
                       className="absolute right-[6px] top-[6px] flex size-[22px] items-center justify-center rounded-full bg-white"
                     >
-                      <Image src="/icons/close.svg" alt="" width={10} height={10} />
+                      <Image
+                        src="/icons/close.svg"
+                        alt=""
+                        width={10}
+                        height={10}
+                      />
                     </button>
                   </>
                 ) : (
                   <button
                     type="button"
                     onClick={() => fileRef.current?.click()}
-                    aria-label={i === 0 ? "Dodaj naslovnu fotografiju" : "Dodaj fotografiju"}
+                    aria-label={
+                      i === 0
+                        ? "Dodaj naslovnu fotografiju"
+                        : "Dodaj fotografiju"
+                    }
                     className="flex size-full items-center justify-center"
                   >
-                    <Image src="/icons/camera.svg" alt="" width={20} height={19} />
+                    <Image
+                      src="/icons/camera.svg"
+                      alt=""
+                      width={20}
+                      height={19}
+                    />
                   </button>
                 )}
               </div>
@@ -624,7 +820,15 @@ export function SellForm({
 
       <div className="mt-[60px] grid grid-cols-[306px_306px] gap-x-[24px] gap-y-[24px]">
         <Field label="Naziv">
-          <BookSuggest by="naslov" name="naziv" required placeholder={EXAMPLES[type].title} className={inputCls} enabled={isBook} onPick={pickBook} />
+          <BookSuggest
+            by="naslov"
+            name="naziv"
+            required
+            placeholder={EXAMPLES[type].title}
+            className={inputCls}
+            enabled={isBook}
+            onPick={pickBook}
+          />
         </Field>
         {!hidden.includes("author") && (
           <Field label="Autor">
@@ -650,11 +854,23 @@ export function SellForm({
           <Select
             name="jezik"
             placeholder="Izaberi jezik"
-            options={[...LANGUAGES.map((l) => ({ value: l as string, label: l as string })), { value: "drugo", label: "Drugo" }]}
+            options={[
+              ...LANGUAGES.map((l) => ({
+                value: l as string,
+                label: l as string,
+              })),
+              { value: "drugo", label: "Drugo" },
+            ]}
             onChange={(v) => setLangOther(v === "drugo")}
           />
           {langOther && (
-            <input name="jezik_drugo" autoFocus placeholder="Upiši jezik, npr. Nemački" maxLength={40} className={`${inputCls} mt-[10px]`} />
+            <input
+              name="jezik_drugo"
+              autoFocus
+              placeholder="Upiši jezik, npr. Nemački"
+              maxLength={40}
+              className={`${inputCls} mt-[10px]`}
+            />
           )}
         </Field>
         {!hidden.includes("page_count") && (
@@ -667,18 +883,35 @@ export function SellForm({
                 placeholder="npr. 347"
                 className={`${inputCls} [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none`}
               />
-              <Image src="/icons/stepper.svg" alt="" width={9} height={18} className="pointer-events-none absolute left-[290px] top-[9px]" />
+              <Image
+                src="/icons/stepper.svg"
+                alt=""
+                width={9}
+                height={18}
+                className="pointer-events-none absolute left-[290px] top-[9px]"
+              />
             </div>
           </Field>
         )}
         {!hidden.includes("publisher") && (
-          <Field label={type === "muzika" ? "Izdavačka kuća" : "Izdavač"} optional>
-            <input name="izdavac" placeholder={EXAMPLES[type].publisher} className={inputCls} />
+          <Field
+            label={type === "muzika" ? "Izdavačka kuća" : "Izdavač"}
+            optional
+          >
+            <input
+              name="izdavac"
+              placeholder={EXAMPLES[type].publisher}
+              className={inputCls}
+            />
           </Field>
         )}
         {hasSummary && (
           <div className="col-span-2">
-            <Field label="Sažetak" optional info="O čemu se radi u knjizi. Popunjava se sam kad izabereš knjigu iz baze, a možeš da ga izmeniš.">
+            <Field
+              label="Sažetak"
+              optional
+              info="O čemu se radi u knjizi. Popunjava se sam kad izabereš knjigu iz baze, a možeš da ga izmeniš."
+            >
               <textarea
                 name="sazetak"
                 value={summary}
@@ -696,21 +929,30 @@ export function SellForm({
                   disabled={aiState === "loading"}
                   className="h-[32px] shrink-0 whitespace-nowrap border border-black px-[14px] font-semibold text-black hover:bg-black hover:text-white disabled:opacity-50"
                 >
-                  {aiState === "loading" ? "Pišem sažetak..." : "Napiši sažetak uz pomoć AI"}
+                  {aiState === "loading"
+                    ? "Pišem sažetak..."
+                    : "Napiši sažetak uz pomoć AI"}
                 </button>
                 <span className="text-[#737373]">
                   {aiState === "unknown"
                     ? "AI ne poznaje ovu knjigu dovoljno dobro. Napiši sažetak sam ili ostavi prazno."
-                    : aiState === "error"
-                      ? "Sažetak trenutno ne može da se napiše. Pokušaj ponovo malo kasnije."
-                      : "Ako knjige nema u bazi, AI može da napiše sažetak po naslovu i autoru."}
+                    : aiState === "soon"
+                      ? "AI sažetak stiže uskoro. Za sada napiši sažetak sam ili ostavi prazno."
+                      : aiState === "limit"
+                        ? "Danas je iskorišćeno svih 10 AI sažetaka. Napiši sažetak sam ili pokušaj sutra."
+                        : aiState === "error"
+                          ? "Sažetak trenutno ne može da se napiše. Pokušaj ponovo malo kasnije."
+                          : "Ako knjige nema u bazi, AI može da napiše sažetak po naslovu i autoru."}
                 </span>
               </div>
             )}
           </div>
         )}
         <div className="col-span-2">
-          <Field label="Opis" info="Stanje artikla: oštećenja, tragovi korišćenja i sve što kupac treba da zna pre kupovine.">
+          <Field
+            label="Opis"
+            info="Stanje artikla: oštećenja, tragovi korišćenja i sve što kupac treba da zna pre kupovine."
+          >
             <textarea
               name="opis"
               required
@@ -723,7 +965,10 @@ export function SellForm({
       </div>
 
       <Section title="Slanje i plaćanje" className="mt-[60px]" gap={28}>
-        <div ref={shipRef} className="grid grid-cols-[306px_306px] gap-x-[24px] gap-y-[24px]">
+        <div
+          ref={shipRef}
+          className="grid grid-cols-[306px_306px] gap-x-[24px] gap-y-[24px]"
+        >
           <CheckGroup
             label="Kako šalješ"
             options={SHIPPING}
@@ -750,8 +995,14 @@ export function SellForm({
               placeholder="Izaberi grad"
               defaultValue={editing ? "" : (defaultCity ?? "")}
               options={[
-                ...(defaultCity && !(CITIES as readonly string[]).includes(defaultCity) ? [{ value: defaultCity, label: defaultCity }] : []),
-                ...CITIES.map((c) => ({ value: c as string, label: c as string })),
+                ...(defaultCity &&
+                !(CITIES as readonly string[]).includes(defaultCity)
+                  ? [{ value: defaultCity, label: defaultCity }]
+                  : []),
+                ...CITIES.map((c) => ({
+                  value: c as string,
+                  label: c as string,
+                })),
               ]}
             />
           </Field>
@@ -760,7 +1011,10 @@ export function SellForm({
 
       <Section title="Cena artikla" className="mt-[60px]" gap={28}>
         <div className="flex gap-[24px]">
-          <label ref={priceRef} className={`relative flex h-[49px] w-[306px] items-center border ${priceError ? "border-alert" : "border-black"}`}>
+          <label
+            ref={priceRef}
+            className={`relative flex h-[49px] w-[306px] items-center border ${priceError ? "border-alert" : "border-black"}`}
+          >
             <span className="ml-[9px] flex items-center text-[18px] font-semibold text-black">
               <span className="mr-[5px]">RSD</span>
               <input
@@ -791,7 +1045,9 @@ export function SellForm({
           disabled={publishing}
           className="flex h-[37px] shrink-0 disabled:opacity-60 items-center justify-center bg-[#09090b] px-[19px] text-[12px] font-bold uppercase leading-[0.95] tracking-[-0.12px] text-white"
         >
-          <span className="trim-cap">{editing ? "Sačuvaj izmene" : "Objavi oglas"}</span>
+          <span className="trim-cap">
+            {editing ? "Sačuvaj izmene" : "Objavi oglas"}
+          </span>
         </button>
       </div>
     </form>
@@ -813,8 +1069,14 @@ function Section({
 }) {
   return (
     <section className={className}>
-      <h2 className="text-[17px] font-semibold leading-[16px] text-black">{title}</h2>
-      {hint && <p className="mt-[8px] text-[13px] leading-[1.4] text-[#7c7c7c]">{hint}</p>}
+      <h2 className="text-[17px] font-semibold leading-[16px] text-black">
+        {title}
+      </h2>
+      {hint && (
+        <p className="mt-[8px] text-[13px] leading-[1.4] text-[#7c7c7c]">
+          {hint}
+        </p>
+      )}
       <div style={{ marginTop: hint ? 16 : gap - 16 }}>{children}</div>
     </section>
   );
@@ -835,7 +1097,11 @@ function Field({
     <label className="block">
       <span className="flex items-center text-[17px] font-semibold leading-[16px] text-black">
         {label}
-        {optional && <span className="ml-[4px] text-[13px] font-normal text-[#7c7c7c]">(opciono)</span>}
+        {optional && (
+          <span className="ml-[4px] text-[13px] font-normal text-[#7c7c7c]">
+            (opciono)
+          </span>
+        )}
         {info && (
           <span
             tabIndex={0}
@@ -915,9 +1181,13 @@ function CheckGroup<T extends string>({
   onChange: (v: T[]) => void;
 }) {
   return (
-    <fieldset className={`border p-[12px] ${error ? "border-alert" : "border-transparent"}`}>
+    <fieldset
+      className={`border p-[12px] ${error ? "border-alert" : "border-transparent"}`}
+    >
       <legend className="sr-only">{label}</legend>
-      <p className="text-[17px] font-semibold leading-[16px] text-black">{label}</p>
+      <p className="text-[17px] font-semibold leading-[16px] text-black">
+        {label}
+      </p>
       <ul className="mt-[16px] flex flex-col gap-[12px]">
         {options.map((o) => {
           const on = value.includes(o.value);
@@ -927,11 +1197,24 @@ function CheckGroup<T extends string>({
                 type="button"
                 role="checkbox"
                 aria-checked={on}
-                onClick={() => onChange(on ? value.filter((v) => v !== o.value) : [...value, o.value])}
+                onClick={() =>
+                  onChange(
+                    on
+                      ? value.filter((v) => v !== o.value)
+                      : [...value, o.value],
+                  )
+                }
                 className="flex items-center gap-[8px] text-left"
               >
-                <Image src={on ? "/icons/check-yes.svg" : "/icons/check-no.svg"} alt="" width={19} height={19} />
-                <span className="text-[14px] leading-[1.5] text-black">{o.label}</span>
+                <Image
+                  src={on ? "/icons/check-yes.svg" : "/icons/check-no.svg"}
+                  alt=""
+                  width={19}
+                  height={19}
+                />
+                <span className="text-[14px] leading-[1.5] text-black">
+                  {o.label}
+                </span>
               </button>
             </li>
           );
