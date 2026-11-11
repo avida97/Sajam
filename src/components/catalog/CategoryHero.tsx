@@ -18,7 +18,14 @@ export function CategoryHero({ action, query, placeholder }: { action: string; q
         </div>
 
         <form action={action} role="search" className="absolute left-1/2 top-[235px] h-[39px] w-[416px] -translate-x-1/2">
-          <Image src="/icons/search.svg" alt="" width={18} height={17} className="pointer-events-none absolute left-[16px] top-[11px]" />
+          {/* Lupa je dugme za pretragu, kao u gornjem meniju (odluka V 11. 11. 2026). */}
+          <button
+            type="submit"
+            aria-label="Pretraži"
+            className="absolute left-[9px] top-[4px] z-10 flex size-[31px] items-center justify-center rounded-full transition-colors hover:bg-black/10 focus-visible:bg-black/10 focus-visible:outline-none"
+          >
+            <Image src="/icons/search.svg" alt="" width={18} height={17} />
+          </button>
           <input
             name="q"
             type="search"

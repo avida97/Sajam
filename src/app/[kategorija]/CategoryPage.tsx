@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { CategoryHero } from "@/components/catalog/CategoryHero";
 import { FilterSidebar, type FilterGroup } from "@/components/catalog/FilterSidebar";
@@ -75,7 +76,8 @@ export async function CategoryPage({
       param: "autor",
       title: "Autori",
       placeholder: "Izaberi autora",
-      options: facets.authors.map((a) => ({ value: a, label: a })),
+      // Izabrani autor (npr. sa početne) ostaje vidljiv u polju i kad nema njegovih oglasa.
+      options: withSelected(facets.authors, filters.author).map((a) => ({ value: a, label: a })),
     });
   if (isBookLike)
     groups.push({
@@ -89,7 +91,7 @@ export async function CategoryPage({
     param: "grad",
     title: "Lokacija",
     placeholder: "Izaberi grad",
-    options: facets.cities.map((c) => ({ value: c, label: c })),
+    options: withSelected(facets.cities, filters.city).map((c) => ({ value: c, label: c })),
   });
 
   const pageHref = (p: number) => {
@@ -142,7 +144,16 @@ export async function CategoryPage({
                 ))}
               </div>
             ) : (
-              <p className="pt-[40px] text-[14px] text-black">Nema artikala za izabrane filtere.</p>
+              <div className="pt-[40px] text-[14px] text-black">
+                <p>
+                  {filters.author
+                    ? `Trenutno nema oglasa za autora ${filters.author}${Object.keys(searchParams).some((k) => !["autor", "strana", "sort"].includes(k)) ? " uz izabrane filtere" : ""}.`
+                    : "Nema artikala za izabrane filtere."}
+                </p>
+                <Link href={base} className="mt-[12px] inline-block text-[13px] font-medium underline">
+                  Obriši filtere
+                </Link>
+              </div>
             )}
             <div className="mt-[80px] flex justify-center">
               <Pagination page={page} pageCount={pageCount} href={pageHref} />
@@ -154,4 +165,8 @@ export async function CategoryPage({
       <ProductCarousel title="Trenutno u trendu" href={`/${category.slug}`} listings={trending} />
     </>
   );
+}
+
+function withSelected(list: string[], selected?: string) {
+  return selected && !list.includes(selected) ? [selected, ...list] : list;
 }

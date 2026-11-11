@@ -52,8 +52,10 @@ export function HeartButton({
       </button>
     );
   return (
-    <button type="button" aria-label={label} aria-pressed={on} onClick={click} className={`size-[30px] ${className}`}>
-      <Image src={on ? "/icons/heart-filled.svg" : "/icons/heart.svg"} alt="" width={30} height={30} />
+    // Hover po Figmi („Component 21“ 314:409): srce se popuni.
+    <button type="button" aria-label={label} aria-pressed={on} onClick={click} className={`group/heart size-[30px] ${className}`}>
+      <Image src="/icons/heart-filled.svg" alt="" width={30} height={30} className={on ? "" : "hidden group-hover/heart:block"} />
+      {!on && <Image src="/icons/heart.svg" alt="" width={30} height={30} className="group-hover/heart:hidden" />}
     </button>
   );
 }

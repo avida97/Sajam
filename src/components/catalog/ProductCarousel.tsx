@@ -54,7 +54,8 @@ export function ProductCarousel({
         {href && (
           <Link
             href={href}
-            className="mt-[4px] flex h-[20px] items-center gap-[8px] text-[15px] font-medium leading-[0.95] tracking-[-0.15px] text-black"
+            // Hover po Figmi („Component 52“ 373:6209): linija ispod.
+            className="mt-[4px] flex h-[20px] items-center gap-[8px] border-b border-transparent text-[15px] font-medium leading-[0.95] tracking-[-0.15px] text-black transition-colors hover:border-black"
           >
             Pogledaj sve
             <Image src="/icons/chevron-right.svg" alt="" width={7} height={12} />

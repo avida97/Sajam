@@ -3,6 +3,7 @@ import Link from "next/link";
 import { CONDITIONS } from "@/lib/conditions";
 import { formatRsd, listingHref } from "@/lib/listings/params";
 import type { CatalogListing } from "@/lib/listings/types";
+import { CardImages } from "./CardImages";
 import { HeartButton } from "./HeartButton";
 
 // Kartica proizvoda iz Figme („Subject“, 412:6221): slika 196×253, naslov, autor,
@@ -17,21 +18,7 @@ export function ProductCard({ listing }: { listing: CatalogListing }) {
   return (
     <article className="relative h-[412px] w-[196px] shrink-0">
       <Link href={listingHref(listing)} className="block">
-        <div className="relative h-[253px] w-[196px] overflow-hidden bg-[#f5f6f8]">
-          {images[0] && (
-            <Image src={images[0]} alt={listing.title} fill sizes="196px" className="object-cover" />
-          )}
-          {images.length > 1 && (
-            <div className="absolute left-1/2 top-[234px] flex -translate-x-1/2 items-center gap-[9px]">
-              {images.map((src, i) => (
-                <span
-                  key={src}
-                  className={`h-[3px] rounded-[87px] ${i === 0 ? "w-[41px] bg-black" : "w-[21px] bg-[#e5e5e5]"}`}
-                />
-              ))}
-            </div>
-          )}
-        </div>
+        <CardImages images={images} alt={listing.title} />
         <div className="mt-[20px] h-[62px]">
           <p className="truncate text-[14px] font-semibold text-black">
             {listing.placeholder ? "Naziv artikla" : listing.title}
@@ -46,8 +33,10 @@ export function ProductCard({ listing }: { listing: CatalogListing }) {
           <Image src="/icons/location.svg" alt="" width={14} height={14} />
           {listing.city ?? (listing.placeholder ? "Lokacija" : "")}
         </p>
-        <p className="absolute bottom-0 left-0 flex h-[31px] w-[196px] items-center justify-center bg-[#1b1a1a] text-[12px] font-medium uppercase text-white">
-          {listing.placeholder ? "Cena RSD" : formatRsd(listing.price_rsd)}
+        {/* Hover po Figmi („Component 18“ 308:381): umesto cene piše „Pogledaj oglas“. */}
+        <p className="group/price absolute bottom-0 left-0 flex h-[31px] w-[196px] items-center justify-center bg-[#1b1a1a] text-[12px] font-medium uppercase text-white">
+          <span className="group-hover/price:hidden">{listing.placeholder ? "Cena RSD" : formatRsd(listing.price_rsd)}</span>
+          <span className="hidden group-hover/price:inline">Pogledaj oglas</span>
         </p>
       </Link>
       {!listing.placeholder && <HeartButton listingId={listing.id} className="absolute left-[150px] top-[16px]" />}

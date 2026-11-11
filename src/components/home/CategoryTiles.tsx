@@ -1,7 +1,8 @@
 import Image from "next/image";
 import Link from "next/link";
 
-// „Istraži po kategoriji“ (Figma 412:5090). Redosled je kao u dizajnu.
+// „Istraži po kategoriji“ (Figma 412:5090). Redosled je kao u dizajnu. Hover po Figmi
+// („Kategorija - hover slike“ 244:465): slika se uveća i blago nagne (smart animate 0,3 s).
 const TILES = [
   { slug: "knjige", name: "Knjige" },
   { slug: "mange-i-stripovi", name: "Mange i stripovi" },
@@ -25,7 +26,7 @@ export function CategoryTiles() {
                 alt=""
                 width={196}
                 height={196}
-                className="size-full object-cover transition-transform duration-300 group-hover:scale-105"
+                className="size-full object-cover transition-transform duration-300 ease-out group-hover:-translate-x-[5px] group-hover:translate-y-[3px] group-hover:-rotate-[3.7deg] group-hover:scale-[1.12]"
               />
             </span>
             <span className="trim-cap text-[14px] uppercase leading-[0.95] tracking-[0.84px] text-black">{t.name}</span>
