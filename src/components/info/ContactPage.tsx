@@ -8,6 +8,10 @@ const SOCIALS = [
   { name: "LinkedIn", icon: "linkedin" },
 ];
 
+// Redosled slika kao u Figmi (kasete prve); na 4. i 8. je ikonica videa umesto Instagrama.
+const STRIP = [10, 1, 2, 3, 4, 5, 6, 7, 8, 9];
+const VIDEO = [3, 7];
+
 // Kontakt po Figmi („Kontakt“ 816:17371, varijanta „Mediji“ 842:18315). Tekstovi kartica su iz dizajna.
 export function ContactPage({ tab }: { tab: "mreze" | "novosti" }) {
   return (
@@ -27,21 +31,25 @@ export function ContactPage({ tab }: { tab: "mreze" | "novosti" }) {
 
       <div className="mt-[116px]">
         <InfoCards
+          expand
           cards={[
             {
               title: "Pozovite naš prodajni tim",
               body: "Pitate se da li je Sajam pravi izbor za vaš biznis? Tu smo da vas provedemo kroz rešenja, cene i opcije prilagođene vašim potrebama.",
               link: { href: "/kontakt/forma?tema=prodaja", label: "Kontaktirajte prodajni tim" },
+              image: "/images/kontakt/kartica-1.png",
             },
             {
               title: "Postanite affiliate partner",
               body: "Volimo da sarađujemo sa stručnjacima koji prepoznaju vrednost kvalitetnog saobraćaja i stvarnih rezultata. Hajde da se povežemo i izgradimo obostrano korisno partnerstvo.",
               link: { href: "/kontakt/forma", label: "Pridružite se našem affiliate programu" },
+              image: "/images/kontakt/kartica-2.png",
             },
             {
               title: "Istražite mogućnosti partnerstva",
               body: "Uvek smo otvoreni za zajedničko stvaranje vrednosti - bilo da je u pitanju co-marketing kampanja, integracija platforme ili nešto neočekivano",
               link: { href: "/kontakt/forma", label: "Pošaljite email našem timu" },
+              image: "/images/kontakt/kartica-3.png",
             },
           ]}
         />
@@ -58,23 +66,35 @@ export function ContactPage({ tab }: { tab: "mreze" | "novosti" }) {
 
         {tab === "mreze" ? (
           <>
-            <div className="mt-[66px] flex items-center gap-[34px]">
+            {/* Hover (Figma „social icons components“ 839:17265): crni krug, bela ikonica i prsten. */}
+            <div className="mt-[59px] flex items-center gap-[20px]">
               {SOCIALS.map((s) => (
-                <a key={s.name} href="#" aria-label={s.name}>
-                  <Image src={`/icons/social-${s.icon}-dark.svg`} alt="" width={16} height={16} />
+                <a
+                  key={s.name}
+                  href="#"
+                  aria-label={s.name}
+                  className="group relative flex size-[30px] items-center justify-center rounded-full bg-[#f5f6f8] transition-colors hover:bg-black hover:shadow-[0_0_0_3px_#fff,0_0_0_5px_#000] focus-visible:bg-black focus-visible:outline-none"
+                >
+                  <Image src={`/icons/social-${s.icon}-dark.svg`} alt="" width={16} height={16} className="group-hover:hidden group-focus-visible:hidden" />
+                  <Image src={`/icons/social-${s.icon}.svg`} alt="" width={16} height={16} className="hidden group-hover:block group-focus-visible:block" />
                 </a>
               ))}
             </div>
-            <div className="mt-[54px] flex w-full justify-center gap-[10px] overflow-hidden">
-              {Array.from({ length: 10 }, (_, i) => (
-                <Image
-                  key={i}
-                  src={`/images/kontakt/mreze-${i + 1}.png`}
-                  alt=""
-                  width={196}
-                  height={196}
-                  className="size-[196px] max-w-none shrink-0 object-cover"
-                />
+            {/* Hover (Figma „INSTAGRAM IMAGES“ 842:17661): zamućenje, tamni sloj i ikonica objave. */}
+            <div className="mt-[47px] flex w-full justify-center gap-[10px] overflow-hidden">
+              {STRIP.map((file, i) => (
+                <a key={i} href="#" aria-label="Objava na Instagramu" className="group relative size-[196px] shrink-0 overflow-hidden">
+                  <Image
+                    src={`/images/kontakt/mreze-${file}.png`}
+                    alt=""
+                    width={196}
+                    height={196}
+                    className="size-[196px] max-w-none object-cover transition-[filter] duration-200 group-hover:blur-[4px]"
+                  />
+                  <span className="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 transition-opacity duration-200 group-hover:opacity-100">
+                    <Image src={VIDEO.includes(i) ? "/icons/play-white.svg" : "/icons/social-instagram.svg"} alt="" width={16} height={16} />
+                  </span>
+                </a>
               ))}
             </div>
           </>

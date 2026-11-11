@@ -64,21 +64,43 @@ export function ButtonPair({
   );
 }
 
+// expand: hover po Figmi („contact cards components“ 824:16911): kartica ispod miša se širi
+// na 636px i prikazuje sliku desno, a ostale se sužavaju na 306px (ukupna širina ostaje ista).
 export function InfoCards({
   cards,
+  expand,
 }: {
-  cards: Array<{ title: string; body: string; link: { href: string; label: string } }>;
+  cards: Array<{ title: string; body: string; link: { href: string; label: string }; image?: string }>;
+  expand?: boolean;
 }) {
   return (
-    <div className="mx-auto flex max-w-site justify-center gap-[24px] px-[72px]">
+    <div className="info-cards mx-auto flex max-w-site justify-center gap-[24px] px-[72px]">
       {cards.map((c) => (
-        <div key={c.title} className="flex h-[267px] w-[416px] flex-col rounded-[20px] bg-[#f5f6f8] px-[20px] pb-[30px] pt-[30px] text-black">
-          <h2 className="text-[20px] leading-[1.2]">{c.title}</h2>
-          <p className="mt-[15px] text-[14px] leading-[1.45]">{c.body}</p>
-          <Link href={c.link.href} className="mt-auto flex items-center gap-[8px] text-[12px] hover:underline">
-            {c.link.label}
-            <Image src="/icons/chevron-right.svg" alt="" width={4} height={7} />
-          </Link>
+        <div
+          key={c.title}
+          className={`info-card group/card relative flex h-[267px] w-[416px] shrink-0 flex-col overflow-hidden rounded-[20px] bg-[#f5f6f8] px-[20px] pb-[30px] pt-[30px] text-black ${
+            expand
+              ? "transition-[width] duration-300 ease-out [.info-cards:has(>.info-card:hover)_&]:w-[306px] hover:!w-[636px]"
+              : ""
+          }`}
+        >
+          <div className={`flex h-full flex-col ${expand ? "group-hover/card:w-[286px]" : ""}`}>
+            <h2 className="text-[20px] leading-[1.2]">{c.title}</h2>
+            <p className="mt-[15px] text-[14px] leading-[1.45]">{c.body}</p>
+            <Link href={c.link.href} className="mt-auto flex items-center gap-[8px] text-[12px] hover:underline">
+              {c.link.label}
+              <Image src="/icons/chevron-right.svg" alt="" width={4} height={7} />
+            </Link>
+          </div>
+          {expand && c.image && (
+            <Image
+              src={c.image}
+              alt=""
+              width={298}
+              height={251}
+              className="pointer-events-none absolute right-[8px] top-[8px] h-[251px] w-[298px] max-w-none rounded-[20px] object-cover opacity-0 transition-opacity duration-300 group-hover/card:opacity-100"
+            />
+          )}
         </div>
       ))}
     </div>
