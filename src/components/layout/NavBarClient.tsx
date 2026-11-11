@@ -23,6 +23,18 @@ export function NavBarClient({ user: initial }: { user: NavUser }) {
   const [open, setOpen] = useState<string | null>(null);
   const ref = useRef<HTMLDivElement>(null);
   const panel = MENU_PANELS.find((p) => p.key === open) ?? null;
+  // Meni se zatvara čim miš izađe iz menija ili panela. Mala pauza dozvoljava prelaz
+  // preko uskog razmaka između reda kategorija i panela.
+  const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const cancelClose = () => {
+    if (closeTimer.current) clearTimeout(closeTimer.current);
+    closeTimer.current = null;
+  };
+  const closeSoon = () => {
+    cancelClose();
+    closeTimer.current = setTimeout(() => setOpen(null), 120);
+  };
+  useEffect(() => cancelClose, []);
   const pathname = usePathname();
   const authHref = (view: "prijava" | "registracija") => `${pathname}?nalog=${view}`;
 
@@ -36,7 +48,7 @@ export function NavBarClient({ user: initial }: { user: NavUser }) {
   return (
     <header ref={ref} className="relative z-40" onMouseLeave={() => setOpen(null)}>
       {/* 1. red: pretraga, jezik, logo, ikonice, dugme */}
-      <div className="h-[59px] border-b-[0.7px] border-line bg-white">
+      <div className="h-[59px] border-b-[0.7px] border-line bg-white" onMouseEnter={() => open && closeSoon()}>
         <div className="relative mx-auto flex h-full max-w-site items-center px-[72px]">
           <form action="/pretraga" className="relative h-[39px] w-[357px]" role="search">
             <Image
@@ -119,7 +131,10 @@ export function NavBarClient({ user: initial }: { user: NavUser }) {
                 <button
                   type="button"
                   aria-expanded={active}
-                  onMouseEnter={() => setOpen(p.key)}
+                  onMouseEnter={() => {
+                    cancelClose();
+                    setOpen(p.key);
+                  }}
                   onClick={() => setOpen(active ? null : p.key)}
                   className={`flex items-center gap-[10px] rounded-[118px] px-[20px] py-[11px] text-[12px] font-medium leading-none text-black ${active ? "bg-field" : ""}`}
                 >
@@ -142,10 +157,13 @@ export function NavBarClient({ user: initial }: { user: NavUser }) {
         <>
           <div
             className="fixed inset-x-0 bottom-0 top-[126px] bg-black/50"
+            onMouseEnter={closeSoon}
             onClick={() => setOpen(null)}
             aria-hidden
           />
-          <MegaMenu panel={panel} onNavigate={() => setOpen(null)} />
+          <div onMouseEnter={cancelClose}>
+            <MegaMenu panel={panel} onNavigate={() => setOpen(null)} />
+          </div>
         </>
       )}
     </header>
