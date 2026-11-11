@@ -5,31 +5,14 @@ import { useState } from "react";
 import { MainButton } from "@/components/ui/MainButton";
 
 // „Najpopularniji autori“ (Figma 412:13218): 8 autora po strani, dve strane.
-// Spisak je iz dizajna; kad bude pravih oglasa, računa se iz baze.
-const AUTHORS = [
-  "Vilijam Šekspir",
-  "Miloš Crnjanski",
-  "Fjodor Dostojevski",
-  "Lav Tolstoj",
-  "Virdžinija Vulf",
-  "Tin Ujević",
-  "Branislav Nušić",
-  "Franc Kafka",
-  "Tomas Man",
-  "Čarls Dikens",
-  "Petar Petrović Njegoš",
-  "Dante Aligijeri",
-  "Miroslav Krleža",
-  "Onore de Balzak",
-  "Agata Kristi",
-  "Dž. K. Rouling",
-];
+// Spisak se računa iz baze (getPopularAuthorsFromDb); dok nema bar 8 autora sa oglasima,
+// prikazuje se spisak iz dizajna (src/lib/authors.ts).
 const PER_PAGE = 8;
 
-export function PopularAuthors() {
+export function PopularAuthors({ authors }: { authors: string[] }) {
   const [page, setPage] = useState(0);
-  const pages = Math.ceil(AUTHORS.length / PER_PAGE);
-  const shown = AUTHORS.slice(page * PER_PAGE, (page + 1) * PER_PAGE);
+  const pages = Math.ceil(authors.length / PER_PAGE);
+  const shown = authors.slice(page * PER_PAGE, (page + 1) * PER_PAGE);
 
   return (
     <section className="bg-[#f5f6f8]">

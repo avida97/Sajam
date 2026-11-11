@@ -464,6 +464,16 @@ isOneToOne: false
 "is_admin":
 { Args: Record<PropertyKey, never>; Returns: boolean
                            },
+"popular_authors":
+{ Args: { "p_days"?: number,"p_limit"?: number }; Returns: { "author": string,"score": number }[]
+                           },
+"record_listing_view":
+{ Args: { "p_listing": number }; Returns: undefined
+                           },
+"trending_listings":
+{ Args: { "p_days"?: number,"p_limit"?: number }; Returns: { "listing_id": number,"score": number }[]
+                           },
+
 "is_conversation_participant":
 { Args: { "conv": string }; Returns: boolean
                            },

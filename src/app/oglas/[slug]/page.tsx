@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { getCurrentUser } from "@/lib/supabase/server";
 import { getFavoriteCount, getSellerStats } from "@/lib/profiles";
 import { HeartButton } from "@/components/catalog/HeartButton";
+import { ViewCounter } from "@/components/product/ViewCounter";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -100,6 +101,7 @@ export default async function ListingPage({ params }: Props) {
 
   return (
     <>
+      {!l.placeholder && !own && <ViewCounter listingId={l.id} />}
       {/* Hero: galerija levo, siva kolona sa podacima desno */}
       <section className="relative mx-auto h-[838px] max-w-site">
         <div className="absolute inset-y-0 left-1/2 w-1/2 bg-[#f5f6f8]" />

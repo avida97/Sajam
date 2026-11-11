@@ -2,6 +2,7 @@ import { cache } from "react";
 import { BUNDLE_RANGES } from "@/lib/genres";
 import { loadDbListings } from "./db";
 import { PLACEHOLDER_LISTINGS } from "./placeholder";
+import { foldName, getTrendingScores } from "./popularity";
 import type { CatalogListing, ListingFilters, SortKey } from "./types";
 
 // 4 reda po 5 kartica, kao u Figmi (Products Knjige).
@@ -49,7 +50,8 @@ function matches(l: CatalogListing, f: ListingFilters) {
     );
     if (!ok) return false;
   }
-  if (f.author && l.author !== f.author) return false;
+  // Autor se poredi bez kvačica i velikih slova („Majic“ = „Majić“).
+  if (f.author && foldName(l.author ?? "") !== foldName(f.author)) return false;
   if (f.languages?.length && !(l.language && f.languages.includes(l.language))) return false;
   if (f.city && l.city !== f.city) return false;
   if (f.minPrice != null && l.price_rsd < f.minPrice) return false;
@@ -88,20 +90,61 @@ export async function getListing(id: number): Promise<CatalogListing | null> {
   return (await all()).find((l) => l.id === id) ?? null;
 }
 
+// „Novo u ponudi“: najnoviji dostupni oglasi, s tim da jedan prodavac ima najviše 3 oglasa zaredom.
 export async function getNewestListings(limit: number, category?: string): Promise<CatalogListing[]> {
   const items = (await available()).filter((l) => !category || l.categorySlug === category);
-  return sortListings(items, "najnovije").slice(0, limit);
+  return limitRuns(sortListings(items, "najnovije"), 3).slice(0, limit);
 }
 
-// „Trenutno u trendu“: dok nema podataka o pregledima i omiljenim, isto što i najnovije.
+// „Trenutno u trendu“: bodovi interesovanja iz poslednjih 14 dana (omiljeno 2, prva poruka 3,
+// otvaranje 0,1; stariji signal vredi manje). Oglasi bez bodova idu posle, od najnovijeg.
 export async function getTrendingListings(limit: number, category?: string) {
-  return getNewestListings(limit, category);
+  const items = (await available()).filter((l) => !category || l.categorySlug === category);
+  const scores = await getTrendingScores();
+  const newest = sortListings(items, "najnovije");
+  const rank = new Map(newest.map((l, i) => [l.id, i]));
+  return [...items]
+    .sort((a, b) => (scores.get(b.id) ?? 0) - (scores.get(a.id) ?? 0) || rank.get(a.id)! - rank.get(b.id)!)
+    .slice(0, limit);
 }
 
+// „Slični proizvodi“: isti autor 3 boda, isti žanr 2, ista potkategorija 1; kod jednakih bodova
+// noviji prvi. Dopunjava se oglasima iz iste kategorije. Oglasi istog prodavca imaju svoj red.
 export async function getSimilarListings(l: CatalogListing, limit: number) {
-  return (await available())
-    .filter((x) => x.id !== l.id && x.subcategorySlug === l.subcategorySlug && x.categorySlug === l.categorySlug)
-    .slice(0, limit);
+  const author = l.author ? foldName(l.author) : null;
+  const score = (x: CatalogListing) =>
+    (author && x.author && foldName(x.author) === author ? 3 : 0) +
+    (l.genre && x.genre?.slug === l.genre.slug ? 2 : 0) +
+    (x.subcategorySlug === l.subcategorySlug ? 1 : 0);
+  const pool = (await available()).filter(
+    (x) => x.id !== l.id && x.categorySlug === l.categorySlug && x.seller.username !== l.seller.username,
+  );
+  const newest = sortListings(pool, "najnovije");
+  const rank = new Map(newest.map((x, i) => [x.id, i]));
+  return pool.sort((a, b) => score(b) - score(a) || rank.get(a.id)! - rank.get(b.id)!).slice(0, limit);
+}
+
+// Zadržava redosled, ali odlaže oglas kad bi isti prodavac imao više od `max` zaredom.
+function limitRuns(items: CatalogListing[], max: number): CatalogListing[] {
+  const out: CatalogListing[] = [];
+  const waiting: CatalogListing[] = [];
+  const fits = (x: CatalogListing) =>
+    out.length < max || !out.slice(-max).every((y) => y.seller.username === x.seller.username);
+  const flush = () => {
+    for (let i = 0; i < waiting.length; ) {
+      if (fits(waiting[i])) {
+        out.push(waiting.splice(i, 1)[0]);
+        i = 0;
+      } else i++;
+    }
+  };
+  for (const x of items) {
+    flush();
+    if (fits(x)) out.push(x);
+    else waiting.push(x);
+  }
+  flush();
+  return [...out, ...waiting];
 }
 
 export async function getSellerListings(l: CatalogListing, limit: number) {
