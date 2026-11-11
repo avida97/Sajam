@@ -87,6 +87,11 @@ export default async function ListingPage({ params }: Props) {
 
   // Prazno polje ostaje prazno; probni tekst samo kod probnih oglasa (dok baza nije povezana).
   const empty = l.placeholder ? "—" : "";
+  // Opis = stanje i oštećenja artikla; sažetak = o čemu se radi u knjizi (samo knjige).
+  const descriptionText = l.description ?? (l.placeholder ? "Opis artikla." : "");
+  const topSummary =
+    l.item_type === "knjiga" ? (l.summary ?? (l.placeholder ? "Sažetak knjige." : null)) : null;
+
   const details: Array<[string, React.ReactNode]> = [
     ["Naslov", title],
     ...(!hidden.includes("author") ? [["Autor", l.author ?? empty] as [string, React.ReactNode]] : []),
@@ -174,10 +179,12 @@ export default async function ListingPage({ params }: Props) {
             </Link>
           )}
 
+          {/* Knjige gore imaju sažetak (o čemu se radi), ostali artikli opis (odluka V 11. 11. 2026).
+              Starije knjige bez sažetka i ovde prikazuju opis. */}
           <div className="mt-[40px]">
-            <p className="trim-cap text-[14px] font-semibold">OPIS</p>
+            <p className="trim-cap text-[14px] font-semibold">{topSummary ? "SAŽETAK" : "OPIS"}</p>
             <div className="mt-[22px]">
-              <ReadMore text={l.description ?? (l.placeholder ? "Opis artikla." : "")} />
+              <ReadMore text={topSummary ?? descriptionText} />
             </div>
           </div>
         </div>
@@ -244,7 +251,13 @@ export default async function ListingPage({ params }: Props) {
         </div>
 
         <div className="w-[416px] pt-[65px]">
-          <p className="trim-cap text-[14px] font-semibold leading-[1.4]">DETALJI PROIZVODA</p>
+          <div className="border-b-[0.5px] border-[#e1e1e1] pb-[18px]">
+            <p className="trim-cap text-[14px] font-semibold leading-[1.4]">OPIS PROIZVODA</p>
+            <div className="mt-[18px]">
+              <ReadMore text={descriptionText} />
+            </div>
+          </div>
+          <p className="trim-cap mt-[40px] text-[14px] font-semibold leading-[1.4]">DETALJI PROIZVODA</p>
           <dl className="mt-[19px] grid grid-cols-[86px_306px] gap-x-[24px] gap-y-[12px] text-[14px]">
             {details.map(([k, v]) => (
               <div key={k} className="contents">

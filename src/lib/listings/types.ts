@@ -15,6 +15,7 @@ export type CatalogListing = Pick<
   | "item_type"
   | "city"
   | "description"
+  | "summary"
   | "publisher"
   | "language"
   | "page_count"

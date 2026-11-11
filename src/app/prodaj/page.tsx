@@ -62,6 +62,7 @@ export default async function ProdajPage({ searchParams }: Props) {
           broj_stranica: l.page_count ? String(l.page_count) : "",
           izdavac: l.publisher ?? "",
           opis: l.description ?? "",
+          sazetak: l.summary ?? "",
           grad: l.city ?? "",
         },
         price: String(l.price_rsd),

@@ -38,7 +38,7 @@ const EXAMPLES: Record<ItemType, { title: string; author: string; publisher: str
     title: "npr. Rat i mir",
     author: "npr. Lav Tolstoj",
     publisher: "npr. Laguna",
-    description: "Opiši knjigu: stanje, eventualna oštećenja (podvlačenja, posvete, požutele strane) i o čemu se radi u knjizi...",
+    description: "Opiši stanje knjige: eventualna oštećenja, podvlačenja, posvete, požutele ili iscepane strane, stanje korica...",
   },
   manga_strip: {
     title: "npr. Naruto, tom 1",
@@ -126,6 +126,10 @@ export function SellForm({
   const photoGridRef = useRef<HTMLDivElement>(null);
   const priceRef = useRef<HTMLLabelElement>(null);
   const pickRef = useRef(0);
+  // Sažetak (samo knjige): o čemu se radi u knjizi. Popunjava se iz baze knjiga ili uz pomoć AI,
+  // a prodavac ga uvek može izmeniti (odluka V 11. 11. 2026). Opis je stanje i oštećenja artikla.
+  const [summary, setSummary] = useState(editing?.values.sazetak ?? "");
+  const [aiState, setAiState] = useState<"idle" | "loading" | "unknown" | "error">("idle");
   const bundleRef = useRef<HTMLDivElement>(null);
 
   // Broj artikala u paketu: kockice 1–10 ili drugi broj upisan ručno.
@@ -174,7 +178,8 @@ export function SellForm({
     if (book.language) setLangOther(false);
     set("potkategorija", "kategorija", book.subcategory);
     set("zanr", "žanr", book.genre);
-    set("opis", "opis", book.description);
+    setSummary(book.description ?? "");
+    setAiState("idle");
 
     // Naslovna iz baze ide kao prva fotografija (može da se ukloni); prethodna iz baze se menja.
     // Redom se probaju: velika slika iz detalja, sličica iz liste, pa Open Library po ISBN-u.
@@ -211,6 +216,37 @@ export function SellForm({
   const hidden = HIDDEN_FIELDS[type];
   const noun = NOUN[type];
   const isBook = type === "knjiga" || type === "manga_strip";
+  const hasSummary = type === "knjiga";
+
+  // AI piše sažetak iz znanja o knjizi, po naslovu i autoru iz forme.
+  const writeSummary = async () => {
+    const form = formRef.current;
+    if (!form) return;
+    const value = (name: string) => ((form.elements.namedItem(name) as HTMLInputElement | null)?.value ?? "").trim();
+    const naslov = value("naziv");
+    if (!naslov) {
+      const el = form.elements.namedItem("naziv") as HTMLInputElement | null;
+      el?.setAttribute("aria-invalid", "true");
+      el?.focus();
+      return;
+    }
+    if (!signedIn) {
+      router.replace(`${pathname}?nalog=prijava&posle=${encodeURIComponent(pathname)}`, { scroll: false });
+      return;
+    }
+    setAiState("loading");
+    const res = await fetch("/api/knjige/sazetak", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ naslov, autor: value("autor"), izdavac: value("izdavac"), isbn: value("isbn") }),
+    })
+      .then((r) => (r.ok ? r.json() : null))
+      .catch(() => null);
+    if (res?.sazetak) {
+      setSummary(res.sazetak);
+      setAiState("idle");
+    } else setAiState(res?.nepoznato ? "unknown" : "error");
+  };
 
   const photosRef = useRef(photos);
   photosRef.current = photos;
@@ -221,7 +257,7 @@ export function SellForm({
     const form = formRef.current;
     if (!editing || !form) return;
     for (const [name, value] of Object.entries(editing.values)) {
-      if (name === "broj") continue;
+      if (name === "broj" || name === "sazetak") continue;
       const el = form.elements.namedItem(name) as HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement | null;
       if (name === "jezik" && value && !(LANGUAGES as readonly string[]).includes(value)) {
         if (el) el.value = "drugo";
@@ -344,6 +380,7 @@ export function SellForm({
       bundle_count: Number(bundle),
       condition: text("stanje") as Condition,
       description: text("opis"),
+      summary: type === "knjiga" ? summary.trim() || null : null,
       price_rsd: priceNum,
       city: text("grad"),
       shipping_methods: shipping,
@@ -639,8 +676,41 @@ export function SellForm({
             <input name="izdavac" placeholder={EXAMPLES[type].publisher} className={inputCls} />
           </Field>
         )}
+        {hasSummary && (
+          <div className="col-span-2">
+            <Field label="Sažetak" optional info="O čemu se radi u knjizi. Popunjava se sam kad izabereš knjigu iz baze, a možeš da ga izmeniš.">
+              <textarea
+                name="sazetak"
+                value={summary}
+                onChange={(e) => setSummary(e.target.value)}
+                maxLength={5000}
+                placeholder="O čemu se radi u knjizi..."
+                className="sell-field block h-[124px] w-[636px] resize-none border border-[#dfdfdf] bg-white p-[16px] text-[14px] leading-[1.4] text-black placeholder:text-[#71717a] focus:border-black focus:outline-none"
+              />
+            </Field>
+            {summary.trim() === "" && (
+              <div className="mt-[12px] flex items-center gap-[12px] text-[13px] leading-[1.4]">
+                <button
+                  type="button"
+                  onClick={writeSummary}
+                  disabled={aiState === "loading"}
+                  className="h-[32px] shrink-0 whitespace-nowrap border border-black px-[14px] font-semibold text-black hover:bg-black hover:text-white disabled:opacity-50"
+                >
+                  {aiState === "loading" ? "Pišem sažetak..." : "Napiši sažetak uz pomoć AI"}
+                </button>
+                <span className="text-[#737373]">
+                  {aiState === "unknown"
+                    ? "AI ne poznaje ovu knjigu dovoljno dobro. Napiši sažetak sam ili ostavi prazno."
+                    : aiState === "error"
+                      ? "Sažetak trenutno ne može da se napiše. Pokušaj ponovo malo kasnije."
+                      : "Ako knjige nema u bazi, AI može da napiše sažetak po naslovu i autoru."}
+                </span>
+              </div>
+            )}
+          </div>
+        )}
         <div className="col-span-2">
-          <Field label="Opis">
+          <Field label="Opis" info="Stanje artikla: oštećenja, tragovi korišćenja i sve što kupac treba da zna pre kupovine.">
             <textarea
               name="opis"
               required

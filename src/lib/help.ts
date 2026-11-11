@@ -239,6 +239,7 @@ export const HELP: Record<HelpSectionKey, HelpTopic[]> = {
               heading: "Brže popunjavanje za knjige",
               paragraphs: [
                 "Upiši ili skeniraj ISBN, ili počni da kucaš naslov. Sajam sam popunjava autora, izdavača, godinu, jezik i žanr, a ti samo proveriš podatke.",
+                "Sažetak (o čemu se radi u knjizi) se popunjava iz baze knjiga. Ako knjige nema u bazi, klikni Napiši sažetak uz pomoć AI. Sažetak uvek možeš da izmeniš pre objave, a u Opis upiši stanje i oštećenja svog primerka.",
               ],
             },
             {

@@ -84,8 +84,8 @@ export function Footer() {
         </div>
 
         <div className="mx-auto mt-[56px] w-[970px]">
-          <div className="flex items-center justify-center pb-[25px]">
-            <p className="mr-[24px] text-[12px] leading-[0.95] tracking-[-0.12px]">Prati nas</p>
+          <div className="flex items-center pb-[25px]">
+            <p className="mr-[24px] text-[12px] leading-[0.95] tracking-[-0.12px]">Budi deo Sajma</p>
             <div className="flex items-center gap-[24px]">
               {SOCIALS.map((s) => (
                 <a key={s.name} href={s.href} aria-label={s.name}>
