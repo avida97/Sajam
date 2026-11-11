@@ -116,6 +116,34 @@ isOneToOne: false
                   Relationships: [
                     
                   ]
+                },"contact_requests": {
+                  Row: {
+                    "created_at": string,"email": string,"first_name": string,"id": number,"last_name": string | null,"listing_ref": string | null,"message": string,"status": string,"topics": Database["public"]['Enums']["contact_topic"][],"user_id": string | null
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "created_at"?: string,"email": string,"first_name": string,"id"?: never,"last_name"?: string | null,"listing_ref"?: string | null,"message": string,"status"?: string,"topics"?: Database["public"]['Enums']["contact_topic"][],"user_id"?: string | null
+                  }
+                  Update: {
+                    "created_at"?: string,"email"?: string,"first_name"?: string,"id"?: never,"last_name"?: string | null,"listing_ref"?: string | null,"message"?: string,"status"?: string,"topics"?: Database["public"]['Enums']["contact_topic"][],"user_id"?: string | null
+                  }
+                  Relationships: [
+                    
+                  ]
+                },"help_feedback": {
+                  Row: {
+                    "article_slug": string,"created_at": string,"helpful": boolean,"id": number
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "article_slug": string,"created_at"?: string,"helpful": boolean,"id"?: never
+                  }
+                  Update: {
+                    "article_slug"?: string,"created_at"?: string,"helpful"?: boolean,"id"?: never
+                  }
+                  Relationships: [
+                    
+                  ]
                 },"help_articles": {
                   Row: {
                     "body": string,"created_at": string,"helpful_no": number,"helpful_yes": number,"id": number,"position": number,"published": boolean,"section": Database["public"]['Enums']["help_section"],"slug": string,"title": string,"topic": string,"updated_at": string
@@ -450,7 +478,7 @@ isOneToOne: false
                            }
           }
           Enums: {
-            "help_section": "kupovina"|"prodaja"|"nalog","item_condition": "novo"|"kao_novo"|"korisceno","item_type": "knjiga"|"muzika"|"igra"|"manga_strip"|"oprema","listing_status": "dostupno"|"rezervisano"|"prodato"|"uklonjen","payment_method": "tekuci_racun"|"pouzece"|"gotovina","report_status": "otvorena"|"resena"|"odbacena","shipping_method": "posta"|"licno"
+            "contact_topic": "nalog"|"kupovina"|"bezbednost"|"prodaja","help_section": "kupovina"|"prodaja"|"nalog","item_condition": "novo"|"kao_novo"|"korisceno","item_type": "knjiga"|"muzika"|"igra"|"manga_strip"|"oprema","listing_status": "dostupno"|"rezervisano"|"prodato"|"uklonjen","payment_method": "tekuci_racun"|"pouzece"|"gotovina","report_status": "otvorena"|"resena"|"odbacena","shipping_method": "posta"|"licno"
           }
           CompositeTypes: {
             [_ in never]: never
@@ -566,7 +594,7 @@ export type CompositeTypes<
 export const Constants = {
   "public": {
           Enums: {
-            "help_section": ["kupovina", "prodaja", "nalog"],"item_condition": ["novo", "kao_novo", "vrlo_dobro", "dobro", "zadovoljavajuce"],"item_type": ["knjiga", "muzika", "igra", "manga_strip", "oprema"],"listing_status": ["dostupno", "rezervisano", "prodato", "uklonjen"],"payment_method": ["tekuci_racun", "pouzece", "gotovina"],"report_status": ["otvorena", "resena", "odbacena"],"shipping_method": ["posta", "licno"]
+            "contact_topic": ["nalog", "kupovina", "bezbednost", "prodaja"],"help_section": ["kupovina", "prodaja", "nalog"],"item_condition": ["novo", "kao_novo", "vrlo_dobro", "dobro", "zadovoljavajuce"],"item_type": ["knjiga", "muzika", "igra", "manga_strip", "oprema"],"listing_status": ["dostupno", "rezervisano", "prodato", "uklonjen"],"payment_method": ["tekuci_racun", "pouzece", "gotovina"],"report_status": ["otvorena", "resena", "odbacena"],"shipping_method": ["posta", "licno"]
           }
         }
 } as const

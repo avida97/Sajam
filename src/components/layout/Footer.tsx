@@ -7,8 +7,8 @@ const COLUMNS = [
   {
     title: "Company",
     links: [
-      { name: "Feedback", href: "/kontakt" },
-      { name: "Trust, Safety & Security", href: "/pomoc" },
+      { name: "Feedback", href: "/kontakt/forma" },
+      { name: "Trust, Safety & Security", href: "/pomoc/nalog/bezbedna-kupovina" },
     ],
   },
   {
