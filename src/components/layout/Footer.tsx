@@ -2,36 +2,40 @@ import Image from "next/image";
 import Link from "next/link";
 import { MainButton } from "@/components/ui/MainButton";
 
-// Footer iz Figme (komponenta „Footer“, 725:16773). Tekstovi su kao u dizajnu.
+// Footer iz Figme (komponenta „Footer“, 725:16773), sa tekstovima na srpskom.
+// Kolone su prevedene na srpski (odluka V 11. 11. 2026); umesto linkova koji se u dizajnu
+// ponavljaju po kolonama, svaka kolona vodi na postojeće stranice.
 const COLUMNS = [
   {
-    title: "Company",
+    title: "Sajam",
     links: [
-      { name: "Feedback", href: "/kontakt/forma" },
-      { name: "Trust, Safety & Security", href: "/pomoc/nalog/bezbedna-kupovina" },
+      { name: "O nama", href: "/o-nama" },
+      { name: "Kontakt", href: "/kontakt" },
+      { name: "Mediji i novosti", href: "/kontakt/mediji" },
     ],
   },
   {
-    title: "Explore",
+    title: "Istraži",
     links: [
-      { name: "Cookie Policy", href: "/privatnost#kolacici" },
-      { name: "Terms of Service", href: "/uslovi-koriscenja" },
+      { name: "Knjige", href: "/knjige" },
+      { name: "Muzika", href: "/muzika" },
+      { name: "Igre", href: "/igre" },
     ],
   },
   {
-    title: "Help & Support",
+    title: "Pomoć i podrška",
     links: [
-      { name: "Cookie Policy", href: "/privatnost#kolacici" },
-      { name: "Terms of Service", href: "/uslovi-koriscenja" },
-      { name: "Privacy Policy", href: "/privatnost" },
+      { name: "Centar za pomoć", href: "/pomoc" },
+      { name: "Bezbednost", href: "/pomoc/nalog/bezbedna-kupovina" },
+      { name: "Utisci i predlozi", href: "/kontakt/forma" },
     ],
   },
   {
-    title: "Resources",
+    title: "Pravila",
     links: [
-      { name: "Cookie Policy", href: "/privatnost#kolacici" },
-      { name: "Terms of Service", href: "/uslovi-koriscenja" },
-      { name: "Privacy Policy", href: "/privatnost" },
+      { name: "Uslovi korišćenja", href: "/uslovi-koriscenja" },
+      { name: "Politika privatnosti", href: "/privatnost" },
+      { name: "Politika kolačića", href: "/privatnost#kolacici" },
     ],
     width: "w-[114px]",
   },
@@ -39,16 +43,9 @@ const COLUMNS = [
 
 // Adrese naloga na mrežama još nisu poznate; dodaju se kad budu otvoreni.
 const SOCIALS = [
-  { name: "X", icon: "/icons/social-x.svg", href: "#" },
   { name: "Instagram", icon: "/icons/social-instagram.svg", href: "#" },
   { name: "Facebook", icon: "/icons/social-facebook.svg", href: "#" },
   { name: "LinkedIn", icon: "/icons/social-linkedin.svg", href: "#" },
-  { name: "Threads", icon: "/icons/social-threads.svg", href: "#" },
-];
-
-const APPS = [
-  { name: "iOS", icon: "/icons/app-apple.svg" },
-  { name: "Android", icon: "/icons/app-android.svg" },
 ];
 
 export function Footer() {
@@ -60,9 +57,9 @@ export function Footer() {
             Poveži se s čitaocima i daj starim knjigama novi život
           </p>
           <p className="mt-[17px] whitespace-nowrap font-semibold leading-[1.1] tracking-[-2.4px]">
-            <span className="text-[48px]">Try </span>
+            <span className="text-[48px]">Doživi </span>
             <span className="font-serif text-[56px] italic">Sajam</span>
-            <span className="text-[48px]"> now</span>
+            <span className="text-[48px]"> online</span>
           </p>
           <MainButton href="/prodaj" variant="light" size="md" className="mt-[10px]">
             Započni prodaju
@@ -87,28 +84,18 @@ export function Footer() {
         </div>
 
         <div className="mx-auto mt-[56px] w-[970px]">
-          <div className="flex items-center justify-between pb-[25px]">
-            <div className="flex items-center">
-              <p className="w-[78px] text-[12px] leading-[0.95] tracking-[-0.12px]">Follow Us</p>
-              <div className="flex items-center gap-[24px]">
-                {SOCIALS.map((s) => (
-                  <a key={s.name} href={s.href} aria-label={s.name}>
-                    <Image src={s.icon} alt="" width={16} height={16} />
-                  </a>
-                ))}
-              </div>
-            </div>
+          <div className="flex items-center justify-center pb-[25px]">
+            <p className="mr-[24px] text-[12px] leading-[0.95] tracking-[-0.12px]">Prati nas</p>
             <div className="flex items-center gap-[24px]">
-              <p className="text-[12px] leading-[0.95] tracking-[-0.12px]">Mobile app</p>
-              {APPS.map((a) => (
-                <span key={a.name} aria-label={a.name}>
-                  <Image src={a.icon} alt="" width={16} height={16} />
-                </span>
+              {SOCIALS.map((s) => (
+                <a key={s.name} href={s.href} aria-label={s.name}>
+                  <Image src={s.icon} alt="" width={16} height={16} />
+                </a>
               ))}
             </div>
           </div>
           <div className="border-t border-divider-dark pt-[25px] text-center text-[12px] leading-[0.95] tracking-[-0.12px]">
-            2026 Sajam Balkan doo
+            © 2026 Sajam. Sva prava zadržana.
           </div>
         </div>
       </div>

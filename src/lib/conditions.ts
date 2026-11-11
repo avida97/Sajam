@@ -14,7 +14,7 @@ export const CONDITIONS: Array<{ value: Condition; label: string; description: s
     value: "kao_novo",
     label: "Kao novo",
     description:
-      "Potpuno nov, neupotrebljavan artikal u izvornom stanju, sa otvorenim originalnim pakovanjem ili bez njega.",
+      "Nov ili malo upotrebljavan artikal, dobro očuvan i u stanju skoro kao nov, sa originalnim pakovanjem ili bez njega.",
   },
   {
     value: "korisceno",

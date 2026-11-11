@@ -6,6 +6,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { IsbnField } from "@/components/sell/IsbnField";
 import { CATEGORIES, HIDDEN_FIELDS, type ItemType } from "@/lib/categories";
 import { CONDITIONS, type Condition } from "@/lib/conditions";
+import { countLabel } from "@/lib/plural";
 import { GENRES, LANGUAGES } from "@/lib/genres";
 import { listingHref } from "@/lib/listings/params";
 import type { BookDetail, BookHit } from "@/lib/isbn";
@@ -29,13 +30,6 @@ export type EditListing = {
 
 type Photo = { file?: File; path?: string; url: string; fromDb?: boolean };
 
-// „2 knjige“, „5 knjiga“, „1 artikal“, „3 artikla“, „7 artikala“.
-function countLabel(n: number, book: boolean) {
-  const last = n % 10;
-  const teen = n % 100 >= 11 && n % 100 <= 14;
-  if (book) return `${n} ${last === 1 && !teen ? "knjiga" : last >= 2 && last <= 4 && !teen ? "knjige" : "knjiga"}`;
-  return `${n} ${last === 1 && !teen ? "artikal" : last >= 2 && last <= 4 && !teen ? "artikla" : "artikala"}`;
-}
 const BUNDLE_TILES = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 
 // Primeri u poljima, po vrsti artikla (da kod igre ne piše „knjiga“).
@@ -268,6 +262,8 @@ export function SellForm({
       !hidden.includes("author") && "autor",
       "jezik",
       langOther && "jezik_drugo",
+      // Opis je obavezan (odluka V 11. 11. 2026): kupac mora da zna šta tačno kupuje.
+      "opis",
     ];
     const bad: HTMLElement[] = [];
     for (const name of required) {
@@ -647,6 +643,8 @@ export function SellForm({
           <Field label="Opis">
             <textarea
               name="opis"
+              required
+              maxLength={5000}
               placeholder={EXAMPLES[type].description}
               className="sell-field block h-[124px] w-[636px] resize-none border border-[#dfdfdf] bg-white p-[16px] text-[14px] leading-[1.4] text-black placeholder:text-[#71717a] focus:border-black focus:outline-none"
             />

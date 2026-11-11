@@ -11,6 +11,7 @@ import { ProductCarousel } from "@/components/catalog/ProductCarousel";
 import { ConditionLink } from "@/components/product/ConditionLink";
 import { Gallery } from "@/components/product/Gallery";
 import { ReadMore } from "@/components/product/ReadMore";
+import { countLabel } from "@/lib/plural";
 import { CATEGORIES, HIDDEN_FIELDS } from "@/lib/categories";
 import { CONDITIONS } from "@/lib/conditions";
 import { formatRsd, listingHref, parseListingId } from "@/lib/listings/params";
@@ -29,13 +30,17 @@ const ALL_LABEL: Record<string, string> = {
 };
 // Desna kolona: umesto „More information“ iz Figme (Expert authentication, Express Delivery,
 // Returns — to Sajam ne radi) koraci kupovine, na istim pločicama (odluka V 10. 11. 2026).
+// Objašnjenje uz „pozitivnih ocena“ (isti obračun kao pogled seller_stats u bazi).
+const RATING_INFO =
+  "Posle kupovine kupac ocenjuje prodavca sa 1 do 5 zvezdica. Ocene sa 4 i 5 zvezdica su pozitivne, a procenat pokazuje koliki deo svih ocena prodavca je pozitivan.";
+
 const BUY_STEPS = [
-  { title: "1. Pitaj prodavca", text: "Klikni „Pitaj prodavca“ i u porukama se dogovori oko stanja, slanja i cene." },
-  { title: "2. Dogovor i rezervacija", text: "Kad se dogovorite, prodavac rezerviše artikal za tebe, pa ga niko drugi ne može kupiti." },
-  { title: "3. Plaćanje", text: "Plaćaš direktno prodavcu, na jedan od načina iz oglasa. Sajam ne naplaćuje proviziju." },
-  { title: "4. Slanje ili preuzimanje", text: "Prodavac šalje poštom ili se nalazite lično, kako ste se dogovorili u porukama." },
+  { title: "1. Kontaktiraj prodavca", text: "Klikni „Pitaj prodavca“ i u porukama pitaj sve što te zanima o artiklu." },
+  { title: "2. Dogovori kupovinu", text: "Dogovorite cenu, slanje i plaćanje. Prodavac zatim rezerviše artikal za tebe, pa ga niko drugi ne može kupiti." },
+  { title: "3. Plati proizvod", text: "Plaćaš direktno prodavcu, na jedan od načina iz oglasa. Sajam ne naplaćuje proviziju." },
+  { title: "4. Preuzmi proizvod", text: "Prodavac šalje poštom ili se nalazite lično, kako ste se dogovorili u porukama." },
   { title: "5. Oceni prodavca", text: "Kad artikal stigne, oceni prodavca. Ocene pomažu drugim kupcima da biraju." },
-];
+]
 
 async function load(slug: string) {
   const id = parseListingId(slug);
@@ -75,7 +80,7 @@ export default async function ListingPage({ params }: Props) {
   const own = !!me?.profile && me.profile.username === l.seller.username;
 
   const meta = [
-    l.bundle_count > 1 ? `${l.bundle_count} ${l.item_type === "knjiga" ? "knjiga" : "artikala"} u paketu` : null,
+    l.bundle_count > 1 ? `${countLabel(l.bundle_count, l.item_type === "knjiga")} u paketu` : null,
     "condition",
     l.city,
   ].filter(Boolean) as string[];
@@ -170,7 +175,7 @@ export default async function ListingPage({ params }: Props) {
           )}
 
           <div className="mt-[40px]">
-            <p className="trim-cap text-[14px] font-semibold">SAŽETAK</p>
+            <p className="trim-cap text-[14px] font-semibold">OPIS</p>
             <div className="mt-[22px]">
               <ReadMore text={l.description ?? (l.placeholder ? "Opis artikla." : "")} />
             </div>
@@ -218,8 +223,18 @@ export default async function ListingPage({ params }: Props) {
                   <p className="trim-cap">pozitivnih ocena</p>
                 </div>
               </div>
-              <span title="Pozitivne ocene su ocene sa 4 i 5 zvezdica." className="absolute right-[20px] top-[20px]">
-                <Image src="/icons/info.svg" alt="Pozitivne ocene su ocene sa 4 i 5 zvezdica." width={11} height={11} />
+              <span
+                tabIndex={0}
+                aria-label={RATING_INFO}
+                className="group absolute right-[14px] top-[14px] flex size-[18px] cursor-help items-center justify-center focus:outline-none"
+              >
+                <Image src="/icons/info.svg" alt="" width={11} height={11} />
+                <span
+                  role="tooltip"
+                  className="pointer-events-none absolute bottom-[24px] right-[-8px] z-40 hidden w-[260px] bg-ink px-[12px] py-[10px] text-[12px] leading-[1.45] text-white group-hover:block group-focus:block"
+                >
+                  {RATING_INFO}
+                </span>
               </span>
             </div>
           </div>
@@ -229,13 +244,7 @@ export default async function ListingPage({ params }: Props) {
         </div>
 
         <div className="w-[416px] pt-[65px]">
-          <div className="border-b-[0.5px] border-[#e1e1e1] pb-[18px]">
-            <p className="trim-cap text-[14px] font-semibold leading-[1.4]">OPIS PROIZVODA</p>
-            <div className="mt-[18px]">
-              <ReadMore text={l.description ?? (l.placeholder ? "Opis artikla." : "")} />
-            </div>
-          </div>
-          <p className="trim-cap mt-[40px] text-[14px] font-semibold leading-[1.4]">DETALJI PROIZVODA</p>
+          <p className="trim-cap text-[14px] font-semibold leading-[1.4]">DETALJI PROIZVODA</p>
           <dl className="mt-[19px] grid grid-cols-[86px_306px] gap-x-[24px] gap-y-[12px] text-[14px]">
             {details.map(([k, v]) => (
               <div key={k} className="contents">
@@ -253,7 +262,7 @@ export default async function ListingPage({ params }: Props) {
         </div>
 
         <div className="w-[306px] pt-[65px]">
-          <p id="kako-ide-kupovina" className="trim-cap scroll-mt-[40px] text-[14px] font-semibold leading-[1.4]">KAKO IDE KUPOVINA</p>
+          <p id="kako-ide-kupovina" className="trim-cap scroll-mt-[40px] text-[14px] font-semibold leading-[1.4]">PRVI PUT NA SAJMU?</p>
           <ul className="mt-[12px] flex flex-col gap-[10px]">
             {BUY_STEPS.map((step) => (
               <li key={step.title}>

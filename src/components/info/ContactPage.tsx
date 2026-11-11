@@ -4,10 +4,8 @@ import { ButtonPair, InfoCards, MixedTitle } from "@/components/info/InfoBlocks"
 // Adrese naloga na mrežama još nisu poznate; dodaju se kad budu otvoreni (isto kao u footeru).
 const SOCIALS = [
   { name: "Instagram", icon: "instagram" },
-  { name: "Threads", icon: "threads" },
   { name: "Facebook", icon: "facebook" },
   { name: "LinkedIn", icon: "linkedin" },
-  { name: "X", icon: "x" },
 ];
 
 // Kontakt po Figmi („Kontakt“ 816:17371, varijanta „Mediji“ 842:18315). Tekstovi kartica su iz dizajna.
