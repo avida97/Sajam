@@ -178,7 +178,7 @@ function MegaMenu({ panel, onNavigate }: { panel: MenuPanel; onNavigate: () => v
       <Link
         href={panel.href}
         onClick={onNavigate}
-        className="absolute left-[27px] top-[31px] flex w-[178px] flex-col gap-[20px] font-medium"
+        className="absolute left-[19px] top-[23px] flex w-[194px] flex-col gap-[20px] rounded-[5px] p-[8px] font-medium transition-colors duration-150 hover:bg-field"
       >
         <span className="text-[27px] leading-none text-black">{panel.title}</span>
         <span className="text-[15px] leading-[1.5] text-[#777574]">{panel.description}</span>
@@ -190,7 +190,11 @@ function MegaMenu({ panel, onNavigate }: { panel: MenuPanel; onNavigate: () => v
       >
         {panel.items.map((item) => (
           <li key={item.href}>
-            <Link href={item.href} onClick={onNavigate} className="flex flex-col gap-[10px]">
+            <Link
+              href={item.href}
+              onClick={onNavigate}
+              className="-m-[8px] flex flex-col gap-[10px] rounded-[5px] p-[8px] transition-colors duration-150 hover:bg-field focus-visible:bg-field focus-visible:outline-none"
+            >
               <span className="text-[14px] leading-none text-black">{item.name}</span>
               <span className="text-[12px] leading-[1.5] text-[#777574]">{item.description}</span>
             </Link>
@@ -201,16 +205,19 @@ function MegaMenu({ panel, onNavigate }: { panel: MenuPanel; onNavigate: () => v
       <Link
         href={panel.ctaHref}
         onClick={onNavigate}
-        className="absolute left-[654px] top-[27px] block w-[254px]"
+        className="group absolute left-[654px] top-[27px] block w-[254px]"
       >
         {/* Fotografija iz Figme; dok se ne izveze, prikazuje se siva pozadina iz dizajna (#9e9e9e). */}
         <span
-          className="relative block h-[153px] w-[254px] overflow-hidden rounded-[5px] bg-[#9e9e9e] bg-cover bg-center"
-          style={{ backgroundImage: `url(${panel.image})` }}
+          className="relative block h-[153px] w-[254px] overflow-hidden rounded-[5px] bg-[#9e9e9e]"
         >
+          <span
+            className="absolute inset-0 bg-cover bg-center transition-transform duration-300 group-hover:scale-105"
+            style={{ backgroundImage: `url(${panel.image})` }}
+          />
           <span className="absolute left-[212px] top-[110px] size-[27px] rounded-[54px] bg-white" />
         </span>
-        <span className="mt-[16px] block text-[14px] font-medium leading-[1.5] text-black">
+        <span className="mt-[16px] block text-[14px] font-medium leading-[1.5] text-black group-hover:underline">
           {panel.ctaText}
         </span>
       </Link>
