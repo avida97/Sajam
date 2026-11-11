@@ -184,6 +184,14 @@ export function SellForm({
     const form = formRef.current;
     if (!form) return;
     const n = ++pickRef.current;
+    // Nova knjiga menja sve što je došlo iz baze: prethodna naslovna iz baze odmah nestaje,
+    // a polja knjige se dole upisuju iznova ili prazne (stanje, opis i cena prodavca ostaju).
+    setPhotos((p) => {
+      p.filter((x) => x.fromDb).forEach((x) => URL.revokeObjectURL(x.url));
+      return p.filter((x) => !x.fromDb);
+    });
+    setSummary("");
+    setAiState("idle");
     const detail: BookDetail | null = await fetch(
       `/api/knjige/${encodeURIComponent(hit.id)}`,
     )
@@ -213,13 +221,13 @@ export function SellForm({
         | HTMLSelectElement
         | HTMLTextAreaElement
         | null;
-      if (!el || value == null || value === "") return;
-      if (
+      if (!el) return;
+      const v = value == null ? "" : String(value);
+      el.value =
         el instanceof HTMLSelectElement &&
-        ![...el.options].some((o) => o.value === String(value))
-      )
-        return;
-      el.value = String(value);
+        ![...el.options].some((o) => o.value === v)
+          ? ""
+          : v;
       el.setAttribute("aria-invalid", "false");
     };
     set("naziv", "naziv", book.title);
@@ -228,7 +236,7 @@ export function SellForm({
     set("izdavac", "izdavač", book.publisher);
     set("broj_stranica", "broj stranica", book.pageCount);
     set("jezik", "jezik", book.language);
-    if (book.language) setLangOther(false);
+    setLangOther(false);
     set("potkategorija", "kategorija", book.subcategory);
     set("zanr", "žanr", book.genre);
     setSummary(book.description ?? "");
