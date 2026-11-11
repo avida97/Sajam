@@ -125,20 +125,62 @@ const PHOTO_SLOTS = [
 const inputCls =
   "sell-field h-[36px] w-[306px] border border-[#dfdfdf] bg-white px-[16px] text-[14px] leading-[16px] text-black placeholder:text-[#71717a] focus:border-black focus:outline-none";
 
-export function SellForm({
-  refs,
-  signedIn,
-  editing,
-  defaultCity,
-}: {
+type SellFormProps = {
   refs: SellRefs | null;
   signedIn: boolean;
   editing?: EditListing | null;
   defaultCity?: string | null;
-}) {
+};
+
+// Svaka kategorija ima svoju formu (odluka V 11. 11. 2026): prelazak na drugu kategoriju
+// počinje praznu formu, a povratak vraća ono što je tamo poslednje upisano. Forme se
+// prave tek kad se kategorija prvi put izabere i ostaju sakrivene dok se ne vratiš.
+export function SellForm({ editing, ...rest }: SellFormProps) {
+  const [type, setType] = useState<ItemType>(editing?.type ?? "knjiga");
+  const [visited, setVisited] = useState<ItemType[]>([type]);
+  const choose = (t: ItemType) => {
+    setType(t);
+    setVisited((v) => (v.includes(t) ? v : [...v, t]));
+  };
+  return (
+    <>
+      {visited.map((t) => (
+        <div key={t} hidden={t !== type}>
+          <TypeForm
+            {...rest}
+            type={t}
+            setType={choose}
+            editing={
+              editing && editing.type !== t
+                ? // Izmena oglasa u drugoj kategoriji: isti oglas, prazna polja (fotografije ostaju).
+                  {
+                    ...editing,
+                    type: t,
+                    values: {},
+                    price: "",
+                    priceFixed: null,
+                    shipping: [],
+                    payment: [],
+                  }
+                : editing
+            }
+          />
+        </div>
+      ))}
+    </>
+  );
+}
+
+function TypeForm({
+  refs,
+  signedIn,
+  editing,
+  defaultCity,
+  type,
+  setType,
+}: SellFormProps & { type: ItemType; setType: (t: ItemType) => void }) {
   const router = useRouter();
   const pathname = usePathname();
-  const [type, setType] = useState<ItemType>(editing?.type ?? "knjiga");
   const [publishing, setPublishing] = useState(false);
   const [price, setPrice] = useState(editing?.price ?? "");
   const [photos, setPhotos] = useState<Photo[]>(
@@ -178,7 +220,9 @@ export function SellForm({
   // Broj artikala u paketu: kockice 1–10 ili drugi broj upisan ručno.
   const [bundle, setBundle] = useState(editing?.values.broj ?? "");
   const [bundleOther, setBundleOther] = useState(
-    () => !!editing && !BUNDLE_TILES.includes(Number(editing.values.broj)),
+    () =>
+      !!editing?.values.broj &&
+      !BUNDLE_TILES.includes(Number(editing.values.broj)),
   );
   const [bundleError, setBundleError] = useState(false);
   // Jezik: ponuđeni ili „Drugo“ pa upisan ručno.
@@ -620,10 +664,10 @@ export function SellForm({
     >
       <div className="text-center text-black">
         <h1 className="trim-cap font-serif text-[32px] font-medium italic leading-[0.95] tracking-[-0.32px]">
-          {editing ? "Izmeni oglas" : "Sell an item"}
+          {editing ? "Izmeni oglas" : "Postavi oglas"}
         </h1>
         <p className="mt-[24px] text-[14px] leading-[1.5]">
-          What type of item are you selling?
+          Izaberi kategoriju proizvoda
         </p>
       </div>
 
@@ -691,13 +735,15 @@ export function SellForm({
               className="mt-[12px] flex gap-[8px]"
             >
               {BUNDLE_TILES.map((n) => {
-                const on = !bundleOther && bundle === String(n);
+                // Izabran broj N popuni kockice od 1 do N (odluka V 11. 11. 2026).
+                const picked = !bundleOther && bundle === String(n);
+                const on = !bundleOther && Number(bundle) >= n;
                 return (
                   <button
                     key={n}
                     type="button"
                     role="radio"
-                    aria-checked={on}
+                    aria-checked={picked}
                     aria-label={countLabel(n, type === "knjiga")}
                     onClick={() => {
                       setBundle(String(n));
@@ -709,7 +755,7 @@ export function SellForm({
                         ? "border-black bg-black text-white"
                         : bundleError
                           ? "border-alert bg-white"
-                          : "border-[#dfdfdf] bg-white hover:border-black"
+                          : "border-[#dfdfdf] bg-white hover:border-[#a1a1aa] hover:bg-[#e4e4e7]"
                     }`}
                   >
                     {n}
@@ -722,13 +768,13 @@ export function SellForm({
                   type="number"
                   min={1}
                   max={999}
-                  aria-label="Drugi broj"
+                  aria-label="Više"
                   value={bundle}
                   onChange={(e) => {
                     setBundle(e.target.value.replace(/\D/g, "").slice(0, 3));
                     setBundleError(false);
                   }}
-                  placeholder="Broj"
+                  placeholder="Upiši broj"
                   className={`h-[44px] w-[116px] border px-[12px] text-[14px] text-black focus:outline-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none ${
                     bundleError ? "border-alert" : "border-black"
                   }`}
@@ -740,9 +786,9 @@ export function SellForm({
                     setBundleOther(true);
                     setBundle("");
                   }}
-                  className={`h-[44px] w-[116px] border bg-white text-[13px] font-medium ${bundleError ? "border-alert" : "border-[#dfdfdf] hover:border-black"}`}
+                  className={`h-[44px] w-[116px] border bg-white text-[13px] font-medium ${bundleError ? "border-alert" : "border-[#dfdfdf] hover:border-[#a1a1aa] hover:bg-[#e4e4e7]"}`}
                 >
-                  Drugi broj
+                  Više
                 </button>
               )}
             </div>
@@ -1060,7 +1106,9 @@ export function SellForm({
             ref={fixedRef}
             className={`flex h-[49px] items-center gap-[20px] whitespace-nowrap border px-[12px] ${fixedError ? "border-alert" : "border-transparent"}`}
           >
-            <legend className="sr-only">Fiksna cena (Ne znači da cena može da se dogovori)</legend>
+            <legend className="sr-only">
+              Fiksna cena (Ne znači da cena može da se dogovori)
+            </legend>
             <span className="text-[17px] font-semibold leading-[16px] text-black">
               Fiksna cena
             </span>

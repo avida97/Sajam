@@ -51,19 +51,20 @@ export function NavBarClient({ user: initial }: { user: NavUser }) {
       <div className="h-[59px] border-b-[0.7px] border-line bg-white" onMouseEnter={() => open && closeSoon()}>
         <div className="relative mx-auto flex h-full max-w-site items-center px-[72px]">
           <form action="/pretraga" className="relative h-[39px] w-[357px]" role="search">
-            <Image
-              src="/icons/search.svg"
-              alt=""
-              width={18}
-              height={17}
-              className="pointer-events-none absolute left-[10px] top-[11px]"
-            />
+            {/* Lupa je dugme za pretragu (uz Enter), odluka V 11. 11. 2026. */}
+            <button
+              type="submit"
+              aria-label="Pretraži"
+              className="absolute left-[4px] top-[4px] flex size-[31px] items-center justify-center rounded-full transition-colors hover:bg-black/10 focus-visible:bg-black/10 focus-visible:outline-none"
+            >
+              <Image src="/icons/search.svg" alt="" width={18} height={17} />
+            </button>
             <input
               name="q"
               type="search"
-              placeholder="Search by brand, item..."
+              placeholder="Pretraži po naslovu, autoru..."
               aria-label="Pretraga"
-              className="h-full w-full rounded-[97px] bg-field pl-[36px] pr-4 text-[12px] font-medium text-black placeholder:text-black focus:outline-none"
+              className="h-full w-full rounded-[97px] bg-field pl-[40px] pr-4 text-[12px] font-medium text-black placeholder:text-black focus:outline-none"
             />
           </form>
 
