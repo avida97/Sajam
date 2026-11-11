@@ -6,6 +6,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { IsbnField } from "@/components/sell/IsbnField";
 import { CATEGORIES, HIDDEN_FIELDS, type ItemType } from "@/lib/categories";
 import { CONDITIONS, type Condition } from "@/lib/conditions";
+import { ConditionLink } from "@/components/product/ConditionLink";
 import { countLabel } from "@/lib/plural";
 import { GENRES, LANGUAGES } from "@/lib/genres";
 import { listingHref } from "@/lib/listings/params";
@@ -32,6 +33,7 @@ export type EditListing = {
   type: ItemType;
   values: Record<string, string>;
   price: string;
+  priceFixed: boolean | null;
   shipping: ShippingMethod[];
   payment: PaymentMethod[];
   images: Array<{ path: string; url: string }>;
@@ -148,11 +150,17 @@ export function SellForm({
 
   const [photoError, setPhotoError] = useState(false);
   const [priceError, setPriceError] = useState(false);
+  // Fiksna cena: Da / Ne, obavezan izbor (odluka V 11. 11. 2026). Stariji oglasi nemaju izbor.
+  const [priceFixed, setPriceFixed] = useState<boolean | null>(
+    editing?.priceFixed ?? null,
+  );
+  const [fixedError, setFixedError] = useState(false);
+  const fixedRef = useRef<HTMLFieldSetElement>(null);
   const [shipping, setShipping] = useState<ShippingMethod[]>(
-    editing?.shipping ?? ["posta"],
+    editing?.shipping ?? [],
   );
   const [payment, setPayment] = useState<PaymentMethod[]>(
-    editing?.payment ?? ["tekuci_racun"],
+    editing?.payment ?? [],
   );
   const [shipError, setShipError] = useState(false);
   const shipRef = useRef<HTMLDivElement>(null);
@@ -435,6 +443,8 @@ export function SellForm({
     if (noShip && shipRef.current) bad.push(shipRef.current);
     setPriceError(!priceNum);
     if (!priceNum && priceRef.current) bad.push(priceRef.current);
+    setFixedError(priceFixed === null);
+    if (priceFixed === null && fixedRef.current) bad.push(fixedRef.current);
     if (bad.length) {
       setNotice(null);
       const top = bad.reduce((a, b) =>
@@ -505,6 +515,7 @@ export function SellForm({
       description: text("opis"),
       summary: type === "knjiga" ? summary.trim() || null : null,
       price_rsd: priceNum,
+      price_fixed: priceFixed,
       city: text("grad"),
       shipping_methods: shipping,
       payment_methods: payment,
@@ -736,15 +747,21 @@ export function SellForm({
               )}
             </div>
           </div>
-          <Select
-            name="stanje"
-            placeholder={`Stanje ${noun}`}
-            required
-            options={CONDITIONS.map((c) => ({
-              value: c.value,
-              label: c.label,
-            }))}
-          />
+          <div>
+            <Select
+              name="stanje"
+              placeholder={`Stanje ${noun}`}
+              required
+              options={CONDITIONS.map((c) => ({
+                value: c.value,
+                label: c.label,
+              }))}
+            />
+            {/* Isti opisi stanja koje kupac vidi na strani oglasa. */}
+            <p className="mt-[8px] text-[13px] leading-[1.4] text-[#737373]">
+              <ConditionLink label="Šta znači koje stanje?" />
+            </p>
+          </div>
         </div>
       </Section>
 
@@ -1039,6 +1056,45 @@ export function SellForm({
               />
             </span>
           </label>
+          <fieldset
+            ref={fixedRef}
+            className={`flex h-[49px] items-center gap-[20px] whitespace-nowrap border px-[12px] ${fixedError ? "border-alert" : "border-transparent"}`}
+          >
+            <legend className="sr-only">Fiksna cena (Ne znači da cena može da se dogovori)</legend>
+            <span className="text-[17px] font-semibold leading-[16px] text-black">
+              Fiksna cena
+            </span>
+            {[
+              { v: true, label: "Da" },
+              { v: false, label: "Ne" },
+            ].map((o) => (
+              <button
+                key={o.label}
+                type="button"
+                role="radio"
+                aria-checked={priceFixed === o.v}
+                onClick={() => {
+                  setPriceFixed(o.v);
+                  setFixedError(false);
+                }}
+                className="flex items-center gap-[8px]"
+              >
+                <Image
+                  src={
+                    priceFixed === o.v
+                      ? "/icons/check-yes.svg"
+                      : "/icons/check-no.svg"
+                  }
+                  alt=""
+                  width={19}
+                  height={19}
+                />
+                <span className="text-[14px] leading-[1.5] text-black">
+                  {o.label}
+                </span>
+              </button>
+            ))}
+          </fieldset>
         </div>
       </Section>
 

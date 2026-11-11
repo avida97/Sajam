@@ -8,7 +8,7 @@ import type { CatalogListing } from "./types";
 // Javni oglasi iz tabele listings, sa kategorijom, žanrom, prodavcem i slikama.
 // Čita se kao gost (bez sesije), pa važe ista pravila pristupa kao za posetioca.
 const SELECT = `
-  id, title, author, price_rsd, condition, condition_note, item_type, city, description, summary,
+  id, title, author, price_rsd, price_fixed, condition, condition_note, item_type, city, description, summary,
   publisher, language, page_count, isbn, bundle_count, status, created_at, updated_at,
   shipping_methods, payment_methods,
   category:categories!inner ( slug, parent:parent_id ( slug ) ),
@@ -52,6 +52,7 @@ export async function loadDbListings(): Promise<CatalogListing[]> {
         title: r.title,
         author: r.author,
         price_rsd: r.price_rsd,
+        price_fixed: r.price_fixed,
         condition: r.condition,
         condition_note: r.condition_note,
         item_type: r.item_type,

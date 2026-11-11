@@ -25,6 +25,7 @@ function build(): CatalogListing[] {
           city: null,
           description: null,
     summary: null,
+    price_fixed: null,
           publisher: null,
           language: null,
           page_count: null,

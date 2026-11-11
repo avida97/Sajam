@@ -66,6 +66,7 @@ export default async function ProdajPage({ searchParams }: Props) {
           grad: l.city ?? "",
         },
         price: String(l.price_rsd),
+        priceFixed: l.price_fixed,
         shipping: l.shipping_methods,
         payment: l.payment_methods,
         images: [...(l.images ?? [])]

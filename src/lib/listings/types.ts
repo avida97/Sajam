@@ -10,6 +10,7 @@ export type CatalogListing = Pick<
   | "title"
   | "author"
   | "price_rsd"
+  | "price_fixed"
   | "condition"
   | "condition_note"
   | "item_type"

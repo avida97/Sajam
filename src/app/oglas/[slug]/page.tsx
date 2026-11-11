@@ -88,6 +88,8 @@ export default async function ListingPage({ params }: Props) {
   // Prazno polje ostaje prazno; probni tekst samo kod probnih oglasa (dok baza nije povezana).
   const empty = l.placeholder ? "—" : "";
   // Opis = stanje i oštećenja artikla; sažetak = o čemu se radi u knjizi (samo knjige).
+  // Fiksna cena (odluka V 11. 11. 2026); stariji oglasi bez izbora ne prikazuju ništa.
+  const priceNote = l.price_fixed === true ? "Fiksna cena" : l.price_fixed === false ? "Moguć dogovor oko cene" : null;
   const descriptionText = l.description ?? (l.placeholder ? "Opis artikla." : "");
   const topSummary =
     l.item_type === "knjiga" ? (l.summary ?? (l.placeholder ? "Sažetak knjige." : null)) : null;
@@ -100,6 +102,7 @@ export default async function ListingPage({ params }: Props) {
     ["Slanje", l.shipping_methods.map((m) => SHIPPING[m]).join(", ") || empty],
     ["Plaćanje", l.payment_methods.map((m) => PAYMENT[m]).join(", ") || empty],
     ["Stanje", l.condition_note ?? condition.label],
+    ...(priceNote ? [["Cena", priceNote] as [string, React.ReactNode]] : []),
   ];
   // Tehnički podaci idu na kraj liste, sivim slovima, da se ne ističu.
   const minor: Array<[string, string]> = [
@@ -149,8 +152,11 @@ export default async function ListingPage({ params }: Props) {
               </span>
             ))}
           </div>
-          <p className="trim-cap mt-[18px] text-[20px] font-medium">
-            {l.placeholder ? "Cena RSD" : formatRsd(l.price_rsd).replace(" ", "")}
+          <p className="mt-[18px] flex items-baseline gap-[12px]">
+            <span className="trim-cap text-[20px] font-medium">
+              {l.placeholder ? "Cena RSD" : formatRsd(l.price_rsd).replace(" ", "")}
+            </span>
+            {priceNote && <span className="trim-cap text-[13px] text-[#737373]">{priceNote}</span>}
           </p>
 
           {l.status !== "dostupno" && (
