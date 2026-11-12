@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 
-// Numeracija strana iz Figme (528:8013). Tekstovi su kao u dizajnu.
+// Numeracija strana iz Figme (528:8013), sa tekstovima na srpskom.
 const box =
   "flex h-[36px] items-center justify-center gap-[4px] rounded-[4px] border border-[#e9e9e9] bg-white px-[12px] text-[14px] leading-[20px] text-[#313131]";
 
@@ -17,8 +17,8 @@ export function Pagination({ page, pageCount, href }: { page: number; pageCount:
 
   return (
     <nav aria-label="Strane" className="flex items-start gap-[6px]">
-      <Ctl to={1} label="Prva strana"><Image src="/icons/pg-first.svg" alt="" width={16} height={16} />First</Ctl>
-      <Ctl to={page - 1} label="Prethodna strana"><Image src="/icons/pg-back.svg" alt="" width={16} height={16} />Back</Ctl>
+      <Ctl to={1} label="Prva strana"><Image src="/icons/pg-first.svg" alt="" width={16} height={16} />Prva</Ctl>
+      <Ctl to={page - 1} label="Prethodna strana"><Image src="/icons/pg-back.svg" alt="" width={16} height={16} />Prethodna</Ctl>
       {pages.map((p, i) =>
         p === "…" ? (
           <span key={`d${i}`} className={`${box} w-[31px] px-0`}>
@@ -32,8 +32,8 @@ export function Pagination({ page, pageCount, href }: { page: number; pageCount:
           <Link key={p} href={href(p)} className={box}>{p}</Link>
         ),
       )}
-      <Ctl to={page + 1} label="Sledeća strana">Next<Image src="/icons/pg-next.svg" alt="" width={16} height={16} /></Ctl>
-      <Ctl to={pageCount} label="Poslednja strana">Last<Image src="/icons/pg-last.svg" alt="" width={16} height={16} /></Ctl>
+      <Ctl to={page + 1} label="Sledeća strana">Sledeća<Image src="/icons/pg-next.svg" alt="" width={16} height={16} /></Ctl>
+      <Ctl to={pageCount} label="Poslednja strana">Poslednja<Image src="/icons/pg-last.svg" alt="" width={16} height={16} /></Ctl>
     </nav>
   );
 }
