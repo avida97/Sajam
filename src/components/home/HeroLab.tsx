@@ -154,6 +154,15 @@ function Base() {
           <div className="mt-[16px]">
             <Chips />
           </div>
+          {/* V 12. 11. 2026: dugme za kupovinu i link za prodaju kao u 4.3. */}
+          <div className="mt-[30px] flex items-center gap-[16px]">
+            <MainButton href="/knjige" size="md">
+              Započni kupovinu
+            </MainButton>
+            <Link href="/prodaj" className="text-[13px] font-semibold underline-offset-4 hover:underline">
+              ili prodaj nešto svoje →
+            </Link>
+          </div>
         </div>
       </div>
     </div>
