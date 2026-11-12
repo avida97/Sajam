@@ -17,6 +17,7 @@ export type PublicProfile = {
   city: string | null;
   shipsWithinDays: number | null;
   createdAt: string;
+  blocked: boolean;
 };
 
 export type ProfileReview = {
@@ -51,6 +52,7 @@ export async function getProfile(username: string): Promise<PublicProfile | null
     city: data.city,
     shipsWithinDays: data.ships_within_days,
     createdAt: data.created_at,
+    blocked: !!data.blocked_at,
   };
 }
 

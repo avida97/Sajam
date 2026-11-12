@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import { SaveSearchButton } from "@/components/catalog/SaveSearchButton";
+import { saveSearchProps } from "@/lib/saved-searches-server";
 import { CategoryHero } from "@/components/catalog/CategoryHero";
 import { FilterSidebar, type FilterGroup } from "@/components/catalog/FilterSidebar";
 import { Pagination } from "@/components/catalog/Pagination";
@@ -25,7 +27,11 @@ export default async function SearchPage({ searchParams }: Props) {
   const sp = await searchParams;
   const cat = typeof sp.kategorija === "string" ? CATEGORIES.find((c) => c.slug === sp.kategorija) : undefined;
   const filters = { ...parseFilters(sp), category: cat?.slug };
-  const [{ items, total, page, pageCount }, facets] = await Promise.all([getListings(filters), getFacets(filters)]);
+  const [{ items, total, page, pageCount }, facets, saveProps] = await Promise.all([
+    getListings(filters),
+    getFacets(filters),
+    saveSearchProps(filters),
+  ]);
 
   const link = (changes: Record<string, string | null>) => {
     const qs = new URLSearchParams();
@@ -75,15 +81,18 @@ export default async function SearchPage({ searchParams }: Props) {
         </div>
 
         <div className="mt-[50px] flex h-[41px] items-center justify-between pl-[291px] pr-[72px]">
-          <p className="text-[13px] font-medium leading-[1.5] text-black">
-            {filters.q ? (
-              <>
-                Rezultati za „{filters.q}“: {total}
-              </>
-            ) : (
-              <>Artikli: {total}</>
-            )}
-          </p>
+          <div className="flex items-center gap-[28px]">
+            <p className="text-[13px] font-medium leading-[1.5] text-black">
+              {filters.q ? (
+                <>
+                  Rezultati za „{filters.q}“: {total}
+                </>
+              ) : (
+                <>Artikli: {total}</>
+              )}
+            </p>
+            <SaveSearchButton {...saveProps} />
+          </div>
           <SortPill current={filters.sort ?? "najnovije"} />
         </div>
 

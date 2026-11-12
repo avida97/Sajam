@@ -1,4 +1,3 @@
-import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { CategoryHero } from "@/components/catalog/CategoryHero";
@@ -6,6 +5,7 @@ import { FilterSidebar, type FilterGroup } from "@/components/catalog/FilterSide
 import { Pagination } from "@/components/catalog/Pagination";
 import { ProductCard } from "@/components/catalog/ProductCard";
 import { ProductCarousel } from "@/components/catalog/ProductCarousel";
+import { SaveSearchButton } from "@/components/catalog/SaveSearchButton";
 import { SortPill } from "@/components/catalog/SortPill";
 import { SubcategoryTabs } from "@/components/catalog/SubcategoryTabs";
 import { CATEGORIES, HIDDEN_FIELDS } from "@/lib/categories";
@@ -13,6 +13,7 @@ import { CONDITIONS } from "@/lib/conditions";
 import { BUNDLE_RANGES, GENRES, LANGUAGES } from "@/lib/genres";
 import { parseFilters, type SearchParams } from "@/lib/listings/params";
 import { getFacets, getListings, getTrendingListings } from "@/lib/listings/query";
+import { saveSearchProps } from "@/lib/saved-searches-server";
 
 // „Sve knjige“ u traci potkategorija, prilagođeno rodu za ostale kategorije.
 const ALL_LABEL: Record<string, string> = {
@@ -40,10 +41,11 @@ export async function CategoryPage({
 
   const base = sub ? `/${category.slug}/${sub.slug}` : `/${category.slug}`;
   const filters = { ...parseFilters(searchParams), category: category.slug, subcategory: sub?.slug };
-  const [{ items, page, pageCount }, facets, trending] = await Promise.all([
+  const [{ items, page, pageCount }, facets, trending, saveProps] = await Promise.all([
     getListings(filters),
     getFacets(filters),
     getTrendingListings(30, category.slug),
+    saveSearchProps(filters),
   ]);
 
   const isBookLike = category.itemType === "knjiga" || category.itemType === "manga_strip";
@@ -125,10 +127,7 @@ export async function CategoryPage({
         </div>
 
         <div className="mt-[50px] flex h-[41px] items-center justify-between pl-[291px] pr-[72px]">
-          <button type="button" className="flex items-center gap-[9px] text-[13px] font-medium leading-[1.5] text-black">
-            <Image src="/icons/bookmark.svg" alt="" width={12} height={16} />
-            Sačuvaj pretragu
-          </button>
+          <SaveSearchButton {...saveProps} />
           <SortPill current={filters.sort ?? "najnovije"} />
         </div>
 

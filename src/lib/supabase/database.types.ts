@@ -116,6 +116,20 @@ isOneToOne: false
                   Relationships: [
                     
                   ]
+                },"account_blocks": {
+                  Row: {
+                    "admin_id": string | null,"blocked": boolean,"created_at": string,"id": number,"reason": string | null,"user_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "admin_id"?: string | null,"blocked": boolean,"created_at"?: string,"id"?: never,"reason"?: string | null,"user_id": string
+                  }
+                  Update: {
+                    "admin_id"?: string | null,"blocked"?: boolean,"created_at"?: string,"id"?: never,"reason"?: string | null,"user_id"?: string
+                  }
+                  Relationships: [
+                    
+                  ]
                 },"contact_requests": {
                   Row: {
                     "created_at": string,"email": string,"first_name": string,"id": number,"last_name": string | null,"listing_ref": string | null,"message": string,"status": string,"topics": Database["public"]['Enums']["contact_topic"][],"user_id": string | null
@@ -288,7 +302,7 @@ isOneToOne: false
                   ]
                 },"profiles": {
                   Row: {
-                    "avatar_url": string | null,"bio": string | null,"city": string | null,"created_at": string,"display_name": string,"id": string,"is_admin": boolean,"ships_within_days": number | null,"updated_at": string,"username": string
+                    "avatar_url": string | null,"bio": string | null,"blocked_at": string | null,"city": string | null,"created_at": string,"display_name": string,"id": string,"is_admin": boolean,"ships_within_days": number | null,"updated_at": string,"username": string
                   }
                   ComputedFields: never
                   Insert: {
@@ -463,6 +477,18 @@ isOneToOne: false
                            },
 "is_admin":
 { Args: Record<PropertyKey, never>; Returns: boolean
+                           },
+"admin_set_blocked":
+{ Args: { "target": string,"block": boolean,"reason"?: string }; Returns: undefined
+                           },
+"is_blocked":
+{ Args: { "uid": string }; Returns: boolean
+                           },
+"admin_remove_listing":
+{ Args: { "p_listing": number,"p_reason"?: string }; Returns: undefined
+                           },
+"admin_resolve_report":
+{ Args: { "p_report": number,"p_status": Database["public"]["Enums"]["report_status"] }; Returns: undefined
                            },
 "popular_authors":
 { Args: { "p_days"?: number,"p_limit"?: number }; Returns: { "author": string,"score": number }[]

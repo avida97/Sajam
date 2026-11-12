@@ -9,6 +9,7 @@ import { getListingsBySeller } from "@/lib/listings/query";
 import { SellerReviews } from "@/components/account/SellerReviews";
 import { getProfile, getReviews } from "@/lib/profiles";
 import { getCurrentUser } from "@/lib/supabase/server";
+import { ReportButton } from "@/components/product/ReportButton";
 
 type Props = { params: Promise<{ username: string }>; searchParams: Promise<{ tab?: string }> };
 
@@ -78,6 +79,14 @@ export default async function SellerPage({ params, searchParams }: Props) {
               {profile.shipsWithinDays && <p>Obično šalje za {daysLabel(profile.shipsWithinDays)}</p>}
               {profile.bio && <p className="max-w-[560px] whitespace-pre-line leading-[1.5] text-[#52525b]">{profile.bio}</p>}
               <p className="text-[12px] text-[#7c7c7c]">Na Sajmu od {fmtDate(profile.createdAt)}</p>
+              {profile.blocked && (
+                <p className="bg-[#f5f6f8] px-[12px] py-[8px] text-[13px] text-black">
+                  Ovaj nalog je blokiran zbog kršenja pravila Sajma. Njegovi oglasi trenutno nisu vidljivi.
+                </p>
+              )}
+              {!own && !profile.blocked && (
+                <ReportButton kind="korisnik" userId={profile.id} loggedIn={!!me?.profile} />
+              )}
             </div>
           </div>
         </div>

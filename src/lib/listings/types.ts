@@ -32,7 +32,7 @@ export type CatalogListing = Pick<
   subcategorySlug: string;
   genre: { slug: string; name: string } | null;
   images: string[];
-  seller: { username: string; displayName: string; avatarUrl: string | null; shipsWithinDays?: number | null };
+  seller: { id?: string; username: string; displayName: string; avatarUrl: string | null; shipsWithinDays?: number | null };
   // Probni oglas bez pravih podataka (dok baza ne bude povezana).
   placeholder: boolean;
 };

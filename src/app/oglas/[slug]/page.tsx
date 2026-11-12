@@ -1,6 +1,7 @@
 import { daysLabel, PAYMENT as PAYMENT_OPTIONS, SHIPPING as SHIPPING_OPTIONS } from "@/lib/shipping";
 import type { Metadata } from "next";
 import { getCurrentUser } from "@/lib/supabase/server";
+import { ReportButton } from "@/components/product/ReportButton";
 import { getFavoriteCount, getSellerStats } from "@/lib/profiles";
 import { HeartButton } from "@/components/catalog/HeartButton";
 import { ViewCounter } from "@/components/product/ViewCounter";
@@ -258,6 +259,11 @@ export default async function ListingPage({ params }: Props) {
           <p className="mt-[12px] text-[12px] leading-[1.4] text-[#737373]">
             Artikal prodaje fizičko lice, a cenu je odredio prodavac.
           </p>
+          {!own && !l.placeholder && (
+            <div className="mt-[16px]">
+              <ReportButton kind="oglas" listingId={l.id} loggedIn={!!me?.profile} />
+            </div>
+          )}
         </div>
 
         <div className="w-[416px] pt-[65px]">

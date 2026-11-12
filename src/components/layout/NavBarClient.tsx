@@ -16,6 +16,7 @@ type NavUser = {
   displayName: string;
   unreadNotifications: number;
   unreadMessages: number;
+  isAdmin?: boolean;
 } | null;
 
 export function NavBarClient({ user: initial }: { user: NavUser }) {
@@ -241,7 +242,9 @@ function AccountMenu({ user }: { user: NonNullable<NavUser> }) {
     { href: user.username ? `/prodavac/${user.username}` : "/moj-profil", label: "Moj profil" },
     { href: "/poruke", label: "Poruke", count: user.unreadMessages },
     { href: "/moji-oglasi", label: "Moji oglasi" },
+    { href: "/sacuvane-pretrage", label: "Sačuvane pretrage" },
     { href: "/moj-profil/izmeni", label: "Podešavanja profila" },
+    ...(user.isAdmin ? [{ href: "/admin", label: "Admin" }] : []),
   ];
 
   return (

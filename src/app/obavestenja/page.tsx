@@ -7,7 +7,7 @@ import { createClient, getCurrentUser } from "@/lib/supabase/server";
 
 export const metadata: Metadata = { title: "Obaveštenja" };
 
-type Data = { listing_id?: number; conversation_id?: string; sender_id?: string; seller_id?: string; rating?: number };
+type Data = { listing_id?: number; conversation_id?: string; sender_id?: string; seller_id?: string; rating?: number; search_id?: number; search_name?: string; reason?: string };
 
 // Obaveštenja (zvonce u nav baru). Ekrana nema u Figmi; napravljen kao „Moji oglasi“
 // (red sa slikom artikla, tekst i dugme za sledeći korak), za Ankin pregled.
@@ -82,8 +82,14 @@ export default async function NotificationsPage() {
           text: `Oglas ${title} je rezervisan duže od dva dana. Da li je prodat? Ažuriraj status da kupci znaju.`,
           action: { label: "Moji oglasi", href: "/moji-oglasi" },
         };
+      case "sacuvana_pretraga":
+        return {
+          ...base,
+          text: `Novi oglas za tvoju sačuvanu pretragu${n.data.search_name ? ` „${n.data.search_name}“` : ""}: ${title}.`,
+          action: l ? { label: "Pogledaj oglas", href: listingHref(l) } : { label: "Sačuvane pretrage", href: "/sacuvane-pretrage" },
+        };
       case "oglas_uklonjen":
-        return { ...base, text: `Oglas ${title} je uklonjen sa Sajma.`, action: { label: "Moji oglasi", href: "/moji-oglasi" } };
+        return { ...base, text: `Oglas ${title} je uklonjen sa Sajma${n.data.reason ? `: ${n.data.reason}` : "."}`, action: { label: "Moji oglasi", href: "/moji-oglasi" } };
       default:
         return { ...base, text: "Novo obaveštenje.", action: null };
     }
