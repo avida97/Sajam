@@ -19,3 +19,7 @@ export const CITIES = [
   "Užice", "Sombor", "Požarevac", "Pirot", "Zaječar", "Kikinda", "Sremska Mitrovica", "Jagodina",
   "Vršac", "Bor", "Prokuplje", "Loznica", "Inđija", "Stara Pazova", "Ruma", "Gornji Milanovac",
 ] as const;
+
+// „1 radni dan“, „3 radna dana“, „5 radnih dana“ (za „Obično šalje za …“).
+export const daysLabel = (n: number) =>
+  `${n} ${n === 1 ? "radni dan" : n % 10 >= 2 && n % 10 <= 4 && (n < 12 || n > 14) ? "radna dana" : "radnih dana"}`;

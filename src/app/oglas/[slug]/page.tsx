@@ -1,4 +1,4 @@
-import { PAYMENT as PAYMENT_OPTIONS, SHIPPING as SHIPPING_OPTIONS } from "@/lib/shipping";
+import { daysLabel, PAYMENT as PAYMENT_OPTIONS, SHIPPING as SHIPPING_OPTIONS } from "@/lib/shipping";
 import type { Metadata } from "next";
 import { getCurrentUser } from "@/lib/supabase/server";
 import { getFavoriteCount, getSellerStats } from "@/lib/profiles";
@@ -218,6 +218,10 @@ export default async function ListingPage({ params }: Props) {
               >
                 SVE PONUDE PRODAVCA
               </Link>
+              {/* Figma: „Usually ships in 3 days“ ispod dugmeta (bez oznake „Expert seller“ za MVP). */}
+              {l.seller.shipsWithinDays ? (
+                <p className="mt-[12px] text-[12px] text-[#52525b]">Obično šalje za {daysLabel(l.seller.shipsWithinDays)}</p>
+              ) : null}
             </div>
             <div className="relative flex h-[75px] items-start px-[19.5px] pt-[24px] text-[12px]">
               <div className="flex w-[58px] flex-col gap-[8px]">

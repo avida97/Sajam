@@ -13,7 +13,7 @@ const SELECT = `
   shipping_methods, payment_methods,
   category:categories!inner ( slug, parent:parent_id ( slug ) ),
   genre:genres ( slug, name ),
-  seller:profiles!listings_seller_id_fkey ( username, display_name, avatar_url ),
+  seller:profiles!listings_seller_id_fkey ( username, display_name, avatar_url, ships_within_days ),
   images:listing_images ( path, position )
 `;
 
@@ -41,7 +41,7 @@ export async function loadDbListings(): Promise<CatalogListing[]> {
 
   return (data ?? []).flatMap((r) => {
     const cat = r.category as unknown as { slug: string; parent: { slug: string } | null };
-    const seller = r.seller as unknown as { username: string; display_name: string; avatar_url: string | null } | null;
+    const seller = r.seller as unknown as { username: string; display_name: string; avatar_url: string | null; ships_within_days: number | null } | null;
     if (!cat?.parent || !seller) return [];
     const images = ((r.images ?? []) as Array<{ path: string; position: number }>)
       .sort((a, b) => a.position - b.position)
@@ -73,7 +73,7 @@ export async function loadDbListings(): Promise<CatalogListing[]> {
         subcategorySlug: cat.slug,
         genre: (r.genre as unknown as { slug: string; name: string } | null) ?? null,
         images,
-        seller: { username: seller.username, displayName: seller.display_name, avatarUrl: seller.avatar_url },
+        seller: { username: seller.username, displayName: seller.display_name, avatarUrl: seller.avatar_url, shipsWithinDays: seller.ships_within_days },
         placeholder: false,
       },
     ];

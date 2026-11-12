@@ -1,3 +1,4 @@
+import { daysLabel } from "@/lib/shipping";
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
@@ -16,7 +17,6 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return { title: p ? `${p.displayName} (@${p.username})` : "Profil" };
 }
 
-const daysLabel = (n: number) => `${n} ${n === 1 ? "radni dan" : n % 10 >= 2 && n % 10 <= 4 && (n < 12 || n > 14) ? "radna dana" : "radnih dana"}`;
 const fmtDate = (iso: string) => new Date(iso).toLocaleDateString("sr-Latn-RS", { day: "numeric", month: "long", year: "numeric" });
 
 // Profil prodavca po Figmi („Profile Page“ 960:34514 i „Public Profile Page + Items for sale /
