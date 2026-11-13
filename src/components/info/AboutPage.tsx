@@ -14,6 +14,12 @@ const STEPS = [
   { title: "Preuzmi i oceni", body: "Kad artikal stigne, kupac oceni prodavca, da i drugi znaju kako je prošlo.", href: "/pomoc/nalog/kako-rade-ocene", link: "Kako rade ocene" },
 ];
 
+const VALUES = [
+  { title: "Mesto za knjigoljupce", body: "Sajam je napravljen za one koji vole knjige: za knjigofile koji čuvaju stara izdanja, traže baš određeni prevod i znaju koliko vredi dobro očuvan primerak. Isto važi i za ploče, igre i stripove." },
+  { title: "Svaka knjiga zaslužuje čitaoca", body: "Pročitana knjiga na polici samo čeka. Ovde nalazi nekoga ko će je ponovo otvoriti, umesto da završi u podrumu." },
+  { title: "Ljudi, ne samo oglasi", body: "Iza svakog oglasa je neko ko voli isto što i ti. Zato se na Sajmu razgovara direktno, a ocene pomažu da se zna kome se može verovati." },
+];
+
 const FAQ = [
   { q: "Šta mogu da prodam na Sajmu?", a: "Polovne i nove knjige, muziku, igre, mange i stripove i opremu za te hobije. Oglas mora da opisuje stvaran artikal koji imaš.", href: "/pomoc/prodaja/kako-da-objavim-oglas" },
   { q: "Kako se plaća?", a: "Način plaćanja dogovaraš sa prodavcem: pouzećem, uplatom na račun ili gotovinom pri preuzimanju.", href: "/pomoc/kupovina/kako-se-placa" },
@@ -177,7 +183,7 @@ function ClosingCta({ className = "mt-[110px]" }: { className?: string }) {
 }
 
 // Stranica „O nama“ (V 13. 11. 2026): elementi koje je V izabrala iz varijacija „Priče“, ovim redom:
-// priča → kako funkcioniše (3 koraka u gradijentnim karticama) → česta pitanja → blog →
+// priča → šta nam je važno → kako funkcioniše (3 koraka u gradijentnim karticama) → česta pitanja → blog →
 // Sajam pravimo zajedno → poziv. Bez osnivača kao osoba i bez naglaska da je Sajam besplatan.
 export function AboutPage() {
   return (
@@ -185,6 +191,24 @@ export function AboutPage() {
       <style>{CSS}</style>
       <Opener />
       <Why />
+      <section className="mx-auto mt-[120px] grid max-w-site grid-cols-[360px_1fr] gap-[80px] px-[182px]">
+        <Reveal>
+          <Title parts={["Šta nam je ", { s: "važno" }]} size={44} />
+          <p className="mt-[16px] text-[15px] leading-[1.6] text-[#666]">
+            Da ljubitelji knjiga imaju svoje mesto na internetu.
+          </p>
+        </Reveal>
+        <div className="border-t border-[#e1e1e1]">
+          {VALUES.map((v, i) => (
+            <Reveal key={v.title} delay={i * 120}>
+              <div className="grid grid-cols-[260px_1fr] gap-[40px] border-b border-[#e1e1e1] py-[30px]">
+                <h3 className="font-serif text-[24px] italic leading-[1.2]">{v.title}</h3>
+                <p className="text-[15px] leading-[1.7] text-[#555]">{v.body}</p>
+              </div>
+            </Reveal>
+          ))}
+        </div>
+      </section>
       <section className="mx-auto mt-[120px] max-w-site px-[72px]">
         <Title parts={["Kako ", { s: "funkcioniše" }]} size={44} className="text-center" />
         <div className="mt-[50px] grid grid-cols-3 gap-[20px]">
