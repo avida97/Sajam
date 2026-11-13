@@ -1,3 +1,4 @@
+import { CategoryBlog, SellCta } from "@/components/catalog/CategoryExtras";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { CategoryHero } from "@/components/catalog/CategoryHero";
@@ -162,6 +163,8 @@ export async function CategoryPage({
       </section>
 
       <ProductCarousel title="Trenutno u trendu" href={`/${category.slug}`} listings={trending} />
+      <CategoryBlog categorySlug={category.slug} />
+      <SellCta />
     </>
   );
 }
