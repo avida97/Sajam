@@ -89,7 +89,7 @@ export const LEGAL_DOCS: LegalDoc[] = [
         heading: "Koje podatke čuvamo",
         paragraphs: [
           "Podaci naloga: imejl adresa, ime koje prikazuješ, korisničko ime, a ako ih dodaš i grad, opis profila i profilna fotografija. Lozinka se čuva samo u šifrovanom obliku.",
-          "Sadržaj koji objavljuješ: oglasi sa fotografijama, poruke koje razmeniš sa drugim korisnicima, ocene i recenzije, omiljeni proizvodi i obaveštenja.",
+          "Sadržaj koji objavljuješ: oglasi sa fotografijama, poruke koje razmeniš sa drugim korisnicima, ocene, omiljeni proizvodi i obaveštenja.",
           "Kontakt forma: ime, prezime, imejl, poruka i ID oglasa, ako ga navedeš.",
           "Tehnički podaci: broj pregleda oglasa i glasovi za članke pomoći čuvaju se bez podataka o tome čiji je glas ili pregled.",
         ],

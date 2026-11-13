@@ -66,7 +66,7 @@ export default async function FavoritesPage({ searchParams }: Props) {
             <div className="flex flex-col items-center pt-[80px] text-center text-black">
               <p className="font-serif text-[22px] italic">Još nemaš omiljenih proizvoda</p>
               <p className="mt-[6px] text-[13px] text-[#71717a]">
-                Klikni na srce na proizvodu i sačuvaj ga ovde, da ga kasnije lako nađeš.
+                Klikni na srce na proizvodu i naći ćeš ga ovde.
               </p>
               <MainButton href="/knjige" className="mt-[20px]">
                 Pogledaj knjige

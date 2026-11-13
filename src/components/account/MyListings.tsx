@@ -219,8 +219,8 @@ export function MyListings({
                   <p className="text-[14px] font-semibold">Kome je prodato?</p>
                   <p className="mt-[4px] text-[12px] leading-[1.5] text-[#52525b]">
                     {l.buyers.length
-                      ? "Poziv za ocenu dobija izabrani kupac, i samo taj kupac može da te oceni."
-                      : "Niko još nije pisao o ovom oglasu kroz Sajam. Kupac koji ti piše o oglasu pojaviće se ovde, pa će moći da te oceni."}
+                      ? "Samo kupac kog izabereš može da te oceni."
+                      : "Niko ti još nije pisao o ovom oglasu. Kad ti kupac piše, pojaviće se ovde i moći će da te oceni."}
                   </p>
                   <div className="mt-[12px] flex flex-col gap-[8px] text-[14px]">
                     {[...l.buyers, { id: "", username: "", displayName: "Nekom van Sajma" }].map((b) => (

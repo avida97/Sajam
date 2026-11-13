@@ -18,7 +18,7 @@ export function DeleteSavedSearch({ id }: { id: number }) {
       }}
       className="text-[12px] text-[#737373] underline-offset-2 hover:text-black hover:underline disabled:opacity-60"
     >
-      {busy ? "Briše se..." : "Obriši"}
+      {busy ? "Briše se…" : "Obriši"}
     </button>
   );
 }

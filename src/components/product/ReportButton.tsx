@@ -170,7 +170,7 @@ export function ReportButton({ kind, listingId, userId, loggedIn }: Props) {
                   disabled={state === "saving"}
                   className="mt-[20px] h-[39px] w-full bg-black text-[13px] font-bold text-white hover:bg-[#232222] disabled:opacity-60"
                 >
-                  {state === "saving" ? "ŠALJE SE..." : "POŠALJI PRIJAVU"}
+                  {state === "saving" ? "ŠALJE SE…" : "POŠALJI PRIJAVU"}
                 </button>
               </form>
             )}

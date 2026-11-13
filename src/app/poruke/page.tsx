@@ -41,7 +41,8 @@ export default async function MessagesPage({ searchParams }: Props) {
     draft = {
       listing: toChatListing(l),
       seller: toChatPerson(l.seller as unknown as Parameters<typeof toChatPerson>[0]),
-      open: l.status === "dostupno" || l.status === "rezervisano",
+      // Odluka V 13. 11. 2026: razgovor može da se započne i kad je proizvod prodat.
+      open: true,
     };
   }
 

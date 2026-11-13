@@ -58,7 +58,7 @@ export function AdminAction({ action, label, danger }: { action: Action; label: 
         />
         <span className="flex gap-[6px]">
           <button type="button" disabled={busy} onClick={run} className={btn}>
-            {busy ? "..." : "Potvrdi"}
+            {busy ? "…" : "Potvrdi"}
           </button>
           <button type="button" onClick={() => setAsking(false)} className="text-[11px] text-[#737373] hover:text-black">
             Otkaži
@@ -71,7 +71,7 @@ export function AdminAction({ action, label, danger }: { action: Action; label: 
   return (
     <span className="flex flex-col gap-[4px]">
       <button type="button" disabled={busy} onClick={() => (needsConfirm ? setAsking(true) : run())} className={btn}>
-        {busy ? "..." : label}
+        {busy ? "…" : label}
       </button>
       {error && <span className="text-[11px] text-[#b42318]">{error}</span>}
     </span>

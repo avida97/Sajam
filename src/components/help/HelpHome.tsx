@@ -32,7 +32,7 @@ export function HelpHome({ section, query }: { section: HelpSectionKey; query?: 
               name="q"
               type="search"
               defaultValue={q}
-              placeholder="Pretraži pitanja..."
+              placeholder="Pretraži pitanja…"
               aria-label="Pretraži pitanja"
               className="h-full w-full rounded-[97px] bg-field pl-[54px] pr-6 text-[14px] text-black placeholder:text-[#666] focus:outline-none"
             />

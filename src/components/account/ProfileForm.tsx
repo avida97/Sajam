@@ -50,7 +50,7 @@ export function ProfileForm({ initial, email }: { initial: Initial; email: strin
     if (!name) return nameEl.focus();
 
     setSaving(true);
-    setNotice("Čuvam...");
+    setNotice("Čuvam…");
     const supabase = createClient();
     const {
       data: { user },

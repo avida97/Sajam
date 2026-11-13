@@ -62,7 +62,7 @@ export default async function SavedSearchesPage() {
                 Izaberi kategoriju i filtere, pa klikni „Sačuvaj pretragu“ iznad liste proizvoda.
               </p>
               <MainButton href="/knjige" size="md" className="mt-[24px]">
-                Pregledaj knjige
+                Pogledaj knjige
               </MainButton>
             </div>
           )}

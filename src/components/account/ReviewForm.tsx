@@ -50,7 +50,7 @@ export function ReviewForm({
     });
     if (error) {
       setSaving(false);
-      return setError("Recenzija nije sačuvana. Pokušaj ponovo.");
+      return setError("Ocena nije sačuvana. Pokušaj ponovo.");
     }
     await supabase
       .from("notifications")
@@ -160,7 +160,7 @@ export function ReviewForm({
         disabled={saving}
         className="mt-[24px] h-[39px] bg-ink text-[13px] font-bold uppercase text-white disabled:opacity-50"
       >
-        {saving ? "Objavljujem…" : "Objavi recenziju"}
+        {saving ? "Objavljujem…" : "Objavi ocenu"}
       </button>
     </form>
   );

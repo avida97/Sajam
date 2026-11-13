@@ -90,7 +90,7 @@ create policy "pisem prodavcu" on public.conversations for insert to authenticat
     and (select public.is_active())
     and exists (
       select 1 from public.listings l
-       where l.id = listing_id and l.status in ('dostupno', 'rezervisano')
+       where l.id = listing_id and l.status in ('dostupno', 'rezervisano', 'prodato')
     )
   );
 

@@ -438,13 +438,13 @@ export const HELP: Record<HelpSectionKey, HelpTopic[]> = {
           slug: "brisanje-naloga",
           title: "Brisanje naloga",
           intro:
-            "Pošalji nam zahtev preko kontakt forme sa imejlom kojim se prijavljuješ. Nalog i oglasi se brišu, a recenzije koje su drugi ostavili ostaju bez tvog imena.",
+            "Pošalji nam zahtev preko kontakt forme sa imejlom kojim se prijavljuješ. Nalog i oglasi se brišu, a ocene koje su drugi ostavili ostaju bez tvog imena.",
           sections: [],
         },
       ],
     },
     {
-      title: "Ocene i recenzije",
+      title: "Ocene",
       icon: "razgovor",
       articles: [
         {
@@ -509,7 +509,7 @@ export const HELP: Record<HelpSectionKey, HelpTopic[]> = {
           slug: "obavestenja",
           title: "Obaveštenja",
           intro:
-            "Zvonce u gornjem meniju pokazuje nova obaveštenja: poruke, pozive za ocenu, nove recenzije i podsetnike za rezervisane oglase.",
+            "Zvonce u gornjem meniju pokazuje nova obaveštenja: poruke, pozive za ocenu, nove ocene i podsetnike za rezervisane oglase.",
           sections: [
             {
               heading: "Kako da ih pročitam",

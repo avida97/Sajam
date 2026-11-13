@@ -53,35 +53,35 @@ const EXAMPLES: Record<
     author: "npr. Lav Tolstoj",
     publisher: "npr. Laguna",
     description:
-      "Opiši stanje knjige: eventualna oštećenja, podvlačenja, posvete, požutele ili iscepane strane, stanje korica...",
+      "Opiši stanje knjige: eventualna oštećenja, podvlačenja, posvete, požutele ili iscepane strane, stanje korica…",
   },
   manga_strip: {
     title: "npr. Naruto, tom 1",
     author: "npr. Masaši Kišimoto",
     publisher: "npr. Darkwood",
     description:
-      "Opiši izdanje: stanje, eventualna oštećenja i koji brojevi ili tomovi su u paketu...",
+      "Opiši izdanje: stanje, eventualna oštećenja i koji brojevi ili tomovi su u paketu…",
   },
   muzika: {
     title: "npr. Mrtva priroda",
     author: "npr. Riblja Čorba",
     publisher: "npr. PGP RTS",
     description:
-      "Opiši izdanje: format (ploča, CD, kaseta), stanje omota i nosača, spisak pesama ili posebnosti izdanja...",
+      "Opiši izdanje: format (ploča, CD, kaseta), stanje omota i nosača, spisak pesama ili posebnosti izdanja…",
   },
   igra: {
     title: "npr. Catan",
     author: "",
     publisher: "npr. Kosmos",
     description:
-      "Opiši igru: platforma ili vrsta, da li je kompletna (kutija, uputstvo, delovi), stanje i da li sve radi...",
+      "Opiši igru: platforma ili vrsta, da li je kompletna (kutija, uputstvo, delovi), stanje i da li sve radi…",
   },
   oprema: {
     title: "npr. Gramofon Pioneer PL-12D",
     author: "",
     publisher: "",
     description:
-      "Opiši opremu: šta tačno dobija kupac, stanje, eventualna oštećenja i da li sve radi...",
+      "Opiši opremu: šta tačno dobija kupac, stanje, eventualna oštećenja i da li sve radi…",
   },
 };
 
@@ -525,7 +525,7 @@ function TypeForm({
     const pages = text("broj_stranica");
 
     setPublishing(true);
-    setNotice(editing ? "Čuvam izmene..." : "Objavljujem oglas...");
+    setNotice(editing ? "Čuvam izmene…" : "Objavljujem oglas…");
     const supabase = createClient();
     const {
       data: { user },
@@ -988,7 +988,7 @@ function TypeForm({
                 value={summary}
                 onChange={(e) => setSummary(e.target.value)}
                 maxLength={5000}
-                placeholder="O čemu se radi u knjizi..."
+                placeholder="O čemu se radi u knjizi…"
                 className="sell-field block h-[124px] w-[636px] resize-none border border-[#dfdfdf] bg-white p-[16px] text-[14px] leading-[1.4] text-black placeholder:text-[#71717a] focus:border-black focus:outline-none"
               />
             </Field>
@@ -1001,7 +1001,7 @@ function TypeForm({
                   className="h-[32px] shrink-0 whitespace-nowrap border border-black px-[14px] font-semibold text-black hover:bg-black hover:text-white disabled:opacity-50"
                 >
                   {aiState === "loading"
-                    ? "Pišem sažetak..."
+                    ? "Pišem sažetak…"
                     : "Napiši sažetak uz pomoć AI"}
                 </button>
                 <span className="text-[#737373]">

@@ -160,7 +160,7 @@ function Submit({ children, pending, className = "" }: { children: React.ReactNo
       disabled={pending}
       className={`flex h-[37px] w-[372px] items-center justify-center bg-ink text-[12px] font-bold uppercase leading-[0.95] tracking-[-0.12px] text-white disabled:opacity-60 ${className}`}
     >
-      <span className="trim-cap">{pending ? "Sačekaj..." : children}</span>
+      <span className="trim-cap">{pending ? "Sačekaj…" : children}</span>
     </button>
   );
 }

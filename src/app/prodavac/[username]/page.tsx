@@ -81,7 +81,7 @@ export default async function SellerPage({ params, searchParams }: Props) {
               <p className="text-[12px] text-[#7c7c7c]">Na Sajmu od {fmtDate(profile.createdAt)}</p>
               {profile.blocked && (
                 <p className="bg-[#f5f6f8] px-[12px] py-[8px] text-[13px] text-black">
-                  Ovaj nalog je blokiran zbog kršenja pravila Sajma. Njegovi oglasi trenutno nisu vidljivi.
+                  Ovaj nalog je blokiran zbog kršenja pravila Sajma. Oglasi trenutno nisu vidljivi.
                 </p>
               )}
               {!own && !profile.blocked && (
@@ -96,7 +96,7 @@ export default async function SellerPage({ params, searchParams }: Props) {
             Na prodaju ({forSale.length})
           </Link>
           <Link href={`${base}?tab=recenzije`} className={`pb-[8px] ${showReviews ? "border-b-2 border-black" : "text-[#666]"}`}>
-            Recenzije ({reviews.length})
+            Ocene ({reviews.length})
           </Link>
         </nav>
       </section>
@@ -107,7 +107,7 @@ export default async function SellerPage({ params, searchParams }: Props) {
             reviews.length ? (
               <SellerReviews reviews={reviews} />
             ) : (
-              <Empty title="Još nema recenzija" text="Recenzije ostavljaju kupci posle kupovine." />
+              <Empty title="Još nema ocena" text="Ocene ostavljaju kupci posle kupovine." />
             )
           ) : forSale.length ? (
             <div className="grid grid-cols-5 gap-x-[24px] gap-y-[40px]">

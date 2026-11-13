@@ -121,7 +121,7 @@ export function BookSuggest({
   const listId = `${name}-predlozi`;
   const message =
     state === "loading"
-      ? "Tražim knjigu..."
+      ? "Tražim knjigu…"
       : state === "error"
         ? "Pretraga trenutno ne radi. Popuni podatke ručno."
         : state === "invalid"

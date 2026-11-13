@@ -111,7 +111,7 @@ export async function CategoryPage({
         category={category.slug}
         action={base}
         query={filters.q}
-        placeholder={isBookLike ? "Pretraži knjigu, autora..." : "Pretraži proizvod..."}
+        placeholder={isBookLike ? "Pretraži knjigu, autora…" : "Pretraži proizvod…"}
       />
 
       <section className="mx-auto max-w-site pb-[80px] pt-[50px]">

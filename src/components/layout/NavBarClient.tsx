@@ -63,7 +63,7 @@ export function NavBarClient({ user: initial }: { user: NavUser }) {
             <input
               name="q"
               type="search"
-              placeholder="Pretraži po naslovu, autoru..."
+              placeholder="Pretraži po naslovu, autoru…"
               aria-label="Pretraga"
               className="h-full w-full rounded-[97px] bg-field pl-[40px] pr-4 text-[12px] font-medium text-black placeholder:text-black focus:outline-none"
             />

@@ -68,7 +68,7 @@ export default async function SearchPage({ searchParams }: Props) {
 
   return (
     <>
-      <CategoryHero action="/pretraga" query={filters.q} placeholder="Pretraži knjigu, autora, izdavača..." />
+      <CategoryHero action="/pretraga" query={filters.q} placeholder="Pretraži knjigu, autora, izdavača…" />
 
       <section className="mx-auto max-w-site pb-[80px] pt-[50px]">
         <div className="pl-[292px]">

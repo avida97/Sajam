@@ -16,7 +16,7 @@ export function SellerReviews({ reviews }: { reviews: ProfileReview[] }) {
     <div className="mx-auto w-[856px] pt-[41px]">
       <div className="flex">
         <div className="w-[313px]">
-          <p className="trim-cap text-[16px]">Ukupno recenzija</p>
+          <p className="trim-cap text-[16px]">Ukupno ocena</p>
           <p className="trim-cap mt-[28px] text-[33px]">{reviews.length}</p>
           <p className="trim-cap mt-[17px] text-[14px] text-[#666]">Ove godine: {thisYear.length}</p>
         </div>
