@@ -100,8 +100,7 @@ function WhyText() {
         neko ko baš to traži.
       </p>
       <p className="mt-[16px] text-[16px] leading-[1.7] text-[#444]">
-        Sajam spaja te ljude. To je mesto gde se polovne knjige, muzika, igre, stripovi i oprema prodaju jednostavno i bez
-        posrednika: prodavac objavi oglas, kupac mu piše, a ostalo dogovore sami.
+        Sajam spaja te ljude. To je mesto gde se knjige (i još ponešto) prodaju jednostavno i bez posrednika.
       </p>
     </>
   );
@@ -172,8 +171,7 @@ function Important() {
             <span className="font-serif text-[50px] italic">knjigofili</span> imaju svoje mesto na internetu.
           </p>
           <p className="mt-[28px] max-w-[620px] text-[16px] leading-[1.7] text-black/70">
-            Mesto gde se ne prodaje roba, nego stvari koje nekome nešto znače, i gde je sa druge strane uvek neko ko ih
-            voli isto koliko i ti.
+            Ovde knjige, ploče, igre i stripovi prelaze iz ruke u ruku.
           </p>
         </GradientBox>
       </Reveal>
