@@ -7,7 +7,7 @@ import { MainButton } from "@/components/ui/MainButton";
 
 // Hero početne strane: „Živi gradijent“ (odluka V 12. 11. 2026, predlog 4.1 sa dugmetom i
 // linkom za prodaju). Isti gradijent i šum kao hero na stranama kategorija (Figma 500:7232),
-// mrlje se polako pomeraju, 3D ikonice iz „Napravi mesta“ lebde, a pretraga sama kuca primere
+// mrlje se polako pomeraju, 3D ikonice iz „Napravi mesta“ lebde i beže od miša, a pretraga sama kuca primere
 // dok korisnik ne klikne u nju. Za Ankin pregled; Figma hero (412:14229) je prazan.
 
 const GRADIENT =
@@ -24,9 +24,36 @@ const CATEGORIES = [
 const EXAMPLES = ["Na Drini ćuprija", "Pink Floyd – The Wall", "Catan", "One Piece 1", "Gramofon"];
 
 export function Hero() {
+  // Ikonice „beže“ od miša: što je kursor bliži, to se više odmaknu, pa ne mogu da se uhvate.
+  function dodge(e: React.MouseEvent<HTMLDivElement>) {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const box = e.currentTarget.getBoundingClientRect();
+    const mx = e.clientX - box.left;
+    const my = e.clientY - box.top;
+    e.currentTarget.querySelectorAll<HTMLElement>("[data-dodge]").forEach((el) => {
+      const cx = el.offsetLeft + el.offsetWidth / 2;
+      const cy = el.offsetTop + el.offsetHeight / 2;
+      const dx = cx - mx;
+      const dy = cy - my;
+      const d = Math.hypot(dx, dy) || 1;
+      const R = 230;
+      if (d > R) {
+        el.style.transform = "";
+        return;
+      }
+      const push = ((R - d) / R) * 170;
+      el.style.transform = `translate(${(dx / d) * push}px, ${(dy / d) * push}px) rotate(${(dx / d) * push * 0.12}deg)`;
+    });
+  }
+  function reset(e: React.MouseEvent<HTMLDivElement>) {
+    e.currentTarget.querySelectorAll<HTMLElement>("[data-dodge]").forEach((el) => (el.style.transform = ""));
+  }
+
   return (
     <section className="mx-auto max-w-site px-[72px] pt-[20px]">
       <div
+        onMouseMove={dodge}
+        onMouseLeave={reset}
         className="relative flex h-[640px] flex-col items-center justify-center overflow-hidden rounded-[15px]"
         style={{ backgroundImage: GRADIENT }}
       >
@@ -47,9 +74,15 @@ export function Hero() {
           </filter>
           <rect width="100%" height="100%" filter="url(#hero-sum)" />
         </svg>
-        <Image src="/images/pocetna/oglas.png" alt="" width={209} height={209} priority className="hero-bob pointer-events-none absolute left-[110px] top-[80px]" style={{ width: 170, height: "auto" }} />
-        <Image src="/images/pocetna/prodaj.png" alt="" width={228} height={245} className="hero-bob pointer-events-none absolute bottom-[60px] right-[120px]" style={{ width: 180, height: "auto", animationDelay: "-2s" }} />
-        <Image src="/images/pocetna/profil.png" alt="" width={187} height={187} className="hero-bob pointer-events-none absolute bottom-[90px] left-[200px]" style={{ width: 110, height: "auto", animationDelay: "-3.5s" }} />
+        <Dodger className="left-[110px] top-[80px]">
+          <Image src="/images/pocetna/oglas.png" alt="" width={209} height={209} priority className="hero-bob" style={{ width: 170, height: "auto" }} />
+        </Dodger>
+        <Dodger className="bottom-[60px] right-[120px]">
+          <Image src="/images/pocetna/prodaj.png" alt="" width={228} height={245} className="hero-bob" style={{ width: 180, height: "auto", animationDelay: "-2s" }} />
+        </Dodger>
+        <Dodger className="bottom-[90px] left-[200px]">
+          <Image src="/images/pocetna/profil.png" alt="" width={187} height={187} className="hero-bob" style={{ width: 110, height: "auto", animationDelay: "-3.5s" }} />
+        </Dodger>
 
         <div className="relative z-10 flex flex-col items-center">
           <h1 className="text-center text-[69px] font-semibold leading-[0.95] tracking-[-3.45px] text-black">
@@ -86,6 +119,14 @@ export function Hero() {
       </div>
       <style>{CSS}</style>
     </section>
+  );
+}
+
+function Dodger({ className, children }: { className: string; children: React.ReactNode }) {
+  return (
+    <div data-dodge className={`pointer-events-none absolute transition-transform duration-500 ease-out ${className}`}>
+      {children}
+    </div>
   );
 }
 
