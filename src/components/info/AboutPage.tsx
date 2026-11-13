@@ -184,6 +184,24 @@ function Important() {
 // Stranica „O nama“ (V 13. 11. 2026): elementi koje je V izabrala iz varijacija „Priče“, ovim redom:
 // naslov → zašto Sajam → šta nam je važno → kako funkcioniše → česta pitanja → Sajam pravimo zajedno.
 // Blog i poziv „Imaš nešto što ti više ne treba?“ sklonjeni (V: idu na drugu stranicu). Bez osnivača kao osoba i bez naglaska da je Sajam besplatan.
+// Ikonice u karticama „Kako funkcioniše“ lebde i beže od miša (kao u heru početne).
+function dodge(e: React.MouseEvent<HTMLDivElement>) {
+  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  const el = e.currentTarget.querySelector<HTMLElement>("[data-dodge]");
+  if (!el) return;
+  const box = e.currentTarget.getBoundingClientRect();
+  const dx = el.offsetLeft + el.offsetWidth / 2 - (e.clientX - box.left);
+  const dy = el.offsetTop + el.offsetHeight / 2 - (e.clientY - box.top);
+  const d = Math.hypot(dx, dy) || 1;
+  const R = 220;
+  const push = d > R ? 0 : ((R - d) / R) * 110;
+  el.style.transform = push ? `translate(${(dx / d) * push}px, ${(dy / d) * push}px) rotate(${(dx / d) * push * 0.15}deg)` : "";
+}
+function undodge(e: React.MouseEvent<HTMLDivElement>) {
+  const el = e.currentTarget.querySelector<HTMLElement>("[data-dodge]");
+  if (el) el.style.transform = "";
+}
+
 export function AboutPage() {
   return (
     <div className="pb-[110px] text-black">
@@ -198,21 +216,22 @@ export function AboutPage() {
         <div className="mt-[50px] grid grid-cols-3 gap-[20px]">
           {STEPS.map((s, i) => (
             <Reveal key={s.title} delay={i * 120}>
-              <div className="group relative h-[340px] overflow-hidden rounded-[20px] bg-[#f5f6f8] p-[34px]">
-                <p className="font-serif text-[22px] italic text-[#7c7c7c]">Korak 0{i + 1}</p>
-                <h3 className="mt-[12px] text-[24px] font-semibold tracking-[-0.5px]">{s.title}</h3>
+              <div onMouseMove={dodge} onMouseLeave={undodge} className="group relative h-[320px] overflow-hidden rounded-[20px] bg-[#f5f6f8] p-[34px]">
+                <h3 className="text-[24px] font-semibold tracking-[-0.5px]">{s.title}</h3>
                 <p className="mt-[12px] w-[250px] text-[14px] leading-[1.6] text-[#555]">{s.body}</p>
                 <Link href={s.href} className="relative z-10 mt-[16px] inline-block text-[12px] font-semibold underline-offset-4 hover:underline">
                   {s.link} →
                 </Link>
-                <Image
-                  src={s.icon}
-                  alt=""
-                  width={209}
-                  height={209}
-                  className="pointer-events-none absolute -bottom-[30px] -right-[20px] transition-transform duration-500 group-hover:-rotate-12 group-hover:scale-110"
-                  style={{ width: 150, height: "auto" }}
-                />
+                <div data-dodge className="pointer-events-none absolute bottom-[10px] right-[10px] transition-transform duration-500 ease-out">
+                  <Image
+                    src={s.icon}
+                    alt=""
+                    width={209}
+                    height={209}
+                    className="ab-bob"
+                    style={{ width: 140, height: "auto", animationDelay: `${-i * 1.6}s` }}
+                  />
+                </div>
               </div>
             </Reveal>
           ))}
@@ -243,5 +262,7 @@ export function AboutPage() {
 const CSS = `
 @keyframes ab-blob { 0%,100% { transform: translate(0,0) scale(1) } 50% { transform: translate(60px,-30px) scale(1.1) } }
 .ab-blob { animation: ab-blob 18s ease-in-out infinite; }
-@media (prefers-reduced-motion: reduce) { .ab-blob { animation: none !important } }
+@keyframes ab-bob { 0%,100% { translate: 0 0; rotate: 0deg } 50% { translate: 0 -12px; rotate: -4deg } }
+.ab-bob { animation: ab-bob 5s ease-in-out infinite; }
+@media (prefers-reduced-motion: reduce) { .ab-blob, .ab-bob { animation: none !important } }
 `;
