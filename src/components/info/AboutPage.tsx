@@ -11,14 +11,14 @@ const GRADIENT =
 const STEPS = [
   { title: "Objavi ili pronađi", body: "Prodavac objavi oglas za par minuta: skenira ISBN, a Sajam sam popuni podatke. Kupac ga nađe pretragom ili kroz kategorije.", href: "/pomoc/prodaja/kako-da-objavim-oglas", link: "Kako da objavim oglas", icon: "/images/pocetna/oglas.png" },
   { title: "Dogovorite se porukama", body: "Kupac piše prodavcu, pa se zajedno dogovore o stanju, ceni, slanju i plaćanju.", href: "/pomoc/kupovina/pisanje-prodavcu", link: "Kako da pišem prodavcu", icon: "/images/pocetna/profil.png" },
-  { title: "Preuzmi i oceni", body: "Kad artikal stigne, kupac oceni prodavca, da i drugi znaju kako je prošlo.", href: "/pomoc/nalog/kako-rade-ocene", link: "Kako rade ocene", icon: "/images/pocetna/prodaj.png" },
+  { title: "Preuzmi i oceni", body: "Kad proizvod stigne, kupac oceni prodavca, da i drugi znaju kako je prošlo.", href: "/pomoc/nalog/kako-rade-ocene", link: "Kako rade ocene", icon: "/images/pocetna/prodaj.png" },
 ];
 
 const FAQ = [
-  { q: "Šta mogu da prodam na Sajmu?", a: "Polovne i nove knjige, muziku, igre, mange i stripove i opremu za te hobije. Oglas mora da opisuje stvaran artikal koji imaš.", href: "/pomoc/prodaja/kako-da-objavim-oglas" },
+  { q: "Šta mogu da prodam na Sajmu?", a: "Knjige, muziku, igre, mange, stripove i opremu za te hobije. Oglas mora da opisuje stvaran proizvod koji imaš.", href: "/pomoc/prodaja/kako-da-objavim-oglas" },
   { q: "Kako se plaća?", a: "Način plaćanja dogovaraš sa prodavcem: pouzećem, uplatom na račun ili gotovinom pri preuzimanju.", href: "/pomoc/kupovina/kako-se-placa" },
-  { q: "Kako stiže artikal?", a: "Prodavac šalje poštom ili kurirskom službom, ili se dogovorite za lično preuzimanje.", href: "/pomoc/kupovina/nacini-slanja" },
-  { q: "Šta ako artikal nije kao u opisu?", a: "Prvo piši prodavcu. Ostavi iskrenu ocenu, a ozbiljan problem prijavi timu Sajma.", href: "/pomoc/kupovina/artikal-nije-kao-u-opisu" },
+  { q: "Kako stiže proizvod?", a: "Prodavac šalje poštom ili kurirskom službom, ili se dogovorite za lično preuzimanje.", href: "/pomoc/kupovina/nacini-slanja" },
+  { q: "Šta ako proizvod nije kao u opisu?", a: "Prvo piši prodavcu. Ostavi iskrenu ocenu, a ozbiljan problem prijavi timu Sajma.", href: "/pomoc/kupovina/artikal-nije-kao-u-opisu" },
 ];
 
 function Title({ parts, size = 56, className = "", as: Tag = "h2" }: { parts: Array<string | { s: string } | { br: true }>; size?: number; className?: string; as?: "h1" | "h2" }) {

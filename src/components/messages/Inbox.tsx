@@ -19,7 +19,7 @@ type Props = {
   draft: Draft | null;
 };
 
-const QUICK = ["Zdravo, da li je artikal još dostupan?", "Zdravo, u kakvom je stanju artikal?"];
+const QUICK = ["Zdravo, da li je proizvod još dostupan?", "Zdravo, u kakvom je stanju proizvod?"];
 
 // Ekrana nema u Figmi; napravljen od postojećih polja, dugmadi i kartica, za Ankin pregled.
 export function Inbox({ meId, conversations, selectedId, messages, draft }: Props) {
@@ -290,7 +290,7 @@ function Thread({
       </header>
       {canReview && (
         <div className="flex items-center justify-between gap-[16px] border-b-[0.5px] border-[#e1e1e1] bg-[#f5f6f8] px-[20px] py-[12px] text-[13px]">
-          <span>Prodavac je označio da je artikal prodat tebi. Kako je prošla kupovina?</span>
+          <span>Prodavac je označio da je proizvod prodat tebi. Kako je prošla kupovina?</span>
           <Link
             href={`/recenzija/${listing.id}`}
             className="flex h-[33px] shrink-0 items-center bg-ink px-[19px] text-[11px] font-bold uppercase text-white"
@@ -326,7 +326,7 @@ function Thread({
                 </div>
               </>
             ) : (
-              <p>Ovaj artikal je prodat, pa prodavcu više ne može da se piše o njemu.</p>
+              <p>Ovaj proizvod je prodat, pa prodavcu više ne može da se piše o njemu.</p>
             )}
           </div>
         )}

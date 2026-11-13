@@ -27,7 +27,7 @@ const sourceSerif = Source_Serif_4({
 export const metadata: Metadata = {
   title: "Sajam",
   description:
-    "Kupuj i prodaj polovne knjige, muziku, igre, mange, stripove i opremu.",
+    "Kupuj i prodaj knjige, muziku, igre, mange, stripove i opremu.",
 };
 
 export default function RootLayout({

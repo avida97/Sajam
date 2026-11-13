@@ -79,7 +79,7 @@ export function NavBarClient({ user: initial }: { user: NavUser }) {
           <div className="ml-auto flex items-center">
             {user ? (
               <>
-                <Link href="/omiljeno" aria-label="Omiljeni artikli" className="block">
+                <Link href="/omiljeno" aria-label="Omiljeni proizvodi" className="block">
                   <Image src="/icons/like.svg" alt="" width={26} height={23} />
                 </Link>
                 <Link

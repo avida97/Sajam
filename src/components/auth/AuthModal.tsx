@@ -9,7 +9,7 @@ import { createClient } from "@/lib/supabase/client";
 import { SUPABASE_ANON_KEY, SUPABASE_URL } from "@/lib/supabase/env";
 
 // Prozori za prijavu i registraciju iz Figme: „Prijavi se“ (906:26695), „Prijavi se putem emaila“
-// (914:29648), „Registruj se“ (914:28784), „Registruj se putem mejla“ (916:31670) i
+// (914:29648), „Registruj se“ (914:28784), „Registruj se imejlom“ (916:31670) i
 // „Resetuj lozinku“ (916:30731). Otvaraju se preko bilo koje stranice sa ?nalog=...
 // „Nova lozinka“ nema u Figmi i složena je od istih delova.
 // Dugme „Nastavi uz Facebook“ je sakriveno: za MVP je prijava samo mejlom i preko Google-a.
@@ -187,7 +187,7 @@ function GoogleButton({ onError }: { onError: (msg: string) => void }) {
       const res = await fetch(`${SUPABASE_URL}/auth/v1/settings`, { headers: { apikey: SUPABASE_ANON_KEY } });
       const settings = res.ok ? await res.json() : null;
       if (!settings?.external?.google) {
-        onError("Prijava preko Google-a još nije uključena. Za sada se prijavi mejlom.");
+        onError("Prijava preko Google-a još nije uključena. Za sada se prijavi imejlom.");
         setPending(false);
         return;
       }
@@ -198,7 +198,7 @@ function GoogleButton({ onError }: { onError: (msg: string) => void }) {
       });
       if (error) throw error;
     } catch {
-      onError("Prijava preko Google-a trenutno ne radi. Pokušaj mejlom.");
+      onError("Prijava preko Google-a trenutno ne radi. Pokušaj imejlom.");
       setPending(false);
     }
   };
@@ -239,11 +239,11 @@ function Start({
       }}
     >
       <Heading
-        title="Dobrodošli na Sajam!"
+        title="Drago nam je što si tu!"
         text={
           login
-            ? "Prijavi se na svoj Sajam nalog i započni kupovinu, prodaju, konverzaciju i ostalo."
-            : "Registruj svoj Sajam nalog i započni kupovinu, prodaju, konverzaciju i ostalo."
+            ? "Prijavi se da pišeš prodavcima, čuvaš omiljene proizvode i objavljuješ oglase."
+            : "Registruj se da pišeš prodavcima, čuvaš omiljene proizvode i objavljuješ oglase."
         }
       />
       <div className="mt-[40px]">
@@ -256,9 +256,9 @@ function Start({
         <span className="h-px flex-1 bg-[#e1e1e1]" />
       </div>
       <p className="trim-cap mt-[30px] text-[12px] leading-[0.95] text-black">
-        {login ? "Prijavi se putem mejla" : "Registruj se putem mejla"}
+        {login ? "Prijavi se imejlom" : "Registruj se imejlom"}
       </p>
-      <Field label="Email adresa" type="email" value={email} onChange={setEmail} autoComplete="email" className="mt-[15px]" />
+      <Field label="Imejl adresa" type="email" value={email} onChange={setEmail} autoComplete="email" className="mt-[15px]" />
       <Submit className="mt-[22px]">nastavi</Submit>
       <p className="trim-cap mt-[15px] text-[14px] leading-normal text-black">
         {login ? "Nemaš nalog? " : "Već imaš nalog? "}
@@ -301,14 +301,14 @@ function EmailLogin({
     >
       <Back onClick={onBack} />
       <Heading title="Prijavi se" text="Prijavi se na svoj Sajam nalog i započni kupovinu, prodaju, konverzaciju i ostalo." />
-      <Field label="Email adresa" type="email" value={email} onChange={setEmail} autoComplete="email" className="mt-[25px]" />
+      <Field label="Imejl adresa" type="email" value={email} onChange={setEmail} autoComplete="email" className="mt-[25px]" />
       <Field label="Lozinka" type="password" value={password} onChange={setPassword} autoComplete="current-password" className="mt-[20px]" />
       <div className="mt-[20px] flex items-center justify-between">
         <Check checked={remember} onChange={setRemember}>
           <span className="trim-cap text-[14px] leading-[0.95] text-black">Ostavi me prijavljenog</span>
         </Check>
         <Link href={forgotHref} replace scroll={false} className="text-[10px] leading-[0.95] text-black underline">
-          Zaboravili ste lozinku?
+          Zaboravljena lozinka?
         </Link>
       </div>
       <Submit pending={pending} className="mt-[25px]">Prijavi se</Submit>
@@ -347,13 +347,13 @@ function EmailSignup({
       }}
     >
       <Back onClick={onBack} />
-      <Heading title="Registruj se" text="Registruj svoj Sajam nalog i započni kupovinu, prodaju, konverzaciju i ostalo." />
+      <Heading title="Registruj se" text="Registruj se da pišeš prodavcima, čuvaš omiljene proizvode i objavljuješ oglase." />
       <Field label="Korisničko ime" value={username} onChange={setUsername} autoComplete="username" className="mt-[28px]" />
-      <Field label="Email adresa" type="email" value={email} onChange={setEmail} autoComplete="email" className="mt-[25px]" />
+      <Field label="Imejl adresa" type="email" value={email} onChange={setEmail} autoComplete="email" className="mt-[25px]" />
       <Field label="Lozinka" type="password" value={password} onChange={setPassword} autoComplete="new-password" className="mt-[20px]" />
       <Check checked={marketing} onChange={setMarketing} className="mt-[25px]">
         <span className="text-[12px] leading-[1.4] text-black">
-          Želim primati personalizovane ponude i među prvima saznati o najnovijim ažuriranjima vezanim za Sajam putem emaila.
+          Šalji mi novosti o Sajmu na imejl.
         </span>
       </Check>
       <p className="mt-[25px] text-[12px] leading-[1.4] text-[#7c7c7c]">
@@ -379,8 +379,8 @@ function ResetPassword({ email, setEmail, onBack }: { email: string; setEmail: (
       }}
     >
       <Back onClick={onBack} />
-      <Heading title="Resetuj lozinku" text="Unesi svoj email da bi resetovao lozinku." />
-      <Field label="Email adresa" type="email" value={email} onChange={setEmail} autoComplete="email" className="mt-[25px]" />
+      <Heading title="Resetuj lozinku" text="Unesi imejl i poslaćemo ti link za novu lozinku." />
+      <Field label="Imejl adresa" type="email" value={email} onChange={setEmail} autoComplete="email" className="mt-[25px]" />
       <Submit pending={pending} className="mt-[25px]">pošalji link</Submit>
       <Notice result={result} />
     </form>

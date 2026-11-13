@@ -7,12 +7,12 @@ import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 
 // „Prijavi oglas“ / „Prijavi korisnika“. Ekrana nema u Figmi; prozor je napravljen kao
-// „Stanje artikala“ (isti okvir, naslov i dugme), za Ankin pregled. Prijava ide u tabelu
+// „Stanje proizvoda“ (isti okvir, naslov i dugme), za Ankin pregled. Prijava ide u tabelu
 // reports, a rešava je admin na /admin.
 const REASONS = {
   oglas: [
     "Lažan ili obmanjujući oglas",
-    "Zabranjen ili ukraden artikal",
+    "Zabranjen ili ukraden proizvod",
     "Pogrešna kategorija ili duplikat",
     "Neprimeren sadržaj ili slike",
     "Drugo",

@@ -122,7 +122,7 @@ export default async function SellerPage({ params, searchParams }: Props) {
             </div>
           ) : (
             <Empty
-              title="Nema artikala"
+              title="Nema proizvoda"
               text={own ? "Još nemaš nijedan oglas." : "Prodavac trenutno nema ništa na prodaju."}
               action={own}
             />

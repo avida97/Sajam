@@ -6,11 +6,11 @@ import { listingImageUrl } from "@/lib/listings/db";
 import { createClient, getCurrentUser } from "@/lib/supabase/server";
 import { isSupabaseConfigured } from "@/lib/supabase/env";
 
-export const metadata: Metadata = { title: "Prodaja artikla" };
+export const metadata: Metadata = { title: "Prodaja proizvoda" };
 
 type Props = { searchParams: Promise<{ izmeni?: string }> };
 
-// Forma „Prodaja artikla“ iz Figme (922:32648). Objavljuje oglas u bazu;
+// Forma „Prodaja proizvoda“ iz Figme (922:32648). Objavljuje oglas u bazu;
 // neprijavljenom posetiocu „Objavi oglas“ otvara prijavu, a popunjena forma ostaje.
 // Sa ?izmeni=<id> ista forma menja postojeći oglas prijavljenog prodavca.
 export default async function ProdajPage({ searchParams }: Props) {

@@ -38,12 +38,12 @@ export default async function ReviewPage({ params }: Props) {
     return (
       <div className="mx-auto flex w-[636px] flex-col items-center pb-[120px] pt-[100px] text-center text-black">
         <h1 className="font-serif text-[36px] font-medium italic leading-none">
-          {existing ? "Recenzija je već ostavljena" : "Ovaj artikal ne može da se oceni"}
+          {existing ? "Recenzija je već ostavljena" : "Ovaj proizvod ne može da se oceni"}
         </h1>
         <p className="mt-[16px] max-w-[460px] text-[14px] leading-[1.5] text-[#52525b]">
           {existing
             ? "Za svaku kupovinu može da se ostavi jedna recenzija."
-            : "Prodavca ocenjuje kupac koga je prodavac izabrao kad je označio artikal kao prodat."}
+            : "Prodavca ocenjuje kupac koga je prodavac izabrao kad je označio proizvod kao prodat."}
         </p>
         <MainButton href={`/prodavac/${seller.username}?tab=recenzije`} className="mt-[28px]">
           Recenzije prodavca

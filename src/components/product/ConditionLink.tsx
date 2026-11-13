@@ -4,7 +4,7 @@ import Image from "next/image";
 import { useEffect, useState } from "react";
 import { CONDITIONS } from "@/lib/conditions";
 
-// Podvučeno stanje („Kao novo“) otvara prozor „Stanje artikala“ (Figma 689:15133).
+// Podvučeno stanje („Kao novo“) otvara prozor „Stanje proizvoda“ (Figma 689:15133).
 export function ConditionLink({ label }: { label: string }) {
   const [open, setOpen] = useState(false);
   useEffect(() => {
@@ -29,7 +29,7 @@ export function ConditionLink({ label }: { label: string }) {
             className="relative mx-auto mt-[160px] w-[512px] bg-white px-[35px] pb-[30px] pt-[30px] text-black"
           >
             <h2 id="stanje-naslov" className="font-serif text-[22px] font-medium italic">
-              Stanje artikala
+              Stanje proizvoda
             </h2>
             <button type="button" aria-label="Zatvori" onClick={() => setOpen(false)} className="absolute right-[35px] top-[30px] size-[17px]">
               <Image src="/icons/close.svg" alt="" width={17} height={17} />

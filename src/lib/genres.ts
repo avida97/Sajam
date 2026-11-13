@@ -51,6 +51,6 @@ export const LANGUAGES = ["Srpski", "Engleski", "Ruski", "Hrvatski", "Slovenačk
 export const BUNDLE_RANGES = [
   { value: "1", label: "1 knjiga", min: 1, max: 1 },
   { value: "2-5", label: "2 - 5 knjiga", min: 2, max: 5 },
-  { value: "5-10", label: "5 - 10 knjiga", min: 5, max: 10 },
+  { value: "5-10", label: "6 - 10 knjiga", min: 6, max: 10 },
   { value: "10+", label: "preko 10 knjiga", min: 11, max: Infinity },
 ];

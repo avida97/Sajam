@@ -8,11 +8,11 @@ import { getListing } from "@/lib/listings/query";
 import type { CatalogListing } from "@/lib/listings/types";
 import { createClient, getCurrentUser } from "@/lib/supabase/server";
 
-export const metadata: Metadata = { title: "Omiljeni artikli" };
+export const metadata: Metadata = { title: "Omiljeni proizvodi" };
 
 type Props = { searchParams: Promise<{ kategorija?: string; sort?: string }> };
 
-// „Omiljeni artikli“ po Figmi (691:15136): naslov, broj artikala, Kategorija i Sortiraj po,
+// „Omiljeni proizvodi“ po Figmi (691:15136): naslov, broj proizvoda, Kategorija i Sortiraj po,
 // pa kartice u 5 kolona na sivoj pozadini.
 export default async function FavoritesPage({ searchParams }: Props) {
   const { kategorija, sort } = await searchParams;
@@ -41,12 +41,12 @@ export default async function FavoritesPage({ searchParams }: Props) {
   return (
     <>
       <section className="mx-auto h-[159px] max-w-site px-[182px] pt-[82px] text-black">
-        <h1 className="font-serif text-[32px] font-medium italic leading-none">Omiljeni artikli</h1>
+        <h1 className="font-serif text-[32px] font-medium italic leading-none">Omiljeni proizvodi</h1>
       </section>
       <section className="bg-[#f5f6f8]">
         <div className="mx-auto min-h-[520px] max-w-site px-[182px] pb-[90px] pt-[38px]">
           <div className="flex h-[33px] items-end justify-between">
-            <p className="trim-cap text-[13px] font-medium text-black">Artikli: {items.length}</p>
+            <p className="trim-cap text-[13px] font-medium text-black">Proizvodi: {items.length}</p>
             <FavoritesControls categories={categories} kategorija={kategorija ?? ""} sort={sort ?? "najnovije"} />
           </div>
           {items.length ? (
@@ -64,9 +64,9 @@ export default async function FavoritesPage({ searchParams }: Props) {
             </div>
           ) : (
             <div className="flex flex-col items-center pt-[80px] text-center text-black">
-              <p className="font-serif text-[22px] italic">Još nemaš omiljenih artikala</p>
+              <p className="font-serif text-[22px] italic">Još nemaš omiljenih proizvoda</p>
               <p className="mt-[6px] text-[13px] text-[#71717a]">
-                Klikni na srce na artiklu i sačuvaj ga ovde, da ga kasnije lako nađeš.
+                Klikni na srce na proizvodu i sačuvaj ga ovde, da ga kasnije lako nađeš.
               </p>
               <MainButton href="/knjige" className="mt-[20px]">
                 Pogledaj knjige

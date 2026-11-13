@@ -10,7 +10,7 @@ export const metadata: Metadata = { title: "Obaveštenja" };
 type Data = { listing_id?: number; conversation_id?: string; sender_id?: string; seller_id?: string; rating?: number; search_id?: number; search_name?: string; reason?: string };
 
 // Obaveštenja (zvonce u nav baru). Ekrana nema u Figmi; napravljen kao „Moji oglasi“
-// (red sa slikom artikla, tekst i dugme za sledeći korak), za Ankin pregled.
+// (red sa slikom proizvoda, tekst i dugme za sledeći korak), za Ankin pregled.
 export default async function NotificationsPage() {
   const me = await getCurrentUser();
   if (!me?.profile) redirect("/?nalog=prijava&posle=/obavestenja");
@@ -64,7 +64,7 @@ export default async function NotificationsPage() {
         const reviewedAlready = n.data.listing_id ? done.has(n.data.listing_id) : false;
         return {
           ...base,
-          text: `Artikal ${title} je označen kao prodat tebi. Kako je prošla kupovina kod prodavca ${seller}?`,
+          text: `Proizvod ${title} je označen kao prodat tebi. Kako je prošla kupovina kod prodavca ${seller}?`,
           action: reviewedAlready
             ? { label: "Ocena je ostavljena", href: null }
             : { label: "Oceni prodavca", href: `/recenzija/${n.data.listing_id}` },

@@ -23,12 +23,12 @@ export const HELP_SECTIONS: Array<{ key: HelpSectionKey; label: string }> = [
 export const HELP: Record<HelpSectionKey, HelpTopic[]> = {
   kupovina: [
     {
-      title: "Pronalaženje artikala",
+      title: "Pronalaženje proizvoda",
       icon: "torba",
       articles: [
         {
           slug: "trazenje-artikala",
-          title: "Traženje artikala",
+          title: "Traženje proizvoda",
           intro:
             "Na Sajmu možeš da tražiš knjige, muziku, igre, mange i stripove i opremu. Pretraga gleda naslov, autora, izdavača i ISBN.",
           sections: [
@@ -55,20 +55,20 @@ export const HELP: Record<HelpSectionKey, HelpTopic[]> = {
         },
         {
           slug: "omiljeni-artikli",
-          title: "Kako da sačuvam artikal u omiljene",
+          title: "Kako da sačuvam proizvod u omiljene",
           intro:
-            "Klikni na srce na kartici artikla ili na stranici oglasa. Artikal se čuva na tvojoj listi Omiljeno, do koje stižeš preko srca u gornjem meniju.",
+            "Klikni na srce na kartici proizvoda ili na stranici oglasa. Proizvod se čuva na tvojoj listi Omiljeno, do koje stižeš preko srca u gornjem meniju.",
           sections: [
             {
               heading: "Da li mi treba nalog",
               paragraphs: [
-                "Da. Omiljeni artikli se čuvaju uz tvoj nalog, pa ih vidiš na svakom uređaju na kom se prijaviš.",
+                "Da. Omiljeni proizvodi se čuvaju uz tvoj nalog, pa ih vidiš na svakom uređaju na kom se prijaviš.",
               ],
             },
             {
-              heading: "Šta se dešava kad se artikal proda",
+              heading: "Šta se dešava kad se proizvod proda",
               paragraphs: [
-                "Artikal ostaje na listi i dobija oznaku Rezervisano ili Prodato, da znaš da više nije dostupan. Uklanjaš ga ponovnim klikom na srce.",
+                "Proizvod ostaje na listi i dobija oznaku Rezervisano ili Prodato, da znaš da više nije dostupan. Uklanjaš ga ponovnim klikom na srce.",
               ],
             },
           ],
@@ -83,12 +83,12 @@ export const HELP: Record<HelpSectionKey, HelpTopic[]> = {
           slug: "pisanje-prodavcu",
           title: "Kako da pišem prodavcu",
           intro:
-            "Na Sajmu se kupovina dogovara porukama. Na stranici oglasa klikni Pitaj prodavca i otvoriće se razgovor o tom artiklu.",
+            "Na Sajmu se kupovina dogovara porukama. Na stranici oglasa klikni Pitaj prodavca i otvoriće se razgovor o tom proizvodu.",
           sections: [
             {
               heading: "Šta da pitam",
               paragraphs: [
-                "Dobro je pitati za stanje artikla, da li je još dostupan, kako prodavac šalje i kako želi da primi uplatu. Možeš da izabereš i neku od ponuđenih poruka.",
+                "Dobro je pitati za stanje proizvoda, da li je još dostupan, kako prodavac šalje i kako želi da primi uplatu. Možeš da izabereš i neku od ponuđenih poruka.",
               ],
             },
             {
@@ -101,9 +101,9 @@ export const HELP: Record<HelpSectionKey, HelpTopic[]> = {
         },
         {
           slug: "rezervisanje-artikla",
-          title: "Rezervisanje artikla",
+          title: "Rezervisanje proizvoda",
           intro:
-            "Kad se dogovorite, prodavac označava oglas kao Rezervisano. Tako drugi kupci vide da je artikal zauzet.",
+            "Kad se dogovorite, prodavac označava oglas kao Rezervisano. Tako drugi kupci vide da je proizvod zauzet.",
           sections: [
             {
               heading: "Koliko traje rezervacija",
@@ -115,22 +115,22 @@ export const HELP: Record<HelpSectionKey, HelpTopic[]> = {
         },
         {
           slug: "kupovina-vise-artikala",
-          title: "Kupovina više artikala od jednog prodavca",
+          title: "Kupovina više proizvoda od jednog prodavca",
           intro:
-            "Ako ti se kod istog prodavca sviđa više artikala, pitaj u poruci da li može da ih pošalje zajedno. Tako često plaćaš samo jednu poštarinu.",
+            "Ako ti se kod istog prodavca sviđa više proizvoda, pitaj u poruci da li može da ih pošalje zajedno. Tako često plaćaš samo jednu poštarinu.",
           sections: [],
         },
         {
           slug: "ocenjivanje-prodavca",
           title: "Ocenjivanje prodavca",
           intro:
-            "Kad prodavac označi da je artikal prodat tebi, stiže ti obaveštenje sa pozivom za ocenu.",
+            "Kad prodavac označi da je proizvod prodat tebi, stiže ti obaveštenje sa pozivom za ocenu.",
           sections: [
             {
               heading: "Kako da ocenim",
               paragraphs: [
                 "Otvori obaveštenje ili razgovor i klikni Oceni prodavca. Izaberi od jedne do pet zvezdica, označi šta ti se svidelo i po želji napiši komentar.",
-                "Oceniti može samo kupac kome je prodaja označena, i to jednom po artiklu.",
+                "Oceniti može samo kupac kome je prodaja označena, i to jednom po proizvodu.",
               ],
             },
           ],
@@ -164,7 +164,7 @@ export const HELP: Record<HelpSectionKey, HelpTopic[]> = {
         {
           slug: "naknade-za-kupce",
           title: "Da li kupac plaća naknadu",
-          intro: "Ne. Kupovina na Sajmu je besplatna: plaćaš samo cenu artikla i poštarinu, ako je ima.",
+          intro: "Ne. Kupovina na Sajmu je besplatna: plaćaš samo cenu proizvoda i poštarinu, ako je ima.",
           sections: [],
         },
       ],
@@ -196,21 +196,21 @@ export const HELP: Record<HelpSectionKey, HelpTopic[]> = {
             {
               heading: "Saveti",
               paragraphs: [
-                "Nađite se na javnom mestu, pregledaj artikal pre plaćanja i dogovor drži u porukama na Sajmu.",
+                "Nađite se na javnom mestu, pregledaj proizvod pre plaćanja i dogovor drži u porukama na Sajmu.",
               ],
             },
           ],
         },
         {
           slug: "artikal-nije-kao-u-opisu",
-          title: "Artikal nije kao u opisu",
+          title: "Proizvod nije kao u opisu",
           intro:
             "Kupovina na Sajmu je dogovor između tebe i prodavca, pa se ovakve situacije rešavaju direktno sa prodavcem. Većina nesporazuma se reši brzo, jednom porukom.",
           sections: [
             {
               heading: "Piši prodavcu",
               paragraphs: [
-                "Javi se prodavcu kroz poruke na Sajmu, opiši šta nije u redu i pošalji fotografije. Zajedno se dogovorite šta je najbolje rešenje, na primer povraćaj artikla, razmena ili umanjenje cene.",
+                "Javi se prodavcu kroz poruke na Sajmu, opiši šta nije u redu i pošalji fotografije. Zajedno se dogovorite šta je najbolje rešenje, na primer povraćaj proizvoda, razmena ili umanjenje cene.",
               ],
             },
             {
@@ -222,7 +222,7 @@ export const HELP: Record<HelpSectionKey, HelpTopic[]> = {
             {
               heading: "Ako postoji ozbiljan problem",
               paragraphs: [
-                "Ako prodavac ne odgovara, namerno je opisao artikal pogrešno ili sumnjaš na prevaru, prijavi nam to preko kontakt forme i navedi ID oglasa (piše na dnu stranice oglasa). Pogledaćemo prijavu i preduzeti mere prema nalogu prodavca ako je potrebno.",
+                "Ako prodavac ne odgovara, namerno je opisao proizvod pogrešno ili sumnjaš na prevaru, prijavi nam to preko kontakt forme i navedi ID oglasa (piše na dnu stranice oglasa). Pogledaćemo prijavu i preduzeti mere prema nalogu prodavca ako je potrebno.",
               ],
             },
           ],
@@ -280,7 +280,7 @@ export const HELP: Record<HelpSectionKey, HelpTopic[]> = {
           slug: "dobre-fotografije",
           title: "Saveti za dobre fotografije",
           intro:
-            "Slikaj artikal na dnevnom svetlu, na mirnoj pozadini. Prva fotografija je naslovna i nju kupci vide u rezultatima.",
+            "Slikaj proizvod na dnevnom svetlu, na mirnoj pozadini. Prva fotografija je naslovna i nju kupci vide u rezultatima.",
           sections: [
             {
               heading: "Šta da slikam",
@@ -292,7 +292,7 @@ export const HELP: Record<HelpSectionKey, HelpTopic[]> = {
         },
         {
           slug: "stanje-artikla",
-          title: "Kako da odredim stanje artikla",
+          title: "Kako da odredim stanje proizvoda",
           intro:
             "Na formi za prodaju izaberi stanje: Novo, Kao novo ili Korišćeno. Biraj iskreno i opiši oštećenja u opisu: kupci to cene, a „Kao u opisu“ je jedna od oznaka koje biraju kad te ocenjuju.",
           sections: [],
@@ -326,8 +326,8 @@ export const HELP: Record<HelpSectionKey, HelpTopic[]> = {
             {
               heading: "Biranje kupca",
               paragraphs: [
-                "Kad izabereš Prodato, Sajam pita kome je artikal prodat. Ponuđeni su svi koji su ti pisali o tom oglasu. Izabrani kupac dobija poziv da te oceni.",
-                "Ako je artikal prodat van Sajma, izaberi Nekom van Sajma.",
+                "Kad izabereš Prodato, Sajam pita kome je proizvod prodat. Ponuđeni su svi koji su ti pisali o tom oglasu. Izabrani kupac dobija poziv da te oceni.",
+                "Ako je proizvod prodat van Sajma, izaberi Nekom van Sajma.",
               ],
             },
             {
@@ -347,15 +347,8 @@ export const HELP: Record<HelpSectionKey, HelpTopic[]> = {
         {
           slug: "naknade",
           title: "Naknade za prodaju",
-          intro: "Prodaja na Sajmu je besplatna. Nema naknade za objavu oglasa ni provizije na prodaju.",
-          sections: [
-            {
-              heading: "Da li će se to promeniti",
-              paragraphs: [
-                "Ako Sajam ikad uvede plaćene usluge, o tome ćemo te obavestiti unapred.",
-              ],
-            },
-          ],
+          intro: "Prodaja na Sajmu je trenutno besplatna. Nema naknade za objavu oglasa ni provizije na prodaju.",
+          sections: [],
         },
         {
           slug: "kako-kupac-placa",
@@ -366,7 +359,7 @@ export const HELP: Record<HelpSectionKey, HelpTopic[]> = {
             {
               heading: "Saveti",
               paragraphs: [
-                "Artikal pošalji tek kad stigne uplata, osim kad šalješ pouzećem. Nikome ne šalji podatke o kartici ni lozinke.",
+                "Proizvod pošalji tek kad stigne uplata, osim kad šalješ pouzećem. Nikome ne šalji podatke o kartici ni lozinke.",
               ],
             },
           ],
@@ -381,7 +374,7 @@ export const HELP: Record<HelpSectionKey, HelpTopic[]> = {
           slug: "slanje-paketa",
           title: "Slanje paketa",
           intro:
-            "Dobro spakuj artikal: knjige i ploče stavi u kartonsku kutiju ili tvrdi koverat, a igre i opremu obmotaj folijom sa mehurićima.",
+            "Dobro spakuj proizvod: knjige i ploče stavi u kartonsku kutiju ili tvrdi koverat, a igre i opremu obmotaj folijom sa mehurićima.",
           sections: [
             {
               heading: "Posle slanja",
@@ -417,7 +410,7 @@ export const HELP: Record<HelpSectionKey, HelpTopic[]> = {
           slug: "zaboravljena-lozinka",
           title: "Zaboravljena lozinka",
           intro:
-            "U prozoru za prijavu imejlom klikni Zaboravili ste lozinku? i upiši imejl. Stiže ti link za novu lozinku.",
+            "U prozoru za prijavu imejlom klikni Zaboravljena lozinka? i upiši imejl. Stiže ti link za novu lozinku.",
           sections: [
             {
               heading: "Prijava preko Google-a",
@@ -436,7 +429,7 @@ export const HELP: Record<HelpSectionKey, HelpTopic[]> = {
             {
               heading: "Zašto je grad važan",
               paragraphs: [
-                "Grad iz profila se sam upisuje u nove oglase, a kupci po njemu traže artikle u blizini.",
+                "Grad iz profila se sam upisuje u nove oglase, a kupci po njemu traže proizvode u blizini.",
               ],
             },
           ],
@@ -463,7 +456,7 @@ export const HELP: Record<HelpSectionKey, HelpTopic[]> = {
             {
               heading: "Ko može da ostavi ocenu",
               paragraphs: [
-                "Samo kupac kome je prodaja označena, jednom po artiklu. Tako su ocene uvek vezane za stvarnu kupovinu.",
+                "Samo kupac kome je prodaja označena, jednom po proizvodu. Tako su ocene uvek vezane za stvarnu kupovinu.",
               ],
             },
             {

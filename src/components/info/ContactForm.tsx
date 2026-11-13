@@ -81,9 +81,9 @@ export function ContactForm({
     <div className="mx-auto flex max-w-site gap-[20px] px-[72px] pb-[18px] pt-[20px]">
       <div className="min-h-[804px] w-[506px] shrink-0 rounded-[15px] bg-[#f5f6f8] px-[45px] pb-[45px] pt-[45px] text-black">
         <h1 className="text-[37px] font-semibold leading-[1.1] tracking-[-1.5px]">
-          Imaš <span className="font-serif text-[42px] italic tracking-[-1.7px]">problem</span>?
+          Piši <span className="font-serif text-[42px] italic tracking-[-1.7px]">nam</span>
         </h1>
-        <p className="mt-[26px] text-[19px] leading-[1.4]">Javićemo se putem imejla, zato prati svoje prijemno sanduče.</p>
+        <p className="mt-[26px] text-[19px] leading-[1.4]">Javićemo se imejlom, zato prati svoje prijemno sanduče.</p>
 
         {state === "sent" ? (
           <div role="status" className="mt-[40px]">
@@ -99,8 +99,8 @@ export function ContactForm({
               <input aria-label="Ime" aria-required aria-invalid={invalid.has("firstName")} placeholder="Ime *" value={form.firstName} onChange={set("firstName")} maxLength={80} autoComplete="given-name" className={field("firstName")} />
               <input aria-label="Prezime" placeholder="Prezime" value={form.lastName} onChange={set("lastName")} maxLength={80} autoComplete="family-name" className={field("lastName")} />
             </div>
-            <input type="email" aria-label="Email adresa" aria-required aria-invalid={invalid.has("email")} placeholder="Email adresa *" value={form.email} onChange={set("email")} maxLength={254} autoComplete="email" className={`mt-[31px] ${field("email")}`} />
-            <input aria-label="ID artikla" placeholder="ID artikla" value={form.listingRef} onChange={set("listingRef")} maxLength={80} className={`mt-[31px] ${field("listingRef")}`} />
+            <input type="email" aria-label="Imejl adresa" aria-required aria-invalid={invalid.has("email")} placeholder="Imejl adresa *" value={form.email} onChange={set("email")} maxLength={254} autoComplete="email" className={`mt-[31px] ${field("email")}`} />
+            <input aria-label="ID proizvoda" placeholder="ID proizvoda" value={form.listingRef} onChange={set("listingRef")} maxLength={80} className={`mt-[31px] ${field("listingRef")}`} />
             <textarea
               aria-label="Opis problema ili zahteva"
               aria-required

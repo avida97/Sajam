@@ -36,11 +36,11 @@ const RATING_INFO =
   "Posle kupovine kupac ocenjuje prodavca sa 1 do 5 zvezdica. Ocene sa 4 i 5 zvezdica su pozitivne, a procenat pokazuje koliki deo svih ocena prodavca je pozitivan.";
 
 const BUY_STEPS = [
-  { title: "1. Kontaktiraj prodavca", text: "Klikni „Pitaj prodavca“ i u porukama pitaj sve što te zanima o artiklu." },
-  { title: "2. Dogovori kupovinu", text: "Dogovorite cenu, slanje i plaćanje. Prodavac zatim rezerviše artikal za tebe, pa ga niko drugi ne može kupiti." },
+  { title: "1. Kontaktiraj prodavca", text: "Klikni „Pitaj prodavca“ i u porukama pitaj sve što te zanima o proizvodu." },
+  { title: "2. Dogovori kupovinu", text: "Dogovorite cenu, slanje i plaćanje. Prodavac zatim rezerviše proizvod za tebe, pa ga niko drugi ne može kupiti." },
   { title: "3. Plati proizvod", text: "Plaćaš direktno prodavcu, na jedan od načina iz oglasa. Sajam ne naplaćuje proviziju." },
   { title: "4. Preuzmi proizvod", text: "Prodavac šalje poštom ili se nalazite lično, kako ste se dogovorili u porukama." },
-  { title: "5. Oceni prodavca", text: "Kad artikal stigne, oceni prodavca. Ocene pomažu drugim kupcima da biraju." },
+  { title: "5. Oceni prodavca", text: "Kad proizvod stigne, oceni prodavca. Ocene pomažu drugim kupcima da biraju." },
 ]
 
 async function load(slug: string) {
@@ -70,7 +70,7 @@ export default async function ListingPage({ params }: Props) {
   const sub = category.subcategories.find((s) => s.slug === l.subcategorySlug);
   const condition = CONDITIONS.find((c) => c.value === l.condition) ?? CONDITIONS[CONDITIONS.length - 1];
   const hidden = HIDDEN_FIELDS[l.item_type];
-  const title = l.placeholder ? "Naziv artikla" : l.title;
+  const title = l.placeholder ? "Naziv proizvoda" : l.title;
   const [similar, fromSeller, me, stats] = await Promise.all([
     getSimilarListings(l, 30),
     getSellerListings(l, 30),
@@ -88,10 +88,10 @@ export default async function ListingPage({ params }: Props) {
 
   // Prazno polje ostaje prazno; probni tekst samo kod probnih oglasa (dok baza nije povezana).
   const empty = l.placeholder ? "—" : "";
-  // Opis = stanje i oštećenja artikla; sažetak = o čemu se radi u knjizi (samo knjige).
+  // Opis = stanje i oštećenja proizvoda; sažetak = o čemu se radi u knjizi (samo knjige).
   // Fiksna cena (odluka V 11. 11. 2026); stariji oglasi bez izbora ne prikazuju ništa.
   const priceNote = l.price_fixed === true ? "Fiksna cena" : l.price_fixed === false ? "Moguć dogovor oko cene" : null;
-  const descriptionText = l.description ?? (l.placeholder ? "Opis artikla." : "");
+  const descriptionText = l.description ?? (l.placeholder ? "Opis proizvoda." : "");
   const topSummary =
     l.item_type === "knjiga" ? (l.summary ?? (l.placeholder ? "Sažetak knjige." : null)) : null;
 
@@ -186,7 +186,7 @@ export default async function ListingPage({ params }: Props) {
             </Link>
           )}
 
-          {/* Knjige gore imaju sažetak (o čemu se radi), ostali artikli opis (odluka V 11. 11. 2026).
+          {/* Knjige gore imaju sažetak (o čemu se radi), ostali proizvodi opis (odluka V 11. 11. 2026).
               Starije knjige bez sažetka i ovde prikazuju opis. */}
           <div className="mt-[40px]">
             <p className="trim-cap text-[14px] font-semibold">{topSummary ? "SAŽETAK" : "OPIS"}</p>
@@ -256,9 +256,6 @@ export default async function ListingPage({ params }: Props) {
               </span>
             </div>
           </div>
-          <p className="mt-[12px] text-[12px] leading-[1.4] text-[#737373]">
-            Artikal prodaje fizičko lice, a cenu je odredio prodavac.
-          </p>
           {!own && !l.placeholder && (
             <div className="mt-[16px]">
               <ReportButton kind="oglas" listingId={l.id} loggedIn={!!me?.profile} />
@@ -273,7 +270,7 @@ export default async function ListingPage({ params }: Props) {
               <ReadMore text={descriptionText} />
             </div>
           </div>
-          <p className="trim-cap mt-[40px] text-[14px] font-semibold leading-[1.4]">DETALJI PROIZVODA</p>
+          <p className="trim-cap mt-[40px] text-[14px] font-semibold leading-[1.4]">DETALJI</p>
           <dl className="mt-[19px] grid grid-cols-[86px_306px] gap-x-[24px] gap-y-[12px] text-[14px]">
             {details.map(([k, v]) => (
               <div key={k} className="contents">

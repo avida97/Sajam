@@ -25,7 +25,7 @@ const ALL_LABEL: Record<string, string> = {
   oprema: "Sva oprema",
 };
 
-// Lista artikala jedne kategorije po Figmi („Products Knjige“ 500:7184).
+// Lista proizvoda jedne kategorije po Figmi („Products Knjige“ 500:7184).
 export async function CategoryPage({
   categorySlug,
   subcategorySlug,
@@ -108,9 +108,10 @@ export async function CategoryPage({
   return (
     <>
       <CategoryHero
+        category={category.slug}
         action={base}
         query={filters.q}
-        placeholder={isBookLike ? "Pretraži knjigu, autora..." : "Pretraži artikal..."}
+        placeholder={isBookLike ? "Pretraži knjigu, autora..." : "Pretraži proizvod..."}
       />
 
       <section className="mx-auto max-w-site pb-[80px] pt-[50px]">
@@ -148,7 +149,7 @@ export async function CategoryPage({
                 <p>
                   {filters.author
                     ? `Trenutno nema oglasa za autora ${filters.author}${Object.keys(searchParams).some((k) => !["autor", "strana", "sort"].includes(k)) ? " uz izabrane filtere" : ""}.`
-                    : "Nema artikala za izabrane filtere."}
+                    : "Nema proizvoda za izabrane filtere."}
                 </p>
                 <Link href={base} className="mt-[12px] inline-block text-[13px] font-medium underline">
                   Obriši filtere

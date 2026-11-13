@@ -89,7 +89,7 @@ export const ABOUT_LINKS = [
   { href: "/kontakt", name: "Kontakt" },
 ];
 
-// Polja forme koja nemaju smisla za određeni tip artikla (odluka 10. 11. 2026).
+// Polja forme koja nemaju smisla za određeni tip proizvoda (odluka 10. 11. 2026).
 export const HIDDEN_FIELDS: Record<ItemType, Array<"author" | "isbn" | "page_count" | "publisher">> = {
   knjiga: [],
   manga_strip: [],

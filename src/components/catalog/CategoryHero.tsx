@@ -1,19 +1,39 @@
 import Image from "next/image";
 
 // Hero stranice kategorije (Figma „Products Knjige“ 500:7232): ljubičasto-plavi prelaz sa
-// zamućenim mrljama i šumom, naslov i pretraga. Tekst naslova je kao u dizajnu.
-export function CategoryHero({ action, query, placeholder }: { action: string; query?: string; placeholder: string }) {
+// zamućenim mrljama i šumom, naslov i pretraga. Naslov je iz dizajna, a reč na kraju i podnaslov
+// zavise od kategorije (V 13. 11. 2026: „za još ploča“ na Muzici itd.).
+const COPY: Record<string, { word: string; sub: string }> = {
+  knjige: { word: "knjiga", sub: "Poveži se s čitaocima i daj starim knjigama novi život." },
+  muzika: { word: "ploča", sub: "Poveži se s ljubiteljima muzike i daj starim pločama novi život." },
+  igre: { word: "igara", sub: "Poveži se s igračima i daj starim igrama novi život." },
+  "mange-i-stripovi": { word: "stripova", sub: "Poveži se s čitaocima i daj starim stripovima novi život." },
+  oprema: { word: "opreme", sub: "Poveži se s ljubiteljima hobija i daj opremi novi život." },
+};
+
+export function CategoryHero({
+  action,
+  query,
+  placeholder,
+  category = "knjige",
+}: {
+  action: string;
+  query?: string;
+  placeholder: string;
+  category?: string;
+}) {
+  const copy = COPY[category] ?? COPY.knjige;
   return (
     <section className="mx-auto h-[439px] max-w-site px-[72px] pt-[65px]">
       <HeroBackdrop>
         <div className="relative mx-auto flex w-[416px] flex-col items-center pt-[50px] text-center text-black">
           <h1 className="trim-cap text-[48px] font-semibold leading-[1.1] tracking-[-2.4px]">
             Napravi{" "}
-            <span className="font-serif text-[56px] font-semibold italic tracking-[-2.24px]">mesta</span> za još
-            knjiga
+            <span className="font-serif text-[56px] font-semibold italic tracking-[-2.24px]">mesta</span> za još{" "}
+            {copy.word}
           </h1>
           <p className="trim-cap mt-[42px] text-[16px] font-light leading-[0.95] tracking-[-0.64px]">
-            Poveži se s čitaocima i daj starim knjigama novi život.
+            {copy.sub}
           </p>
         </div>
 

@@ -88,7 +88,7 @@ export default async function SearchPage({ searchParams }: Props) {
                   Rezultati za „{filters.q}“: {total}
                 </>
               ) : (
-                <>Artikli: {total}</>
+                <>Proizvodi: {total}</>
               )}
             </p>
             <SaveSearchButton {...saveProps} />
@@ -109,7 +109,7 @@ export default async function SearchPage({ searchParams }: Props) {
               </div>
             ) : (
               <p className="pt-[40px] text-[14px] leading-[1.5] text-black">
-                {filters.q ? `Nema artikala za „${filters.q}“.` : "Nema artikala za izabrane filtere."} Probaj sa
+                {filters.q ? `Nema proizvoda za „${filters.q}“.` : "Nema proizvoda za izabrane filtere."} Probaj sa
                 manje reči ili bez filtera.
               </p>
             )}

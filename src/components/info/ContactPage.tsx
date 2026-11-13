@@ -12,20 +12,19 @@ const SOCIALS = [
 const STRIP = [10, 1, 2, 3, 4, 5, 6, 7, 8, 9];
 const VIDEO = [3, 7];
 
-// Kontakt po Figmi („Kontakt“ 816:17371). Tekstovi kartica su iz dizajna. Prekidač
+// Kontakt po Figmi („Kontakt“ 816:17371). Tekstovi prepravljeni 13. 11. 2026 (V): ti umesto vi, bez šablona za softverske firme. Prekidač
 // „Sajam novosti“ je uklonjen zajedno sa stranicom Mediji i novosti (odluka V 11. 11. 2026).
 export function ContactPage() {
   return (
     <div className="pb-[120px]">
       <section className="mx-auto flex w-[572px] flex-col items-center pt-[62px] text-center">
-        <MixedTitle parts={["Imate ", { serif: "pitanja" }, "?", { br: true }, "Mi imamo ", { serif: "odgovore" }, "!"]} />
+        <MixedTitle parts={["Imaš ", { serif: "pitanje" }, "?", { br: true }, "Tu ", { serif: "smo" }, "."]} />
         <p className="mt-[26px] w-[550px] text-[16px] font-medium leading-[1.4] text-[#666]">
-          Bez obzira da li ste radoznali kako se Sajam uklapa u vaš stek, istražujete partnerstvo ili vam je samo
-          potrebna pomoć da započnete - tu smo za vas.
+          Većina odgovora je već u Centru za pomoć. Ako ne nađeš svoj, piši nam.
         </p>
         <ButtonPair
           className="mt-[30px]"
-          primary={{ href: "/pomoc", label: "Pomoćni centar" }}
+          primary={{ href: "/pomoc", label: "Centar za pomoć" }}
           secondary={{ href: "/kontakt/forma", label: "Pošalji zahtev" }}
         />
       </section>
@@ -35,21 +34,21 @@ export function ContactPage() {
           expand
           cards={[
             {
-              title: "Pozovite naš prodajni tim",
-              body: "Pitate se da li je Sajam pravi izbor za vaš biznis? Tu smo da vas provedemo kroz rešenja, cene i opcije prilagođene vašim potrebama.",
-              link: { href: "/kontakt/forma?tema=saradnja", label: "Kontaktirajte prodajni tim" },
+              title: "Pomoć oko naloga i oglasa",
+              body: "Nešto ne radi, ne možeš da se prijaviš ili imaš pitanje o oglasu? Piši nam i javićemo se imejlom.",
+              link: { href: "/kontakt/forma", label: "Piši nam" },
               image: "/images/kontakt/kartica-1.png",
             },
             {
-              title: "Postanite affiliate partner",
-              body: "Volimo da sarađujemo sa stručnjacima koji prepoznaju vrednost kvalitetnog saobraćaja i stvarnih rezultata. Hajde da se povežemo i izgradimo obostrano korisno partnerstvo.",
-              link: { href: "/kontakt/forma?tema=saradnja", label: "Pridružite se našem affiliate programu" },
+              title: "Saradnja za knjižare i izdavače",
+              body: "Imaš knjižaru, antikvarijat, izdavačku kuću ili prodavnicu ploča i igara? Pogledaj kako možemo da sarađujemo.",
+              link: { href: "/saradnja", label: "Saznaj više" },
               image: "/images/kontakt/kartica-2.png",
             },
             {
-              title: "Istražite mogućnosti partnerstva",
-              body: "Uvek smo otvoreni za zajedničko stvaranje vrednosti - bilo da je u pitanju co-marketing kampanja, integracija platforme ili nešto neočekivano",
-              link: { href: "/kontakt/forma?tema=saradnja", label: "Pošaljite email našem timu" },
+              title: "Utisci i predlozi",
+              body: "Fali ti kategorija ili imaš ideju kako da Sajam bude bolji? Čitamo svaku poruku.",
+              link: { href: "/kontakt/forma?tema=utisci", label: "Pošalji predlog" },
               image: "/images/kontakt/kartica-3.png",
             },
           ]}
@@ -57,8 +56,8 @@ export function ContactPage() {
       </div>
 
       <section id="pratite" className="mt-[101px] flex scroll-mt-[40px] flex-col items-center text-center">
-        <p className="text-[16px] font-medium text-[#666]">Saznaj šta vredi kupiti, kako izabrati i gde ih pronaći</p>
-        <MixedTitle as="h2" className="mt-[14px]" parts={["Mi prodajemo, vi ", { serif: "pratite" }]} />
+        <p className="text-[16px] font-medium text-[#666]">Novosti, preporuke i priče iz sveta knjiga, muzike i igara</p>
+        <MixedTitle as="h2" className="mt-[14px]" parts={["Prati ", { serif: "nas" }]} />
         {/* Hover (Figma „social icons components“ 839:17265): crni krug, bela ikonica i prsten. */}
         <div className="mt-[40px] flex items-center gap-[20px]">
           {SOCIALS.map((s) => (

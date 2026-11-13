@@ -5,7 +5,7 @@ import type { ProfileReview } from "@/lib/profiles";
 import { tagLabel } from "@/lib/reviews";
 
 // Recenzije po Figmi („Public Profile Page + Reviews“ 653:11830): ukupno, prosek, raspodela
-// po zvezdicama, pa svaka recenzija sa kupcem, oznakama i artiklom.
+// po zvezdicama, pa svaka recenzija sa kupcem, oznakama i proizvodom.
 export function SellerReviews({ reviews }: { reviews: ProfileReview[] }) {
   const year = new Date().getFullYear();
   const thisYear = reviews.filter((r) => new Date(r.createdAt).getFullYear() === year);

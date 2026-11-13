@@ -118,17 +118,14 @@ export function HelpHome({ section, query }: { section: HelpSectionKey; query?: 
   );
 }
 
-// „Ne možeš da pronađeš odgovor?“ sa dugmadima za kontakt.
+// „Ne možeš da pronađeš odgovor?“ sa dugmetom za kontakt (jedno dugme, V 13. 11. 2026).
 export function HelpCta({ title = "Ne možeš da pronađeš odgovor?" }: { title?: string }) {
   return (
     <section className="mx-auto mt-[53px] flex w-[343px] flex-col items-center border-t border-[#e1e1e1] pt-[49px] text-center">
       <h2 className="text-[21px] font-bold">{title}</h2>
       <div className="mt-[30px] flex gap-[14px]">
-        <MainButton href="/kontakt" size="md">
-          Kontaktiraj nas
-        </MainButton>
-        <MainButton href="/kontakt/forma" size="md" variant="light" className="border-[#e1e1e1]">
-          Pošalji zahtev
+        <MainButton href="/kontakt/forma" size="md">
+          Piši nam
         </MainButton>
       </div>
     </section>

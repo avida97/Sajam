@@ -4,7 +4,7 @@ import Image from "next/image";
 import { useState } from "react";
 import { MainButton } from "@/components/ui/MainButton";
 
-// „Napravi mesta za još knjiga“ (Figma 412:13259, komponenta 278:652): tri nagnute kartice
+// „Kako se prodaje na Sajmu“ (u Figmi „Napravi mesta za još knjiga“, 412:13259, komponenta 278:652): tri nagnute kartice
 // sa koracima i 3D ikonicama. Hover po Figmi: kartica ispod miša se ispravlja i raste, a druge
 // dve se okreću u stranu (varijante „Frame 26–28“, smart animate 0,4 s). Položaji su iz
 // dizajna (platno 1440 px): središte, veličina i ugao (u Figmi pozitivan ugao je ulevo).
@@ -16,7 +16,6 @@ const STEPS: Array<{
   n: string;
   title: string;
   body: string;
-  note: string;
   img: { src: string; w: number; h: number; base: number };
   // Položaj kartice i slike: bez hovera, pa kad je miš na koraku 01, 02 i 03.
   card: Pose[];
@@ -26,7 +25,6 @@ const STEPS: Array<{
     n: "01",
     title: "Napravi profil",
     body: "Registruj se i dodaj ime, grad i fotografiju. Posle toga možeš da postaviš prvi oglas.",
-    note: "Dobro popunjen profil olakšava komunikaciju i pomaže drugim korisnicima da te brže prepoznaju.",
     img: { src: "/images/pocetna/profil.png", w: 186.16, h: 186.16, base: 152 },
     card: [
       { cx: 407.9, cy: 236.1, size: 242, rot: -4.52 },
@@ -44,8 +42,7 @@ const STEPS: Array<{
   {
     n: "02",
     title: "Postavi oglas",
-    body: "Slikaj artikal, opiši stanje i odredi cenu. Klikni „Objavi oglas“ i oglas je odmah vidljiv.",
-    note: "Što više detalja dodaš u opis i fotografije, veća je verovatnoća da će se kupci javiti.",
+    body: "Slikaj proizvod, opiši stanje i odredi cenu. Klikni „Objavi oglas“ i oglas je odmah vidljiv.",
     img: { src: "/images/pocetna/oglas.png", w: 208.56, h: 208.56, base: 170.3 },
     card: [
       { cx: 717.5, cy: 277.0, size: 242, rot: 3.97 },
@@ -62,9 +59,8 @@ const STEPS: Array<{
   },
   {
     n: "03",
-    title: "Prodaj knjigu",
-    body: "Kupac ti piše porukom. Dogovorite cenu, slanje i plaćanje, pa pošalji knjigu.",
-    note: "Kad označiš oglas kao prodat, kupac može da te oceni, a dobre ocene donose nove kupce.",
+    title: "Prodaj",
+    body: "Kupac ti piše porukom. Dogovorite cenu, slanje i plaćanje, pa pošalji paket.",
     img: { src: "/images/pocetna/prodaj.png", w: 227.76, h: 244.96, base: 149.5 },
     card: [
       { cx: 1030.7, cy: 228.0, size: 242, rot: -7.23 },
@@ -93,12 +89,11 @@ export function SellSteps() {
     <section className="mx-auto h-[792px] max-w-site pt-[50px]">
       <div className="mx-auto flex w-[416px] flex-col items-center text-center">
         <h2 className="trim-cap text-[48px] font-semibold leading-[1.1] tracking-[-2.4px] text-black">
-          Napravi{" "}
-          <span className="font-serif text-[56px] font-semibold italic tracking-[-2.24px]">mesta</span> za još
-          knjiga
+          Kako se <span className="font-serif text-[56px] font-semibold italic tracking-[-2.24px]">prodaje</span> na
+          Sajmu
         </h2>
         <p className="trim-cap mt-[42px] text-[16px] font-medium leading-[0.95] tracking-[-0.64px] text-[#7c7c7c]">
-          Poveži se s čitaocima i daj starim knjigama novi život.
+          Tri koraka do prve prodaje.
         </p>
         <MainButton href="/prodaj" size="md" className="mt-[32px]">
           Započni prodaju
@@ -128,7 +123,6 @@ export function SellSteps() {
                 <p className="text-[11px] leading-[1.4]">{s.n}</p>
                 <h3 className="mt-[9px] font-serif text-[15px] font-bold italic leading-[1.4]">{s.title}</h3>
                 <p className="mt-[7px] h-[141px] text-[15px] leading-[1.4]">{s.body}</p>
-                <p className="border-t-[0.3px] border-[#8c8c8c] pt-[18px] text-[10px] leading-[1.89]">{s.note}</p>
               </div>
               {/* Slika je izvezena već nagnuta (ugao iz stanja bez hovera), pa se okreće za razliku. */}
               <Image

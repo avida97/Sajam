@@ -19,10 +19,10 @@ async function origin() {
 // Poruke Supabase-a na srpskom, za greške koje korisnik može sam da ispravi.
 function translate(message: string): string {
   const m = message.toLowerCase();
-  if (m.includes("invalid login credentials")) return "Pogrešan mejl ili lozinka.";
-  if (m.includes("email not confirmed")) return "Prvo potvrdi mejl: otvori link koji smo ti poslali.";
+  if (m.includes("invalid login credentials")) return "Pogrešan imejl ili lozinka.";
+  if (m.includes("email not confirmed")) return "Prvo potvrdi imejl: otvori link koji smo ti poslali.";
   if (m.includes("already registered") || m.includes("already been registered"))
-    return "Nalog sa ovim mejlom već postoji. Prijavi se.";
+    return "Nalog sa ovim imejlom već postoji. Prijavi se.";
   if (m.includes("password should be") || m.includes("weak password"))
     return "Lozinka mora imati bar 8 znakova.";
   if (m.includes("rate limit") || m.includes("too many"))
@@ -69,12 +69,12 @@ export async function signUp(input: {
   if (error) return { ok: false, error: translate(error.message) };
   // Supabase za postojeći mejl ne javlja grešku, nego vraća korisnika bez identiteta.
   if (data.user && data.user.identities?.length === 0)
-    return { ok: false, error: "Nalog sa ovim mejlom već postoji. Prijavi se." };
+    return { ok: false, error: "Nalog sa ovim imejlom već postoji. Prijavi se." };
   if (data.session) {
     revalidatePath("/", "layout");
     return { ok: true };
   }
-  return { ok: true, message: "Poslali smo ti mejl. Otvori link iz mejla da potvrdiš nalog." };
+  return { ok: true, message: "Poslali smo ti imejl. Otvori link iz imejla da potvrdiš nalog." };
 }
 
 export async function sendPasswordReset(email: string): Promise<AuthResult> {
@@ -84,7 +84,7 @@ export async function sendPasswordReset(email: string): Promise<AuthResult> {
     redirectTo: `${await origin()}/auth/callback?next=${encodeURIComponent("/?nalog=nova-lozinka")}`,
   });
   if (error) return { ok: false, error: translate(error.message) };
-  return { ok: true, message: "Ako nalog postoji, poslali smo ti mejl sa linkom za novu lozinku." };
+  return { ok: true, message: "Ako nalog postoji, poslali smo ti imejl sa linkom za novu lozinku." };
 }
 
 export async function updatePassword(password: string): Promise<AuthResult> {

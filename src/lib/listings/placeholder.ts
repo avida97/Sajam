@@ -16,7 +16,7 @@ function build(): CatalogListing[] {
         const created = new Date(Date.UTC(2026, 10, 10) - id * 3_600_000).toISOString();
         out.push({
           id,
-          title: "Naziv artikla",
+          title: "Naziv proizvoda",
           author: cat.itemType === "igra" || cat.itemType === "oprema" ? null : "Autor",
           price_rsd: 0,
           condition: CONDITIONS[(id + i) % CONDITIONS.length].value,

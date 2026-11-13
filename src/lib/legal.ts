@@ -24,7 +24,7 @@ export const LEGAL_DOCS: LegalDoc[] = [
         heading: "Šta je Sajam",
         paragraphs: [
           "Sajam je mesto na kom ljudi objavljuju oglase za polovne i nove knjige, muziku, igre, mange, stripove i opremu, i dogovaraju kupovinu porukama.",
-          "Sajam nije prodavac artikala iz oglasa i ne učestvuje u kupovini. Kupoprodajni dogovor nastaje direktno između kupca i prodavca, koji se sami dogovaraju o ceni, slanju i načinu plaćanja.",
+          "Sajam nije prodavac proizvoda iz oglasa i ne učestvuje u kupovini. Kupoprodajni dogovor nastaje direktno između kupca i prodavca, koji se sami dogovaraju o ceni, slanju i načinu plaćanja.",
         ],
       },
       {
@@ -38,16 +38,16 @@ export const LEGAL_DOCS: LegalDoc[] = [
       {
         heading: "Oglasi",
         paragraphs: [
-          "Objava oglasa je besplatna. Oglas mora da opisuje stvaran artikal koji imaš i možeš da prodaš, sa tačnim stanjem, cenom i fotografijama artikla.",
-          "Nije dozvoljeno objavljivati piratske kopije, falsifikate, ukradene stvari, artikle čija je prodaja zabranjena zakonom, kao ni oglase koji ne nude artikal (reklame, prikupljanje kontakata i slično).",
+          "Objava oglasa je trenutno besplatna. Oglas mora da opisuje stvaran proizvod koji imaš i možeš da prodaš, sa tačnim stanjem, cenom i fotografijama proizvoda.",
+          "Nije dozvoljeno objavljivati piratske kopije, falsifikate, ukradene stvari, proizvode čija je prodaja zabranjena zakonom, kao ni oglase koji ne nude proizvod (reklame, prikupljanje kontakata i slično).",
           "Objavom oglasa nam daješ dozvolu da tekst i fotografije oglasa prikazujemo na Sajmu i u njegovom predstavljanju, dok je oglas aktivan. Tekst i fotografije ostaju tvoji.",
         ],
       },
       {
         heading: "Kupovina i dogovor",
         paragraphs: [
-          "Sajam ne garantuje za stanje, ispravnost ni opis artikala, niti za to da će kupac ili prodavac ispuniti dogovor. Pre kupovine postavi prodavcu sva pitanja koja su ti važna.",
-          "Ako artikal nije kao u opisu ili nešto pođe po zlu, rešenje se traži dogovorom kupca i prodavca. Kupci posle kupovine mogu da ocene prodavca.",
+          "Sajam ne garantuje za stanje, ispravnost ni opis proizvoda, niti za to da će kupac ili prodavac ispuniti dogovor. Pre kupovine postavi prodavcu sva pitanja koja su ti važna.",
+          "Ako proizvod nije kao u opisu ili nešto pođe po zlu, rešenje se traži dogovorom kupca i prodavca. Kupci posle kupovine mogu da ocene prodavca.",
         ],
       },
       {
@@ -89,7 +89,7 @@ export const LEGAL_DOCS: LegalDoc[] = [
         heading: "Koje podatke čuvamo",
         paragraphs: [
           "Podaci naloga: imejl adresa, ime koje prikazuješ, korisničko ime, a ako ih dodaš i grad, opis profila i profilna fotografija. Lozinka se čuva samo u šifrovanom obliku.",
-          "Sadržaj koji objavljuješ: oglasi sa fotografijama, poruke koje razmeniš sa drugim korisnicima, ocene i recenzije, omiljeni artikli i obaveštenja.",
+          "Sadržaj koji objavljuješ: oglasi sa fotografijama, poruke koje razmeniš sa drugim korisnicima, ocene i recenzije, omiljeni proizvodi i obaveštenja.",
           "Kontakt forma: ime, prezime, imejl, poruka i ID oglasa, ako ga navedeš.",
           "Tehnički podaci: broj pregleda oglasa i glasovi za članke pomoći čuvaju se bez podataka o tome čiji je glas ili pregled.",
         ],

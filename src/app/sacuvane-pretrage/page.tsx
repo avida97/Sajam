@@ -10,7 +10,7 @@ export const metadata: Metadata = { title: "Sačuvane pretrage" };
 
 const fmtDate = (iso: string) => new Date(iso).toLocaleDateString("sr-Latn-RS", { day: "numeric", month: "long", year: "numeric" });
 
-// Sačuvane pretrage. Ekrana nema u Figmi; napravljen kao „Omiljeni artikli“ (naslov, siva
+// Sačuvane pretrage. Ekrana nema u Figmi; napravljen kao „Omiljeni proizvodi“ (naslov, siva
 // pozadina, redovi kao u „Obaveštenjima“), za Ankin pregled.
 export default async function SavedSearchesPage() {
   const me = await getCurrentUser();
@@ -59,7 +59,7 @@ export default async function SavedSearchesPage() {
             <div className="mt-[60px] flex flex-col items-center text-center text-black">
               <p className="text-[15px]">Još nemaš sačuvanih pretraga.</p>
               <p className="mt-[8px] max-w-[420px] text-[13px] text-[#666]">
-                Izaberi kategoriju i filtere, pa klikni „Sačuvaj pretragu“ iznad liste artikala.
+                Izaberi kategoriju i filtere, pa klikni „Sačuvaj pretragu“ iznad liste proizvoda.
               </p>
               <MainButton href="/knjige" size="md" className="mt-[24px]">
                 Pregledaj knjige

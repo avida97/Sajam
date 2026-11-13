@@ -20,6 +20,8 @@ const COLUMNS = [
       { name: "Knjige", href: "/knjige" },
       { name: "Muzika", href: "/muzika" },
       { name: "Igre", href: "/igre" },
+      { name: "Mange i stripovi", href: "/mange-i-stripovi" },
+      { name: "Oprema", href: "/oprema" },
     ],
   },
   {
@@ -54,7 +56,7 @@ export function Footer() {
       <div className="mx-auto max-w-[1412px] overflow-hidden rounded-[25px] bg-ink pb-[48px] pt-[70px] text-white">
         <div className="mx-auto flex w-[317px] flex-col items-center text-center">
           <p className="text-[12px] font-medium leading-[0.95] tracking-[-0.48px] text-muted">
-            Poveži se s čitaocima i daj starim knjigama novi život
+            Knjige, ploče, igre i stripovi iz ruke u ruku
           </p>
           <p className="mt-[17px] whitespace-nowrap font-semibold leading-[1.1] tracking-[-2.4px]">
             <span className="text-[48px]">Doživi </span>
@@ -85,7 +87,7 @@ export function Footer() {
 
         <div className="mx-auto mt-[56px] w-[970px]">
           <div className="flex items-center pb-[25px]">
-            <p className="mr-[24px] text-[12px] leading-[0.95] tracking-[-0.12px]">Budi deo Sajma</p>
+            <p className="mr-[24px] text-[12px] leading-[0.95] tracking-[-0.12px]">Prati nas</p>
             <div className="flex items-center gap-[24px]">
               {SOCIALS.map((s) => (
                 <a key={s.name} href={s.href} aria-label={s.name}>

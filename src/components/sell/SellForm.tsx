@@ -43,7 +43,7 @@ type Photo = { file?: File; path?: string; url: string; fromDb?: boolean };
 
 const BUNDLE_TILES = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 
-// Primeri u poljima, po vrsti artikla (da kod igre ne piše „knjiga“).
+// Primeri u poljima, po vrsti proizvoda (da kod igre ne piše „knjiga“).
 const EXAMPLES: Record<
   ItemType,
   { title: string; author: string; publisher: string; description: string }
@@ -85,7 +85,7 @@ const EXAMPLES: Record<
   },
 };
 
-// Prekidač tipa artikla (Figma „Kategorije“ 934:32855): položaji teksta i crne pilule su iz dizajna.
+// Prekidač tipa proizvoda (Figma „Kategorije“ 934:32855): položaji teksta i crne pilule su iz dizajna.
 const TYPES: Array<{
   type: ItemType;
   label: string;
@@ -106,10 +106,10 @@ const TYPES: Array<{
 
 const NOUN: Record<ItemType, string> = {
   knjiga: "knjige",
-  manga_strip: "artikla",
-  muzika: "artikla",
-  igra: "artikla",
-  oprema: "artikla",
+  manga_strip: "proizvoda",
+  muzika: "proizvoda",
+  igra: "proizvoda",
+  oprema: "proizvoda",
 };
 
 const PHOTO_SLOTS = [
@@ -210,14 +210,14 @@ function TypeForm({
   const priceRef = useRef<HTMLLabelElement>(null);
   const pickRef = useRef(0);
   // Sažetak (samo knjige): o čemu se radi u knjizi. Popunjava se iz baze knjiga ili uz pomoć AI,
-  // a prodavac ga uvek može izmeniti (odluka V 11. 11. 2026). Opis je stanje i oštećenja artikla.
+  // a prodavac ga uvek može izmeniti (odluka V 11. 11. 2026). Opis je stanje i oštećenja proizvoda.
   const [summary, setSummary] = useState(editing?.values.sazetak ?? "");
   const [aiState, setAiState] = useState<
     "idle" | "loading" | "unknown" | "limit" | "soon" | "error"
   >("idle");
   const bundleRef = useRef<HTMLDivElement>(null);
 
-  // Broj artikala u paketu: kockice 1–10 ili drugi broj upisan ručno.
+  // Broj proizvoda u paketu: kockice 1–10 ili drugi broj upisan ručno.
   const [bundle, setBundle] = useState(editing?.values.broj ?? "");
   const [bundleOther, setBundleOther] = useState(
     () =>
@@ -673,7 +673,7 @@ function TypeForm({
 
       <div
         role="radiogroup"
-        aria-label="Tip artikla"
+        aria-label="Tip proizvoda"
         className="relative mx-auto mt-[30px] h-[50px] w-[513px] overflow-clip rounded-[46px] bg-[#f5f5f5] shadow-[inset_0px_0px_4px_0px_rgba(0,0,0,0.07)]"
       >
         {TYPES.filter((t) => t.type === type).map((t) => (
@@ -700,7 +700,7 @@ function TypeForm({
         ))}
       </div>
 
-      <Section title="Detalji artikla" className="mt-[70px]" gap={36}>
+      <Section title="Detalji proizvoda" className="mt-[70px]" gap={36}>
         <div
           key={type}
           className="grid grid-cols-[306px_306px] gap-x-[24px] gap-y-[18px]"
@@ -727,7 +727,7 @@ function TypeForm({
             <p className="text-[14px] font-medium text-black">
               {type === "knjiga"
                 ? "Broj knjiga u paketu"
-                : "Broj artikala u paketu"}
+                : "Broj proizvoda u paketu"}
             </p>
             <div
               role="radiogroup"
@@ -812,7 +812,7 @@ function TypeForm({
       </Section>
 
       <Section
-        title="Fotografije artikla"
+        title="Fotografije proizvoda"
         hint="Dodaj što više fotografija, do 7: prednju i zadnju stranu, hrbat i svako oštećenje. Oglasi sa više fotografija se brže prodaju."
         className="mt-[60px]"
         gap={34}
@@ -1022,7 +1022,7 @@ function TypeForm({
         <div className="col-span-2">
           <Field
             label="Opis"
-            info="Stanje artikla: oštećenja, tragovi korišćenja i sve što kupac treba da zna pre kupovine."
+            info="Stanje proizvoda: oštećenja, tragovi korišćenja i sve što kupac treba da zna pre kupovine."
           >
             <textarea
               name="opis"
@@ -1080,7 +1080,7 @@ function TypeForm({
         </div>
       </Section>
 
-      <Section title="Cena artikla" className="mt-[60px]" gap={28}>
+      <Section title="Cena proizvoda" className="mt-[60px]" gap={28}>
         <div className="flex gap-[24px]">
           <label
             ref={priceRef}
@@ -1106,9 +1106,7 @@ function TypeForm({
             ref={fixedRef}
             className={`flex h-[49px] items-center gap-[20px] whitespace-nowrap border px-[12px] ${fixedError ? "border-alert" : "border-transparent"}`}
           >
-            <legend className="sr-only">
-              Fiksna cena (Ne znači da cena može da se dogovori)
-            </legend>
+            <legend className="sr-only">Fiksna cena</legend>
             <span className="text-[17px] font-semibold leading-[16px] text-black">
               Fiksna cena
             </span>
@@ -1144,6 +1142,9 @@ function TypeForm({
             ))}
           </fieldset>
         </div>
+        <p className="-mt-[16px] text-[12px] leading-[1.4] text-[#737373]">
+          Ako izabereš Ne, kupci mogu da predlože drugu cenu.
+        </p>
       </Section>
 
       <div className="mt-[60px] flex items-center justify-end gap-[24px]">

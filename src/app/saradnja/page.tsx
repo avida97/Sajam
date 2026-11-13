@@ -46,7 +46,7 @@ export default function PartnersPage() {
       </div>
 
       <section className="mt-[101px] flex flex-col items-center text-center">
-        <p className="text-[16px] font-medium text-[#666]">Bez naknade za oglase i bez provizije na prodaju</p>
+        <p className="text-[16px] font-medium text-[#666]">Oglasi su trenutno bez naknade i bez provizije</p>
         <MixedTitle as="h2" className="mt-[14px]" parts={["Imate ", { serif: "ideju" }, "?"]} />
         <p className="mt-[20px] w-[480px] text-[16px] leading-[1.4] text-[#666]">
           Napišite nam ko ste i šta biste voleli da radimo zajedno. Javljamo se imejlom.

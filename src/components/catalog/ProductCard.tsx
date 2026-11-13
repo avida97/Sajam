@@ -21,7 +21,7 @@ export function ProductCard({ listing }: { listing: CatalogListing }) {
         <CardImages images={images} alt={listing.title} />
         <div className="mt-[20px] h-[62px]">
           <p className="truncate text-[14px] font-semibold text-black">
-            {listing.placeholder ? "Naziv artikla" : listing.title}
+            {listing.placeholder ? "Naziv proizvoda" : listing.title}
           </p>
           {listing.author && <p className="mt-[3px] truncate text-[13px] text-black">{listing.author}</p>}
           <p className="mt-[11px] flex items-center gap-[5px] text-[12px] text-black">

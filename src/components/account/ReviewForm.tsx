@@ -142,7 +142,7 @@ export function ReviewForm({
           onChange={(e) => setComment(e.target.value)}
           maxLength={2000}
           rows={5}
-          placeholder="Kako je prošao dogovor, slanje i da li je artikal bio kao u opisu?"
+          placeholder="Kako je prošao dogovor, slanje i da li je proizvod bio kao u opisu?"
           className={`sell-field mt-[12px] resize-none border px-[12px] py-[10px] text-[14px] leading-[1.5] focus:outline-none ${
             comment ? "border-black" : "border-[#e1e1e1]"
           }`}

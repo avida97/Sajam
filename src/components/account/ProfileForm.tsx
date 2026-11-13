@@ -31,7 +31,7 @@ async function shrink(file: File): Promise<Blob> {
 }
 
 // Podešavanja profila (ime, slika, grad, opis, rok slanja). Ekrana nema u Figmi; napravljen je
-// od polja iz forme „Prodaja artikla“ i prikazuje se na profilu i oglasima, za Ankin pregled.
+// od polja iz forme „Prodaja proizvoda“ i prikazuje se na profilu i oglasima, za Ankin pregled.
 export function ProfileForm({ initial, email }: { initial: Initial; email: string | null }) {
   const router = useRouter();
   const [avatar, setAvatar] = useState<{ file: File | null; url: string | null }>({ file: null, url: initial.avatarUrl });

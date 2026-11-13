@@ -7,7 +7,7 @@ export function plural(n: number, one: string, few: string, many: string) {
   return many;
 }
 
-/** „2 knjige“, „5 knjiga“, „1 artikal“, „3 artikla“, „7 artikala“. */
+/** „2 knjige“, „5 knjiga“, „1 proizvod“, „3 proizvoda“, „7 proizvoda“. */
 export function countLabel(n: number, book: boolean) {
-  return `${n} ${book ? plural(n, "knjiga", "knjige", "knjiga") : plural(n, "artikal", "artikla", "artikala")}`;
+  return `${n} ${book ? plural(n, "knjiga", "knjige", "knjiga") : plural(n, "proizvod", "proizvoda", "proizvoda")}`;
 }

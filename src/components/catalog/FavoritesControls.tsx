@@ -10,7 +10,7 @@ const SORTS = [
   { value: "azbucno", label: "Azbučno" },
 ];
 
-// „Kategorija“ i „Sortiraj po“ iz Figme (Omiljeni artikli): bela polja sa strelicom.
+// „Kategorija“ i „Sortiraj po“ iz Figme (Omiljeni proizvodi): bela polja sa strelicom.
 export function FavoritesControls({
   categories,
   kategorija,
