@@ -77,8 +77,8 @@ export function Hero() {
         <Dodger className="left-[110px] top-[80px]">
           <Image src="/images/pocetna/oglas.png" alt="" width={209} height={209} priority className="hero-bob" style={{ width: 170, height: "auto" }} />
         </Dodger>
-        <Dodger className="bottom-[60px] right-[120px]">
-          <Image src="/images/pocetna/prodaj.png" alt="" width={228} height={245} className="hero-bob" style={{ width: 180, height: "auto", animationDelay: "-2s" }} />
+        <Dodger className="bottom-[40px] right-[100px]">
+          <Image src="/images/pocetna/prodaj.png" alt="" width={228} height={245} className="hero-bob" style={{ width: 240, height: "auto", animationDelay: "-2s" }} />
         </Dodger>
         <Dodger className="bottom-[90px] left-[200px]">
           <Image src="/images/pocetna/profil.png" alt="" width={187} height={187} className="hero-bob" style={{ width: 110, height: "auto", animationDelay: "-3.5s" }} />
