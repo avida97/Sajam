@@ -16,33 +16,35 @@ export type MenuPanel = {
   image: string;
 };
 
-// Opisi potkategorija prepisani iz Figme, redom kao u CATEGORIES.
+// Opisi potkategorija iz Figme, redom kao u CATEGORIES. Časopisi i Lego imali su tuđe opise
+// (greška u Figmi), pa su zamenjeni (odluka V 11. 11. 2026).
 const DESCRIPTIONS: Record<string, string[]> = {
   knjige: [
+    "Romani, priče i ostala proza",
     "Knjige za najmlađe čitaoce",
-    "Tematski paketi polovnih knjiga",
-    "Retka i antikvarna polovna izdanja",
-    "Polovne knjige na stranim jezicima",
+    "Časopisi, magazini i stari brojevi",
+    "Retka i antikvarna izdanja",
+    "Knjige na stranim jezicima",
     "Literatura za stručno usavršavanje",
-    "Polovni udžbenici i školske lektire",
+    "Udžbenici i školske lektire",
   ],
   muzika: [
-    "Polovne vinil ploče za ljubitelje analognog zvuka",
+    "Vinil ploče za ljubitelje analognog zvuka",
     "Snimci koncerata i muzički filmovi",
-    "Polovni CD-ovi različitih žanrova u dobrom stanju",
+    "CD-ovi svih žanrova",
     "Muzički suveniri i merch omiljenih izvođača",
     "Kasete sa muzikom iz različitih perioda",
   ],
   igre: [
     "Igre za PC, PlayStation, Xbox i Nintendo konzole",
     "Slagalice za sve uzraste i nivoe težine",
-    "PC igre različitih žanrova i sistema",
-    "Polovne TCG karte i sličice za albume",
+    "Lego kocke, setovi i figurice",
+    "TCG karte i sličice za albume",
     "Klasične i moderne igre za druženje",
     "Retka i kolekcionarska izdanja",
   ],
   "mange-i-stripovi": [
-    "Polovne mange različitih žanrova i serijala",
+    "Mange različitih žanrova i serijala",
     "Stripovi domaćih i stranih izdavača",
     "Samostalne strip priče sa bogatim ilustracijama",
     "Retka i limitirana izdanja za kolekcionare",
@@ -60,25 +62,24 @@ const DESCRIPTIONS: Record<string, string[]> = {
 
 const HEADINGS: Record<string, { description: string; cta: string }> = {
   knjige: {
-    description: "Veliki izbor polovnih naslova za sve uzraste i različita interesovanja",
-    cta: "Pretvori stare knjige u novac uz jednostavnu i brzu prodaju",
+    description: "Naslovi za sve uzraste i interesovanja",
+    cta: "Pretvori pročitane knjige u novac",
   },
   muzika: {
-    description: "Raznovrstan izbor polovnih muzičkih izdanja za sve ukuse",
-    cta: "Unovči svoju muziku jednostavno i brzo bez komplikacija",
+    description: "Muzička izdanja za sve ukuse",
+    cta: "Ploče i CD-ovi koje više ne slušaš",
   },
   igre: {
-    description: "Raznovrstan izbor polovnih igara za sve platforme",
-    cta: "Prodaj svoje igre jednostavno i brzo bez komplikacija",
+    description: "Igre za sve platforme i društvo",
+    cta: "Prodaj igre koje više ne igraš",
   },
   "mange-i-stripovi": {
-    description:
-      "Veliki izbor polovnih mangi i stripova, od popularnih serijala do ređih izdanja",
-    cta: "Prodaj svoje mange i stripove brzo i lako uz sigurnu isplatu",
+    description: "Od popularnih serijala do ređih izdanja",
+    cta: "Mange i stripovi koji čekaju novog čitaoca",
   },
   oprema: {
-    description: "Raznovrsna polovna oprema za knjige, igre i svakodnevnu upotrebu",
-    cta: "Unovči svoju opremu brzo i sigurno uz jednostavan proces prodaje bez komplikacija",
+    description: "Oprema za muziku, igre i čitanje",
+    cta: "Oprema koja ti više ne treba",
   },
 };
 
@@ -86,6 +87,7 @@ const HEADINGS: Record<string, { description: string; cta: string }> = {
 // pa je ovde zapisan eksplicitno (leva kolona odozgo, pa desna).
 const FIGMA_ORDER: Record<string, string[]> = {
   knjige: [
+    "beletristika",
     "knjige-za-decu",
     "antikvarne-knjige",
     "strucna-literatura",
@@ -133,15 +135,15 @@ const categoryPanels: MenuPanel[] = CATEGORIES.map((cat) => {
   };
 });
 
-// „O nama“ — opisi su prepisani iz Figme kakvi jesu; neki su ponovljeni iz menija Oprema
-// i Anka treba da ih zameni.
+// „O nama“: u Figmi su opisi bili pomešani sa menijem Oprema, pa su napisani da odgovaraju
+// stranicama na koje vode (odluka V 11. 11. 2026). Redom kao ABOUT_LINKS.
 const ABOUT_DESCRIPTIONS = [
-  "Povezujemo kupce i prodavce na jednom mestu",
-  "Kontroleri, konzole, dodaci",
-  "Police, stalci, lampe za čitanje",
-  "Brzo i jednostavno postavljanje oglasa",
-  "Pojačala, zvučni sistemi",
-  "Jednostavna kupovina i prodaja bez komplikacija",
+  "Kako da pronađeš proizvod i dogovoriš kupovinu",
+  "Kako da postaviš oglas i prodaš proizvod",
+  "Šta se plaća na Sajmu",
+  "Za knjižare, izdavače i brendove koji žele da sarađuju sa nama",
+  "Odgovori na najčešća pitanja",
+  "Piši nam ako ti treba pomoć",
 ];
 
 const aboutPanel: MenuPanel = {
@@ -149,9 +151,9 @@ const aboutPanel: MenuPanel = {
   label: "O nama",
   href: "/o-nama",
   title: "O nama",
-  description: "Mesto za kupovinu i prodaju polovnih knjiga, muzike i igara",
+  description: "Mesto za kupovinu i prodaju knjiga, muzike, igara i opreme",
   items: ABOUT_LINKS.map((l, i) => ({ ...l, description: ABOUT_DESCRIPTIONS[i] })),
-  ctaText: "Saveti, preporuke i priče iz sveta knjiga, muzike, igara i kolekcionarstva",
+  ctaText: "Upoznaj Sajam: ko smo i zašto smo ga napravili",
   ctaHref: "/o-nama",
   image: "/images/nav/o-nama.jpg",
 };

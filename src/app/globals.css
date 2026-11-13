@@ -21,3 +21,19 @@ body {
   color: #000000;
   font-family: var(--font-sans);
 }
+
+/* Figma tekstove meri bez praznog prostora iznad velikih slova i ispod osnovne linije
+   („text-box-trim“). Ista klasa daje iste razmake kao u dizajnu. */
+@utility trim-cap {
+  text-box: trim-both cap alphabetic;
+}
+
+/* Forma za prodaju: popunjeno polje dobija crni okvir (kao polja u prozoru za prijavu iz Figme). */
+input.sell-field:not(:placeholder-shown),
+textarea.sell-field:not(:placeholder-shown),
+select.sell-field:not(:has(option[value=""]:checked)) {
+  border-color: #000;
+}
+.sell-field.sell-field[aria-invalid="true"] {
+  border-color: var(--color-alert);
+}

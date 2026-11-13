@@ -18,6 +18,7 @@ export const CATEGORIES: Category[] = [
     name: "Knjige",
     itemType: "knjiga",
     subcategories: [
+      { slug: "beletristika", name: "Beletristika" },
       { slug: "knjige-za-decu", name: "Knjige za decu" },
       { slug: "casopisi", name: "Časopisi" },
       { slug: "antikvarne-knjige", name: "Antikvarne knjige" },
@@ -83,12 +84,12 @@ export const ABOUT_LINKS = [
   { href: "/pomoc/kupovina", name: "O kupovini" },
   { href: "/pomoc/prodaja", name: "O prodaji" },
   { href: "/pomoc/naknade", name: "Naknade" },
-  { href: "/kontakt/mediji", name: "Mediji i novosti" },
+  { href: "/saradnja", name: "Saradnja" },
   { href: "/pomoc", name: "Pomoć" },
   { href: "/kontakt", name: "Kontakt" },
 ];
 
-// Polja forme koja nemaju smisla za određeni tip artikla (odluka 10. 11. 2026).
+// Polja forme koja nemaju smisla za određeni tip proizvoda (odluka 10. 11. 2026).
 export const HIDDEN_FIELDS: Record<ItemType, Array<"author" | "isbn" | "page_count" | "publisher">> = {
   knjiga: [],
   manga_strip: [],

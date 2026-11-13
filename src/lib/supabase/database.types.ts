@@ -116,6 +116,48 @@ isOneToOne: false
                   Relationships: [
                     
                   ]
+                },"account_blocks": {
+                  Row: {
+                    "admin_id": string | null,"blocked": boolean,"created_at": string,"id": number,"reason": string | null,"user_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "admin_id"?: string | null,"blocked": boolean,"created_at"?: string,"id"?: never,"reason"?: string | null,"user_id": string
+                  }
+                  Update: {
+                    "admin_id"?: string | null,"blocked"?: boolean,"created_at"?: string,"id"?: never,"reason"?: string | null,"user_id"?: string
+                  }
+                  Relationships: [
+                    
+                  ]
+                },"contact_requests": {
+                  Row: {
+                    "created_at": string,"email": string,"first_name": string,"id": number,"last_name": string | null,"listing_ref": string | null,"message": string,"status": string,"topics": Database["public"]['Enums']["contact_topic"][],"user_id": string | null
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "created_at"?: string,"email": string,"first_name": string,"id"?: never,"last_name"?: string | null,"listing_ref"?: string | null,"message": string,"status"?: string,"topics"?: Database["public"]['Enums']["contact_topic"][],"user_id"?: string | null
+                  }
+                  Update: {
+                    "created_at"?: string,"email"?: string,"first_name"?: string,"id"?: never,"last_name"?: string | null,"listing_ref"?: string | null,"message"?: string,"status"?: string,"topics"?: Database["public"]['Enums']["contact_topic"][],"user_id"?: string | null
+                  }
+                  Relationships: [
+                    
+                  ]
+                },"help_feedback": {
+                  Row: {
+                    "article_slug": string,"created_at": string,"helpful": boolean,"id": number
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "article_slug": string,"created_at"?: string,"helpful": boolean,"id"?: never
+                  }
+                  Update: {
+                    "article_slug"?: string,"created_at"?: string,"helpful"?: boolean,"id"?: never
+                  }
+                  Relationships: [
+                    
+                  ]
                 },"help_articles": {
                   Row: {
                     "body": string,"created_at": string,"helpful_no": number,"helpful_yes": number,"id": number,"position": number,"published": boolean,"section": Database["public"]['Enums']["help_section"],"slug": string,"title": string,"topic": string,"updated_at": string
@@ -152,14 +194,14 @@ isOneToOne: false
                   ]
                 },"listings": {
                   Row: {
-                    "attributes": NonNullable<Json>,"author": string | null,"bundle_count": number,"category_id": number,"city": string | null,"condition": Database["public"]['Enums']["item_condition"],"condition_note": string | null,"created_at": string,"description": string | null,"genre_id": number | null,"id": number,"isbn": string | null,"item_type": Database["public"]['Enums']["item_type"],"language": string | null,"page_count": number | null,"payment_methods": (Database["public"]['Enums']["payment_method"])[],"price_rsd": number,"publisher": string | null,"reserved_at": string | null,"search": unknown,"seller_id": string,"shipping_methods": (Database["public"]['Enums']["shipping_method"])[],"sold_at": string | null,"sold_to": string | null,"status": Database["public"]['Enums']["listing_status"],"status_check_sent_at": string | null,"title": string,"updated_at": string
+                    "attributes": NonNullable<Json>,"author": string | null,"bundle_count": number,"category_id": number,"city": string | null,"condition": Database["public"]['Enums']["item_condition"],"condition_note": string | null,"created_at": string,"description": string | null,"genre_id": number | null,"id": number,"isbn": string | null,"item_type": Database["public"]['Enums']["item_type"],"language": string | null,"page_count": number | null,"payment_methods": (Database["public"]['Enums']["payment_method"])[],"price_fixed": boolean | null,"price_rsd": number,"publisher": string | null,"reserved_at": string | null,"search": unknown,"seller_id": string,"shipping_methods": (Database["public"]['Enums']["shipping_method"])[],"sold_at": string | null,"sold_to": string | null,"status": Database["public"]['Enums']["listing_status"],"status_check_sent_at": string | null,"summary": string | null,"title": string,"updated_at": string
                   }
                   ComputedFields: never
                   Insert: {
-                    "attributes"?: NonNullable<Json>,"author"?: string | null,"bundle_count"?: number,"category_id": number,"city"?: string | null,"condition": Database["public"]['Enums']["item_condition"],"condition_note"?: string | null,"created_at"?: string,"description"?: string | null,"genre_id"?: number | null,"id"?: never,"isbn"?: string | null,"item_type": Database["public"]['Enums']["item_type"],"language"?: string | null,"page_count"?: number | null,"payment_methods"?: (Database["public"]['Enums']["payment_method"])[],"price_rsd": number,"publisher"?: string | null,"reserved_at"?: string | null,"search"?: never,"seller_id": string,"shipping_methods"?: (Database["public"]['Enums']["shipping_method"])[],"sold_at"?: string | null,"sold_to"?: string | null,"status"?: Database["public"]['Enums']["listing_status"],"status_check_sent_at"?: string | null,"title": string,"updated_at"?: string
+                    "attributes"?: NonNullable<Json>,"author"?: string | null,"bundle_count"?: number,"category_id": number,"city"?: string | null,"condition": Database["public"]['Enums']["item_condition"],"condition_note"?: string | null,"created_at"?: string,"description"?: string | null,"genre_id"?: number | null,"id"?: never,"isbn"?: string | null,"item_type": Database["public"]['Enums']["item_type"],"language"?: string | null,"page_count"?: number | null,"payment_methods"?: (Database["public"]['Enums']["payment_method"])[],"price_fixed"?: boolean | null,"price_rsd": number,"publisher"?: string | null,"reserved_at"?: string | null,"search"?: never,"seller_id": string,"shipping_methods"?: (Database["public"]['Enums']["shipping_method"])[],"sold_at"?: string | null,"sold_to"?: string | null,"status"?: Database["public"]['Enums']["listing_status"],"status_check_sent_at"?: string | null,"summary"?: string | null,"title": string,"updated_at"?: string
                   }
                   Update: {
-                    "attributes"?: NonNullable<Json>,"author"?: string | null,"bundle_count"?: number,"category_id"?: number,"city"?: string | null,"condition"?: Database["public"]['Enums']["item_condition"],"condition_note"?: string | null,"created_at"?: string,"description"?: string | null,"genre_id"?: number | null,"id"?: never,"isbn"?: string | null,"item_type"?: Database["public"]['Enums']["item_type"],"language"?: string | null,"page_count"?: number | null,"payment_methods"?: (Database["public"]['Enums']["payment_method"])[],"price_rsd"?: number,"publisher"?: string | null,"reserved_at"?: string | null,"search"?: never,"seller_id"?: string,"shipping_methods"?: (Database["public"]['Enums']["shipping_method"])[],"sold_at"?: string | null,"sold_to"?: string | null,"status"?: Database["public"]['Enums']["listing_status"],"status_check_sent_at"?: string | null,"title"?: string,"updated_at"?: string
+                    "attributes"?: NonNullable<Json>,"author"?: string | null,"bundle_count"?: number,"category_id"?: number,"city"?: string | null,"condition"?: Database["public"]['Enums']["item_condition"],"condition_note"?: string | null,"created_at"?: string,"description"?: string | null,"genre_id"?: number | null,"id"?: never,"isbn"?: string | null,"item_type"?: Database["public"]['Enums']["item_type"],"language"?: string | null,"page_count"?: number | null,"payment_methods"?: (Database["public"]['Enums']["payment_method"])[],"price_fixed"?: boolean | null,"price_rsd"?: number,"publisher"?: string | null,"reserved_at"?: string | null,"search"?: never,"seller_id"?: string,"shipping_methods"?: (Database["public"]['Enums']["shipping_method"])[],"sold_at"?: string | null,"sold_to"?: string | null,"status"?: Database["public"]['Enums']["listing_status"],"status_check_sent_at"?: string | null,"summary"?: string | null,"title"?: string,"updated_at"?: string
                   }
                   Relationships: [
                     {
@@ -260,7 +302,7 @@ isOneToOne: false
                   ]
                 },"profiles": {
                   Row: {
-                    "avatar_url": string | null,"bio": string | null,"city": string | null,"created_at": string,"display_name": string,"id": string,"is_admin": boolean,"ships_within_days": number | null,"updated_at": string,"username": string
+                    "avatar_url": string | null,"bio": string | null,"blocked_at": string | null,"city": string | null,"created_at": string,"display_name": string,"id": string,"is_admin": boolean,"ships_within_days": number | null,"updated_at": string,"username": string
                   }
                   ComputedFields: never
                   Insert: {
@@ -330,14 +372,14 @@ isOneToOne: false
                   ]
                 },"reviews": {
                   Row: {
-                    "comment": string | null,"created_at": string,"id": number,"listing_id": number,"rating": number,"reviewer_id": string,"seller_id": string
+                    "comment": string | null,"created_at": string,"id": number,"listing_id": number,"rating": number,"reviewer_id": string,"seller_id": string,"tags": string[]
                   }
                   ComputedFields: never
                   Insert: {
-                    "comment"?: string | null,"created_at"?: string,"id"?: never,"listing_id": number,"rating": number,"reviewer_id": string,"seller_id": string
+                    "comment"?: string | null,"created_at"?: string,"id"?: never,"listing_id": number,"rating": number,"reviewer_id": string,"seller_id": string,"tags"?: string[]
                   }
                   Update: {
-                    "comment"?: string | null,"created_at"?: string,"id"?: never,"listing_id"?: number,"rating"?: number,"reviewer_id"?: string,"seller_id"?: string
+                    "comment"?: string | null,"created_at"?: string,"id"?: never,"listing_id"?: number,"rating"?: number,"reviewer_id"?: string,"seller_id"?: string,"tags"?: string[]
                   }
                   Relationships: [
                     {
@@ -430,21 +472,52 @@ isOneToOne: false
 "f_unaccent":
 { Args: { "": string }; Returns: string
                            },
+"favorite_count":
+{ Args: { "p_listing": number }; Returns: number
+                           },
 "is_admin":
 { Args: Record<PropertyKey, never>; Returns: boolean
                            },
+"admin_set_blocked":
+{ Args: { "target": string,"block": boolean,"reason"?: string }; Returns: undefined
+                           },
+"is_blocked":
+{ Args: { "uid": string }; Returns: boolean
+                           },
+"admin_remove_listing":
+{ Args: { "p_listing": number,"p_reason"?: string }; Returns: undefined
+                           },
+"admin_resolve_report":
+{ Args: { "p_report": number,"p_status": Database["public"]["Enums"]["report_status"] }; Returns: undefined
+                           },
+"popular_authors":
+{ Args: { "p_days"?: number,"p_limit"?: number }; Returns: { "author": string,"score": number }[]
+                           },
+"record_listing_view":
+{ Args: { "p_listing": number }; Returns: undefined
+                           },
+"use_ai_summary":
+{ Args: { "p_limit"?: number }; Returns: boolean
+                           },
+"trending_listings":
+{ Args: { "p_days"?: number,"p_limit"?: number }; Returns: { "listing_id": number,"score": number }[]
+                           },
+
 "is_conversation_participant":
 { Args: { "conv": string }; Returns: boolean
                            },
 "send_status_checks":
 { Args: Record<PropertyKey, never>; Returns: number
                            },
+"username_available":
+{ Args: { "p_username": string }; Returns: boolean
+                           },
 "vote_help_article":
 { Args: { "p_article": number,"p_helpful": boolean }; Returns: undefined
                            }
           }
           Enums: {
-            "help_section": "kupovina"|"prodaja"|"nalog","item_condition": "novo"|"kao_novo"|"vrlo_dobro"|"dobro"|"zadovoljavajuce","item_type": "knjiga"|"muzika"|"igra"|"manga_strip"|"oprema","listing_status": "dostupno"|"rezervisano"|"prodato"|"uklonjen","payment_method": "tekuci_racun"|"pouzece"|"gotovina","report_status": "otvorena"|"resena"|"odbacena","shipping_method": "posta"|"licno"
+            "contact_topic": "nalog"|"kupovina"|"bezbednost"|"prodaja"|"utisci"|"drugo"|"saradnja","help_section": "kupovina"|"prodaja"|"nalog","item_condition": "novo"|"kao_novo"|"korisceno","item_type": "knjiga"|"muzika"|"igra"|"manga_strip"|"oprema","listing_status": "dostupno"|"rezervisano"|"prodato"|"uklonjen","payment_method": "tekuci_racun"|"pouzece"|"gotovina","report_status": "otvorena"|"resena"|"odbacena","shipping_method": "posta"|"licno"
           }
           CompositeTypes: {
             [_ in never]: never
@@ -560,7 +633,7 @@ export type CompositeTypes<
 export const Constants = {
   "public": {
           Enums: {
-            "help_section": ["kupovina", "prodaja", "nalog"],"item_condition": ["novo", "kao_novo", "vrlo_dobro", "dobro", "zadovoljavajuce"],"item_type": ["knjiga", "muzika", "igra", "manga_strip", "oprema"],"listing_status": ["dostupno", "rezervisano", "prodato", "uklonjen"],"payment_method": ["tekuci_racun", "pouzece", "gotovina"],"report_status": ["otvorena", "resena", "odbacena"],"shipping_method": ["posta", "licno"]
+            "contact_topic": ["nalog", "kupovina", "bezbednost", "prodaja", "utisci", "drugo", "saradnja"],"help_section": ["kupovina", "prodaja", "nalog"],"item_condition": ["novo", "kao_novo", "vrlo_dobro", "dobro", "zadovoljavajuce"],"item_type": ["knjiga", "muzika", "igra", "manga_strip", "oprema"],"listing_status": ["dostupno", "rezervisano", "prodato", "uklonjen"],"payment_method": ["tekuci_racun", "pouzece", "gotovina"],"report_status": ["otvorena", "resena", "odbacena"],"shipping_method": ["posta", "licno"]
           }
         }
 } as const

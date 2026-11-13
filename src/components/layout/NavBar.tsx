@@ -9,9 +9,13 @@ export async function NavBar() {
       user={
         user
           ? {
+              id: user.id,
               avatarUrl: user.profile?.avatar_url ?? null,
+              username: user.profile?.username ?? null,
               displayName: user.profile?.display_name ?? user.email ?? "",
               unreadNotifications: user.unreadNotifications,
+              unreadMessages: user.unreadMessages,
+              isAdmin: !!user.profile?.is_admin,
             }
           : null
       }

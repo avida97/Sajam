@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Inter, Poppins, Source_Serif_4 } from "next/font/google";
 import { NavBar } from "@/components/layout/NavBar";
 import { Footer } from "@/components/layout/Footer";
+import { AuthModal } from "@/components/auth/AuthModal";
+import { Suspense } from "react";
 import "./globals.css";
 
 const inter = Inter({
@@ -18,14 +20,14 @@ const poppins = Poppins({
 const sourceSerif = Source_Serif_4({
   variable: "--font-source-serif",
   subsets: ["latin", "latin-ext"],
-  weight: ["600"],
+  weight: ["500", "600", "700"],
   style: ["italic"],
 });
 
 export const metadata: Metadata = {
   title: "Sajam",
   description:
-    "Kupuj i prodaj polovne knjige, muziku, igre, mange, stripove i opremu.",
+    "Kupuj i prodaj knjige, muziku, igre, mange, stripove i opremu.",
 };
 
 export default function RootLayout({
@@ -42,6 +44,9 @@ export default function RootLayout({
         <NavBar />
         <main className="min-h-[50vh]">{children}</main>
         <Footer />
+        <Suspense>
+          <AuthModal />
+        </Suspense>
       </body>
     </html>
   );
