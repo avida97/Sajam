@@ -159,27 +159,11 @@ function Faq({ className = "" }: { className?: string }) {
   );
 }
 
-function ClosingCta({ className = "mt-[110px]" }: { className?: string }) {
-  return (
-    <GradientBox className={`mx-[72px] px-[60px] py-[70px] text-center ${className}`}>
-      <Title parts={["Imaš nešto što ti ", { s: "više" }, { br: true }, "ne treba?"]} size={48} />
-      <p className="mt-[20px] text-[16px] font-medium text-black/70">Neko baš to traži. Oglas objaviš za par minuta.</p>
-      <div className="mt-[28px] flex justify-center gap-[12px]">
-        <MainButton href="/prodaj" size="md">
-          Započni prodaju
-        </MainButton>
-        <MainButton href="/knjige" size="md" variant="light" className="border-white bg-white/70">
-          Pogledaj oglase
-        </MainButton>
-      </div>
-    </GradientBox>
-  );
-}
 
 // „Šta nam je važno“ (V 13. 11. 2026, predlog 2): misija kao veliki citat na gradijentu.
 function Important() {
   return (
-    <section className="mx-auto mt-[90px] max-w-site px-[72px]">
+    <section className="mx-auto mt-[120px] max-w-site px-[72px]">
       <Reveal>
         <GradientBox className="px-[100px] py-[100px] text-center" inner="flex flex-col items-center">
           <p className="text-[13px] font-semibold uppercase tracking-[2px] text-black/60">Šta nam je važno</p>
@@ -198,19 +182,18 @@ function Important() {
 }
 
 // Stranica „O nama“ (V 13. 11. 2026): elementi koje je V izabrala iz varijacija „Priče“, ovim redom:
-// naslov → šta nam je važno → zašto Sajam → kako funkcioniše → česta pitanja → ostanimo u kontaktu
-// (utisci + blog) → poziv. Bez osnivača kao osoba i bez naglaska da je Sajam besplatan.
+// naslov → zašto Sajam → šta nam je važno → kako funkcioniše → česta pitanja → Sajam pravimo zajedno.
+// Blog i poziv „Imaš nešto što ti više ne treba?“ sklonjeni (V: idu na drugu stranicu). Bez osnivača kao osoba i bez naglaska da je Sajam besplatan.
 export function AboutPage() {
   return (
-    <div className="pb-[90px] text-black">
+    <div className="pb-[110px] text-black">
       <style>{CSS}</style>
-      {/* 1. Ko smo: naslov, misija, priča */}
       <Opener />
-      <Important />
       <Why />
+      <Important />
 
-      {/* 2. Kako radi */}
-      <section className="mx-auto mt-[130px] max-w-site px-[72px]">
+      {/* Kako radi */}
+      <section className="mx-auto mt-[120px] max-w-site px-[72px]">
         <Title parts={["Kako ", { s: "funkcioniše" }]} size={44} className="text-center" />
         <div className="mt-[50px] grid grid-cols-3 gap-[20px]">
           {STEPS.map((s, i) => (
@@ -228,44 +211,23 @@ export function AboutPage() {
         </div>
       </section>
 
-      {/* 3. Pitanja */}
-      <Faq className="mt-[130px]" />
+      <Faq className="mt-[120px]" />
 
-      {/* 4. Zajednica: utisci i blog, jedno pored drugog */}
-      <section className="mx-auto mt-[130px] max-w-site px-[182px]">
-        <Title parts={["Ostanimo u ", { s: "kontaktu" }]} size={44} className="text-center" />
-        <div className="mt-[50px] grid grid-cols-2 gap-[20px]">
-          <Reveal>
-            <div className="flex h-full flex-col rounded-[20px] bg-[#f5f6f8] p-[40px]">
-              <p className="text-[13px] font-semibold uppercase tracking-[2px] text-[#7c7c7c]">Utisci i predlozi</p>
-              <h3 className="mt-[14px] text-[28px] font-semibold leading-[1.15] tracking-[-1px]">
-                Sajam pravimo <span className="font-serif text-[32px] italic">zajedno</span>
-              </h3>
-              <p className="mt-[14px] text-[15px] leading-[1.6] text-[#555]">
+      <section className="mx-auto mt-[120px] max-w-site px-[182px]">
+        <Reveal>
+          <div className="flex items-center justify-between gap-[60px] rounded-[20px] bg-[#f5f6f8] px-[56px] py-[50px]">
+            <div>
+              <Title parts={["Sajam pravimo ", { s: "zajedno" }]} size={36} />
+              <p className="mt-[14px] max-w-[560px] text-[15px] leading-[1.6] text-[#555]">
                 Fali ti kategorija, nešto ne radi kako treba ili imaš ideju? Čitamo svaku poruku.
               </p>
-              <MainButton href="/kontakt/forma?tema=utisci" size="md" className="mt-auto self-start">
-                Pošalji utisak
-              </MainButton>
             </div>
-          </Reveal>
-          <Reveal delay={120}>
-            <Link href="/blog/vinyl-se-vratio" className="group flex h-full flex-col rounded-[20px] bg-[#f5f6f8] p-[40px]">
-              <span className="text-[13px] font-semibold uppercase tracking-[2px] text-[#7c7c7c]">Sa bloga</span>
-              <span className="mt-[14px] block text-[28px] font-semibold leading-[1.15] tracking-[-1px]">
-                Vinyl se vratio: Zašto svi opet danas slušaju ploče?
-              </span>
-              <span className="relative mt-[24px] block h-[200px] overflow-hidden rounded-[14px]">
-                <Image src="/images/blog/vinil-boja.png" alt="" fill sizes="560px" className="object-cover grayscale transition-[filter] duration-300 group-hover:grayscale-0" />
-              </span>
-              <span className="mt-[18px] text-[13px] font-semibold underline-offset-4 group-hover:underline">Pročitaj →</span>
-            </Link>
-          </Reveal>
-        </div>
+            <MainButton href="/kontakt/forma?tema=utisci" size="md">
+              Pošalji utisak
+            </MainButton>
+          </div>
+        </Reveal>
       </section>
-
-      {/* 5. Poziv */}
-      <ClosingCta className="mt-[130px]" />
     </div>
   );
 }
