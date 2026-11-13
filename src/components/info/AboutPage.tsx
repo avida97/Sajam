@@ -9,9 +9,9 @@ const GRADIENT =
   "linear-gradient(90deg, rgb(136,166,222) 0%, rgb(144,165,213) 17.5%, rgb(163,180,220) 36%, rgb(164,175,216) 56%, rgb(185,188,226) 75%, rgb(197,192,231) 87.5%, rgb(205,188,236) 100%)";
 
 const STEPS = [
-  { title: "Objavi ili pronađi", body: "Prodavac objavi oglas za par minuta: skenira ISBN, a Sajam sam popuni podatke. Kupac ga nađe pretragom ili kroz kategorije.", href: "/pomoc/prodaja/kako-da-objavim-oglas", link: "Kako da objavim oglas" },
-  { title: "Dogovorite se porukama", body: "Kupac piše prodavcu, pa se zajedno dogovore o stanju, ceni, slanju i plaćanju.", href: "/pomoc/kupovina/pisanje-prodavcu", link: "Kako da pišem prodavcu" },
-  { title: "Preuzmi i oceni", body: "Kad artikal stigne, kupac oceni prodavca, da i drugi znaju kako je prošlo.", href: "/pomoc/nalog/kako-rade-ocene", link: "Kako rade ocene" },
+  { title: "Objavi ili pronađi", body: "Prodavac objavi oglas za par minuta: skenira ISBN, a Sajam sam popuni podatke. Kupac ga nađe pretragom ili kroz kategorije.", href: "/pomoc/prodaja/kako-da-objavim-oglas", link: "Kako da objavim oglas", icon: "/images/pocetna/oglas.png" },
+  { title: "Dogovorite se porukama", body: "Kupac piše prodavcu, pa se zajedno dogovore o stanju, ceni, slanju i plaćanju.", href: "/pomoc/kupovina/pisanje-prodavcu", link: "Kako da pišem prodavcu", icon: "/images/pocetna/profil.png" },
+  { title: "Preuzmi i oceni", body: "Kad artikal stigne, kupac oceni prodavca, da i drugi znaju kako je prošlo.", href: "/pomoc/nalog/kako-rade-ocene", link: "Kako rade ocene", icon: "/images/pocetna/prodaj.png" },
 ];
 
 const FAQ = [
@@ -198,14 +198,22 @@ export function AboutPage() {
         <div className="mt-[50px] grid grid-cols-3 gap-[20px]">
           {STEPS.map((s, i) => (
             <Reveal key={s.title} delay={i * 120}>
-              <GradientBox className="h-[320px]" inner="flex h-full flex-col p-[30px]">
-                <p className="font-serif text-[56px] italic leading-none text-white">0{i + 1}</p>
-                <h3 className="mt-auto text-[22px] font-semibold">{s.title}</h3>
-                <p className="mt-[10px] min-h-[67px] text-[14px] leading-[1.6] text-black/70">{s.body}</p>
-                <Link href={s.href} className="mt-[14px] text-[12px] font-semibold underline-offset-4 hover:underline">
+              <div className="group relative h-[340px] overflow-hidden rounded-[20px] bg-[#f5f6f8] p-[34px]">
+                <p className="font-serif text-[22px] italic text-[#7c7c7c]">Korak 0{i + 1}</p>
+                <h3 className="mt-[12px] text-[24px] font-semibold tracking-[-0.5px]">{s.title}</h3>
+                <p className="mt-[12px] w-[250px] text-[14px] leading-[1.6] text-[#555]">{s.body}</p>
+                <Link href={s.href} className="relative z-10 mt-[16px] inline-block text-[12px] font-semibold underline-offset-4 hover:underline">
                   {s.link} →
                 </Link>
-              </GradientBox>
+                <Image
+                  src={s.icon}
+                  alt=""
+                  width={209}
+                  height={209}
+                  className="pointer-events-none absolute -bottom-[30px] -right-[20px] transition-transform duration-500 group-hover:-rotate-12 group-hover:scale-110"
+                  style={{ width: 150, height: "auto" }}
+                />
+              </div>
             </Reveal>
           ))}
         </div>
