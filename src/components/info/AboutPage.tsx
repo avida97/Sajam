@@ -109,7 +109,7 @@ function WhyText() {
 
 function Why() {
   return (
-    <section className="mx-auto mt-[90px] grid max-w-site grid-cols-[1fr_520px] items-center gap-[80px] px-[182px]">
+    <section className="mx-auto mt-[120px] grid max-w-site grid-cols-[1fr_520px] items-center gap-[80px] px-[182px]">
       <Reveal>
         <WhyText />
       </Reveal>
@@ -176,91 +176,41 @@ function ClosingCta({ className = "mt-[110px]" }: { className?: string }) {
   );
 }
 
-// „Šta nam je važno“: mesto za knjigoljupce i knjigofile (V 13. 11. 2026). Tri predloga, ?vazno=1|2|3.
-const LOVES = ["Prvo izdanje omiljenog romana", "Ploča koja se godinama traži", "Strip koji fali u kolekciji", "Igra za sledeće druženje"];
-
-function Important({ variant }: { variant: number }) {
-  if (variant === 2)
-    return (
-      <section className="mx-auto mt-[120px] max-w-site px-[72px]">
-        <Reveal>
-          <GradientBox className="px-[100px] py-[100px] text-center" inner="flex flex-col items-center">
-            <p className="text-[13px] font-semibold uppercase tracking-[2px] text-black/60">Šta nam je važno</p>
-            <p className="mt-[28px] max-w-[900px] text-[44px] font-semibold leading-[1.15] tracking-[-2px]">
-              Da <span className="font-serif text-[50px] italic">knjigoljupci</span> i{" "}
-              <span className="font-serif text-[50px] italic">knjigofili</span> imaju svoje mesto na internetu.
-            </p>
-            <p className="mt-[28px] max-w-[620px] text-[16px] leading-[1.7] text-black/70">
-              Mesto gde se ne prodaje roba, nego stvari koje nekome nešto znače, i gde je sa druge strane uvek neko ko ih
-              voli isto koliko i ti.
-            </p>
-          </GradientBox>
-        </Reveal>
-      </section>
-    );
-  if (variant === 3)
-    return (
-      <section className="mx-auto mt-[120px] grid max-w-site grid-cols-[520px_1fr] items-center gap-[80px] px-[182px]">
-        <Reveal>
-          <div className="relative h-[460px] overflow-hidden rounded-[20px]">
-            <Image src="/images/nav/knjige.jpg" alt="Police sa knjigama" fill sizes="520px" className="object-cover" />
-          </div>
-        </Reveal>
-        <Reveal delay={150}>
-          <p className="text-[13px] font-semibold uppercase tracking-[2px] text-[#7c7c7c]">Šta nam je važno</p>
-          <Title className="mt-[18px]" size={44} parts={["Mesto za ", { s: "knjigoljupce" }, { br: true }, "i ", { s: "knjigofile" }]} />
-          <p className="mt-[22px] text-[16px] leading-[1.7] text-[#444]">
-            Za one koji listaju knjige u antikvarnicama, pamte izdavače i znaju koliko vredi dobro očuvan primerak. Sajam
-            je njihovo mesto na internetu, kao i svih koji tako vole ploče, igre i stripove.
-          </p>
-          <ul className="mt-[26px] flex flex-col gap-[10px]">
-            {LOVES.slice(0, 3).map((l) => (
-              <li key={l} className="flex items-center gap-[12px] text-[15px] font-medium">
-                <span className="size-[8px] shrink-0 rounded-full bg-[#a4afd8]" />
-                {l}
-              </li>
-            ))}
-          </ul>
-        </Reveal>
-      </section>
-    );
+// „Šta nam je važno“ (V 13. 11. 2026, predlog 2): misija kao veliki citat na gradijentu.
+function Important() {
   return (
-    <section className="mx-auto mt-[130px] max-w-[1000px] px-[24px] text-center">
+    <section className="mx-auto mt-[90px] max-w-site px-[72px]">
       <Reveal>
-        <p className="text-[13px] font-semibold uppercase tracking-[2px] text-[#7c7c7c]">Šta nam je važno</p>
-        <Title
-          className="mt-[24px]"
-          size={52}
-          parts={["Da ", { s: "knjigoljupci" }, " i ", { s: "knjigofili" }, { br: true }, "imaju svoje mesto na internetu"]}
-        />
-        <p className="mx-auto mt-[26px] max-w-[620px] text-[16px] leading-[1.7] text-[#555]">
-          Ovde se ne prodaje roba, nego stvari koje nekome nešto znače:
-        </p>
+        <GradientBox className="px-[100px] py-[100px] text-center" inner="flex flex-col items-center">
+          <p className="text-[13px] font-semibold uppercase tracking-[2px] text-black/60">Šta nam je važno</p>
+          <p className="mt-[28px] max-w-[900px] text-[44px] font-semibold leading-[1.15] tracking-[-2px]">
+            Da <span className="font-serif text-[50px] italic">knjigoljupci</span> i{" "}
+            <span className="font-serif text-[50px] italic">knjigofili</span> imaju svoje mesto na internetu.
+          </p>
+          <p className="mt-[28px] max-w-[620px] text-[16px] leading-[1.7] text-black/70">
+            Mesto gde se ne prodaje roba, nego stvari koje nekome nešto znače, i gde je sa druge strane uvek neko ko ih
+            voli isto koliko i ti.
+          </p>
+        </GradientBox>
       </Reveal>
-      <div className="mx-[-100px] mt-[30px] flex flex-wrap justify-center gap-[10px]">
-        {LOVES.map((l, i) => (
-          <Reveal key={l} delay={i * 100}>
-            <span className="inline-block rounded-full border border-[#e1e1e1] px-[20px] py-[12px] font-serif text-[18px] italic transition-colors hover:border-black hover:bg-black hover:text-white">
-              {l}
-            </span>
-          </Reveal>
-        ))}
-      </div>
     </section>
   );
 }
 
 // Stranica „O nama“ (V 13. 11. 2026): elementi koje je V izabrala iz varijacija „Priče“, ovim redom:
-// priča → šta nam je važno → kako funkcioniše (3 koraka u gradijentnim karticama) → česta pitanja → blog →
-// Sajam pravimo zajedno → poziv. Bez osnivača kao osoba i bez naglaska da je Sajam besplatan.
-export function AboutPage({ vazno = 1 }: { vazno?: number }) {
+// naslov → šta nam je važno → zašto Sajam → kako funkcioniše → česta pitanja → ostanimo u kontaktu
+// (utisci + blog) → poziv. Bez osnivača kao osoba i bez naglaska da je Sajam besplatan.
+export function AboutPage() {
   return (
     <div className="pb-[90px] text-black">
       <style>{CSS}</style>
+      {/* 1. Ko smo: naslov, misija, priča */}
       <Opener />
+      <Important />
       <Why />
-      <Important variant={vazno} />
-      <section className="mx-auto mt-[120px] max-w-site px-[72px]">
+
+      {/* 2. Kako radi */}
+      <section className="mx-auto mt-[130px] max-w-site px-[72px]">
         <Title parts={["Kako ", { s: "funkcioniše" }]} size={44} className="text-center" />
         <div className="mt-[50px] grid grid-cols-3 gap-[20px]">
           {STEPS.map((s, i) => (
@@ -277,37 +227,45 @@ export function AboutPage({ vazno = 1 }: { vazno?: number }) {
           ))}
         </div>
       </section>
-      <Faq className="mt-[120px]" />
-      <section className="mx-auto mt-[120px] max-w-site px-[182px]">
-        <Reveal>
-          <Link href="/blog/vinyl-se-vratio" className="group grid grid-cols-[520px_1fr] items-center gap-[60px]">
-            <span className="relative block h-[300px] overflow-hidden rounded-[20px]">
-              <Image src="/images/blog/vinil-boja.png" alt="" fill sizes="520px" className="object-cover grayscale transition-[filter] duration-300 group-hover:grayscale-0" />
-            </span>
-            <span>
-              <span className="text-[13px] font-semibold uppercase tracking-[2px] text-[#7c7c7c]">Sa bloga</span>
-              <span className="mt-[14px] block text-[30px] font-semibold leading-[1.15] tracking-[-1px]">Vinyl se vratio: Zašto svi opet danas slušaju ploče?</span>
-              <span className="mt-[16px] inline-block text-[13px] font-semibold underline-offset-4 group-hover:underline">Pročitaj →</span>
-            </span>
-          </Link>
-        </Reveal>
-      </section>
-      <section className="mx-auto mt-[120px] max-w-site px-[182px]">
-        <Reveal>
-          <div className="flex items-center justify-between gap-[60px] rounded-[20px] bg-[#f5f6f8] px-[56px] py-[50px]">
-            <div>
-              <Title parts={["Sajam pravimo ", { s: "zajedno" }]} size={36} />
-              <p className="mt-[14px] max-w-[560px] text-[15px] leading-[1.6] text-[#555]">
-                Fali ti kategorija, nešto ne radi kako treba ili imaš ideju? Pišemo i čitamo svaku poruku.
+
+      {/* 3. Pitanja */}
+      <Faq className="mt-[130px]" />
+
+      {/* 4. Zajednica: utisci i blog, jedno pored drugog */}
+      <section className="mx-auto mt-[130px] max-w-site px-[182px]">
+        <Title parts={["Ostanimo u ", { s: "kontaktu" }]} size={44} className="text-center" />
+        <div className="mt-[50px] grid grid-cols-2 gap-[20px]">
+          <Reveal>
+            <div className="flex h-full flex-col rounded-[20px] bg-[#f5f6f8] p-[40px]">
+              <p className="text-[13px] font-semibold uppercase tracking-[2px] text-[#7c7c7c]">Utisci i predlozi</p>
+              <h3 className="mt-[14px] text-[28px] font-semibold leading-[1.15] tracking-[-1px]">
+                Sajam pravimo <span className="font-serif text-[32px] italic">zajedno</span>
+              </h3>
+              <p className="mt-[14px] text-[15px] leading-[1.6] text-[#555]">
+                Fali ti kategorija, nešto ne radi kako treba ili imaš ideju? Čitamo svaku poruku.
               </p>
+              <MainButton href="/kontakt/forma?tema=utisci" size="md" className="mt-auto self-start">
+                Pošalji utisak
+              </MainButton>
             </div>
-            <MainButton href="/kontakt/forma?tema=utisci" size="md">
-              Pošalji utisak
-            </MainButton>
-          </div>
-        </Reveal>
+          </Reveal>
+          <Reveal delay={120}>
+            <Link href="/blog/vinyl-se-vratio" className="group flex h-full flex-col rounded-[20px] bg-[#f5f6f8] p-[40px]">
+              <span className="text-[13px] font-semibold uppercase tracking-[2px] text-[#7c7c7c]">Sa bloga</span>
+              <span className="mt-[14px] block text-[28px] font-semibold leading-[1.15] tracking-[-1px]">
+                Vinyl se vratio: Zašto svi opet danas slušaju ploče?
+              </span>
+              <span className="relative mt-[24px] block h-[200px] overflow-hidden rounded-[14px]">
+                <Image src="/images/blog/vinil-boja.png" alt="" fill sizes="560px" className="object-cover grayscale transition-[filter] duration-300 group-hover:grayscale-0" />
+              </span>
+              <span className="mt-[18px] text-[13px] font-semibold underline-offset-4 group-hover:underline">Pročitaj →</span>
+            </Link>
+          </Reveal>
+        </div>
       </section>
-      <ClosingCta />
+
+      {/* 5. Poziv */}
+      <ClosingCta className="mt-[130px]" />
     </div>
   );
 }
