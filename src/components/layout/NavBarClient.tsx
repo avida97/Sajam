@@ -47,7 +47,7 @@ export function NavBarClient({ user: initial }: { user: NavUser }) {
   }, [open]);
 
   return (
-    <header ref={ref} className="relative z-40" onMouseLeave={() => setOpen(null)}>
+    <header ref={ref} className="sticky top-0 z-40" onMouseLeave={() => setOpen(null)}>
       {/* 1. red: pretraga, jezik, logo, ikonice, dugme */}
       <div className="h-[59px] border-b-[0.7px] border-line bg-white" onMouseEnter={() => open && closeSoon()}>
         <div className="relative mx-auto flex h-full max-w-site items-center px-[72px]">
