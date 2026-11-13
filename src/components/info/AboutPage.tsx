@@ -14,12 +14,6 @@ const STEPS = [
   { title: "Preuzmi i oceni", body: "Kad artikal stigne, kupac oceni prodavca, da i drugi znaju kako je prošlo.", href: "/pomoc/nalog/kako-rade-ocene", link: "Kako rade ocene" },
 ];
 
-const VALUES = [
-  { title: "Mesto za knjigoljupce", body: "Sajam je napravljen za one koji vole knjige: za knjigofile koji čuvaju stara izdanja, traže baš određeni prevod i znaju koliko vredi dobro očuvan primerak. Isto važi i za ploče, igre i stripove." },
-  { title: "Svaka knjiga zaslužuje čitaoca", body: "Pročitana knjiga na polici samo čeka. Ovde nalazi nekoga ko će je ponovo otvoriti, umesto da završi u podrumu." },
-  { title: "Ljudi, ne samo oglasi", body: "Iza svakog oglasa je neko ko voli isto što i ti. Zato se na Sajmu razgovara direktno, a ocene pomažu da se zna kome se može verovati." },
-];
-
 const FAQ = [
   { q: "Šta mogu da prodam na Sajmu?", a: "Polovne i nove knjige, muziku, igre, mange i stripove i opremu za te hobije. Oglas mora da opisuje stvaran artikal koji imaš.", href: "/pomoc/prodaja/kako-da-objavim-oglas" },
   { q: "Kako se plaća?", a: "Način plaćanja dogovaraš sa prodavcem: pouzećem, uplatom na račun ili gotovinom pri preuzimanju.", href: "/pomoc/kupovina/kako-se-placa" },
@@ -182,33 +176,90 @@ function ClosingCta({ className = "mt-[110px]" }: { className?: string }) {
   );
 }
 
+// „Šta nam je važno“: mesto za knjigoljupce i knjigofile (V 13. 11. 2026). Tri predloga, ?vazno=1|2|3.
+const LOVES = ["Prvo izdanje omiljenog romana", "Ploča koja se godinama traži", "Strip koji fali u kolekciji", "Igra za sledeće druženje"];
+
+function Important({ variant }: { variant: number }) {
+  if (variant === 2)
+    return (
+      <section className="mx-auto mt-[120px] max-w-site px-[72px]">
+        <Reveal>
+          <GradientBox className="px-[100px] py-[100px] text-center" inner="flex flex-col items-center">
+            <p className="text-[13px] font-semibold uppercase tracking-[2px] text-black/60">Šta nam je važno</p>
+            <p className="mt-[28px] max-w-[900px] text-[44px] font-semibold leading-[1.15] tracking-[-2px]">
+              Da <span className="font-serif text-[50px] italic">knjigoljupci</span> i{" "}
+              <span className="font-serif text-[50px] italic">knjigofili</span> imaju svoje mesto na internetu.
+            </p>
+            <p className="mt-[28px] max-w-[620px] text-[16px] leading-[1.7] text-black/70">
+              Mesto gde se ne prodaje roba, nego stvari koje nekome nešto znače, i gde je sa druge strane uvek neko ko ih
+              voli isto koliko i ti.
+            </p>
+          </GradientBox>
+        </Reveal>
+      </section>
+    );
+  if (variant === 3)
+    return (
+      <section className="mx-auto mt-[120px] grid max-w-site grid-cols-[520px_1fr] items-center gap-[80px] px-[182px]">
+        <Reveal>
+          <div className="relative h-[460px] overflow-hidden rounded-[20px]">
+            <Image src="/images/nav/knjige.jpg" alt="Police sa knjigama" fill sizes="520px" className="object-cover" />
+          </div>
+        </Reveal>
+        <Reveal delay={150}>
+          <p className="text-[13px] font-semibold uppercase tracking-[2px] text-[#7c7c7c]">Šta nam je važno</p>
+          <Title className="mt-[18px]" size={44} parts={["Mesto za ", { s: "knjigoljupce" }, { br: true }, "i ", { s: "knjigofile" }]} />
+          <p className="mt-[22px] text-[16px] leading-[1.7] text-[#444]">
+            Za one koji listaju knjige u antikvarnicama, pamte izdavače i znaju koliko vredi dobro očuvan primerak. Sajam
+            je njihovo mesto na internetu, kao i svih koji tako vole ploče, igre i stripove.
+          </p>
+          <ul className="mt-[26px] flex flex-col gap-[10px]">
+            {LOVES.slice(0, 3).map((l) => (
+              <li key={l} className="flex items-center gap-[12px] text-[15px] font-medium">
+                <span className="size-[8px] shrink-0 rounded-full bg-[#a4afd8]" />
+                {l}
+              </li>
+            ))}
+          </ul>
+        </Reveal>
+      </section>
+    );
+  return (
+    <section className="mx-auto mt-[130px] max-w-[1000px] px-[24px] text-center">
+      <Reveal>
+        <p className="text-[13px] font-semibold uppercase tracking-[2px] text-[#7c7c7c]">Šta nam je važno</p>
+        <Title
+          className="mt-[24px]"
+          size={52}
+          parts={["Da ", { s: "knjigoljupci" }, " i ", { s: "knjigofili" }, { br: true }, "imaju svoje mesto na internetu"]}
+        />
+        <p className="mx-auto mt-[26px] max-w-[620px] text-[16px] leading-[1.7] text-[#555]">
+          Ovde se ne prodaje roba, nego stvari koje nekome nešto znače:
+        </p>
+      </Reveal>
+      <div className="mx-[-100px] mt-[30px] flex flex-wrap justify-center gap-[10px]">
+        {LOVES.map((l, i) => (
+          <Reveal key={l} delay={i * 100}>
+            <span className="inline-block rounded-full border border-[#e1e1e1] px-[20px] py-[12px] font-serif text-[18px] italic transition-colors hover:border-black hover:bg-black hover:text-white">
+              {l}
+            </span>
+          </Reveal>
+        ))}
+      </div>
+    </section>
+  );
+}
+
 // Stranica „O nama“ (V 13. 11. 2026): elementi koje je V izabrala iz varijacija „Priče“, ovim redom:
 // priča → šta nam je važno → kako funkcioniše (3 koraka u gradijentnim karticama) → česta pitanja → blog →
 // Sajam pravimo zajedno → poziv. Bez osnivača kao osoba i bez naglaska da je Sajam besplatan.
-export function AboutPage() {
+export function AboutPage({ vazno = 1 }: { vazno?: number }) {
   return (
     <div className="pb-[90px] text-black">
       <style>{CSS}</style>
       <Opener />
       <Why />
-      <section className="mx-auto mt-[120px] grid max-w-site grid-cols-[360px_1fr] gap-[80px] px-[182px]">
-        <Reveal>
-          <Title parts={["Šta nam je ", { s: "važno" }]} size={44} />
-          <p className="mt-[16px] text-[15px] leading-[1.6] text-[#666]">
-            Da ljubitelji knjiga imaju svoje mesto na internetu.
-          </p>
-        </Reveal>
-        <div className="border-t border-[#e1e1e1]">
-          {VALUES.map((v, i) => (
-            <Reveal key={v.title} delay={i * 120}>
-              <div className="grid grid-cols-[260px_1fr] gap-[40px] border-b border-[#e1e1e1] py-[30px]">
-                <h3 className="font-serif text-[24px] italic leading-[1.2]">{v.title}</h3>
-                <p className="text-[15px] leading-[1.7] text-[#555]">{v.body}</p>
-              </div>
-            </Reveal>
-          ))}
-        </div>
-      </section>
+      <Important variant={vazno} />
       <section className="mx-auto mt-[120px] max-w-site px-[72px]">
         <Title parts={["Kako ", { s: "funkcioniše" }]} size={44} className="text-center" />
         <div className="mt-[50px] grid grid-cols-3 gap-[20px]">
